@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Photos - HotOrNot</title>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #ffffff;
+            color: #2d2d2d;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+            /* Space for mobile bottom nav */
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
+            }
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: linear-gradient(135deg, #FFF5F0 0%, #FFE8F0 50%, #FFF0F5 100%);
+        }
+
+        .bg-gradient::before,
+        .bg-gradient::after,
+        .bg-gradient span {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+        }
+
+        .bg-gradient::before {
+            width: 600px;
+            height: 600px;
+            background: rgba(250, 130, 49, 0.15);
+            animation: float1 20s ease-in-out infinite;
+        }
+
+        .bg-gradient::after {
+            width: 700px;
+            height: 700px;
+            background: rgba(255, 107, 157, 0.12);
+            animation: float2 25s ease-in-out infinite;
+        }
+
+        .bg-gradient span {
+            width: 500px;
+            height: 500px;
+            background: rgba(249, 127, 81, 0.1);
+            animation: float3 18s ease-in-out infinite;
+        }
+
+        @keyframes float1 {
+
+            0%,
+            100% {
+                transform: translate(10vw, 20vh) scale(1);
+            }
+
+            25% {
+                transform: translate(60vw, 70vh) scale(1.3);
+            }
+
+            50% {
+                transform: translate(80vw, 30vh) scale(0.9);
+            }
+
+            75% {
+                transform: translate(30vw, 80vh) scale(1.2);
+            }
+        }
+
+        @keyframes float2 {
+
+            0%,
+            100% {
+                transform: translate(70vw, 60vh) scale(1);
+            }
+
+            33% {
+                transform: translate(20vw, 20vh) scale(1.4);
+            }
+
+            66% {
+                transform: translate(50vw, 80vh) scale(0.8);
+            }
+        }
+
+        @keyframes float3 {
+
+            0%,
+            100% {
+                transform: translate(40vw, 10vh) scale(1);
+            }
+
+            30% {
+                transform: translate(10vw, 70vh) scale(1.3);
+            }
+
+            60% {
+                transform: translate(75vw, 50vh) scale(0.9);
+            }
+
+            90% {
+                transform: translate(55vw, 15vh) scale(1.2);
+            }
+        }
+
+        /* Desktop Navigation */
+        .navbar-desktop {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(250, 130, 49, 0.2);
+            box-shadow: 0 4px 20px rgba(250, 130, 49, 0.1);
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .navbar-desktop {
+                display: block !important;
+            }
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .logo-hot {
+            background: linear-gradient(135deg, #FA8231 0%, #F97F51 50%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-not {
+            color: #FF6B9D;
+        }
+
+        .nav-link {
+            color: #555 !important;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            margin: 0 0.5rem;
+        }
+
+        .nav-link:hover {
+            color: #FA8231 !important;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            color: #FA8231 !important;
+        }
+
+        .btn-neon {
+            background: linear-gradient(135deg, #FA8231 0%, #F97F51 50%, #FF6B9D 100%);
+            color: white;
+            border: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(250, 130, 49, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-neon:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(250, 130, 49, 0.6);
+            color: white;
+        }
+
+        /* Mobile Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-top: 2px solid rgba(250, 130, 49, 0.2);
+            box-shadow: 0 -4px 20px rgba(250, 130, 49, 0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 0;
+            height: 70px;
+        }
+
+        @media (min-width: 768px) {
+            .bottom-nav {
+                display: none;
+            }
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #888;
+            transition: all 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 12px;
+            min-width: 60px;
+        }
+
+        .bottom-nav-item i {
+            font-size: 24px;
+            margin-bottom: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .bottom-nav-item span {
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .bottom-nav-item.active {
+            color: #FA8231;
+        }
+
+        .bottom-nav-item.active i {
+            transform: scale(1.1);
+        }
+
+        .bottom-nav-item:hover {
+            color: #FA8231;
+            background: rgba(250, 130, 49, 0.1);
+        }
+
+        /* Logo for mobile (top-left corner) */
+        .mobile-logo {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 999;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            display: block;
+        }
+
+        @media (min-width: 768px) {
+            .mobile-logo {
+                display: none;
+            }
+        }
+
+        .main-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        @media (max-width: 767px) {
+            .main-container {
+                padding-top: 10px;
+            }
+        }
+
+
+
+
+
+
+
+        @keyframes sparkle {
+
+            0%,
+            100% {
+                opacity: 0.8;
+                filter: blur(8px) brightness(1);
+            }
+
+            50% {
+                opacity: 1;
+                filter: blur(12px) brightness(1.3);
+            }
+        }
+
+
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                opacity: 0.6;
+                transform: translate(50%, -50%) scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translate(50%, -50%) scale(1.3);
+            }
+        }
+
+
+
+
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease;
+        }
+
+        .popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 248, 240, 0.95));
+            padding: 40px 60px;
+            border-radius: 25px;
+            text-align: center;
+            color: #2d2d2d;
+            box-shadow: 0 10px 50px rgba(250, 130, 49, 0.4);
+            border: 3px solid rgba(250, 130, 49, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: popupScale 0.6s ease-out;
+        }
+
+        @keyframes popupScale {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .badge-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #FA8231, #F97F51, #FF6B9D);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 0 40px rgba(250, 130, 49, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        .badge-text {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .shine {
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+            transform: skewX(-25deg);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -75%;
+            }
+
+            100% {
+                left: 125%;
+            }
+        }
+
+        .points-earned {
+            font-size: 1.2em;
+            margin-top: 15px;
+            color: #FA8231;
+            font-weight: 700;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 32px;
+            color: #999;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 1001;
+        }
+
+        .close-btn:hover {
+            color: #FA8231;
+            transform: rotate(90deg);
+        }
+
+        @media (max-width: 576px) {
+
+
+            .popup {
+                padding: 30px 40px;
+            }
+
+            .badge {
+                width: 100px;
+                height: 100px;
+            }
+
+            .badge-text {
+                font-size: 2em;
+            }
+        }
+
+
+
+        /* Tabs in mobile view */
+
+        /* Make tab buttons mobile-friendly */
+        .crush-tabs button {
+            font-size: 14px;
+            padding: 10px 6px;
+            white-space: nowrap;
+        }
+
+        /* Allow horizontal scrolling on small devices */
+        .crush-tabs {
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Remove scrollbar */
+        .crush-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Mobile: reduce titles */
+        @media (max-width: 480px) {
+            .crush-tabs button {
+                font-size: 13px;
+                padding: 5px;
+            }
+        }
+
+        /* Wheel CSS starts here    */
+        #result {
+            margin-bottom: 5px;
+            position: absolute;
+            top: 10px;
+            color: yellowgreen;
+            font-weight: 900;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        h3 {
+            margin-bottom: 20px;
+            position: absolute;
+            top: 100px;
+            color: #ff1f1f;
+            font-weight: 1000;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            font-size: x-large;
+            display: none;
+        }
+
+        .main {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        .wheel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 10px solid gold;
+            overflow: hidden;
+            transition: transform 4s ease-out;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.7);
+        }
+
+        .pointer {
+            position: absolute;
+            top: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 50px solid khaki;
+            z-index: 10;
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
+        }
+
+        .slice {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+
+        .c1 {
+            background: #ff1f1f;
+        }
+
+        .c2 {
+            background: #19e3cf;
+        }
+
+        .c3 {
+            background: #9e0bf3;
+        }
+
+        .c4 {
+            background: #15b600;
+        }
+
+        .c5 {
+            background: #ffb700;
+        }
+
+        .c6 {
+            background: #ff5a5a;
+        }
+
+        .c7 {
+            background: #57fff1;
+        }
+
+        .c8 {
+            background: #ff9612;
+        }
+
+        .label {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center;
+        }
+
+        .label span {
+            position: absolute;
+            top: 22%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 26px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 6px #000;
+            pointer-events: none;
+        }
+
+        .spin {
+            position: absolute;
+            top: 43%;
+            left: 43%;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: solid 2px #fff;
+            background-color: gold;
+            color: #000;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
+            z-index: 5;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        a {
+            margin-top: 25px;
+            color: #ffd700;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        /* === Celebration Effects === */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ffd700;
+            animation: confetti-fall 3s linear;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .firework {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: firework-burst 1s ease-out forwards;
+        }
+
+        @keyframes firework-burst {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--x), var(--y));
+                opacity: 0;
+            }
+        }
+
+        .celebration-text {
+            position: fixed;
+            font-size: 70px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+            animation: celebration-pop 2s ease-out forwards;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes celebration-pop {
+            0% {
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2) rotate(5deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg) translateY(-50px);
+                opacity: 0;
+            }
+        }
+
+        .points-shower {
+            position: fixed;
+            font-size: 30px;
+            font-weight: bold;
+            animation: points-fall 2s linear forwards;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        @keyframes points-fall {
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* wheel Css ends here  */
+    </style>
+</head>
+
+<body>
+    <div class="bg-gradient">
+        <span></span>
+    </div>
+
+    <!-- Mobile Logo (top-left corner) -->
+    <a href="#" class="mobile-logo">
+        <span class="logo-hot">Hot</span><span class="logo-not">Or</span><span class="logo-hot">Not</span>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav class="navbar-desktop navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="#">
+                <span class="logo-hot">Hot</span><span class="logo-not">Or</span><span class="logo-hot">Not</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/rating">Rate</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/add-new-post">Add Post</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/user/games">Games</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/mutual-crush">Mutual Crush</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                        <a href="/logout" class="btn btn-neon btn-sm rounded-pill px-4">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="/user/rating" class="bottom-nav-item">
+            <i class="bi bi-fire"></i>
+            <span>Rate</span>
+        </a>
+        <a href="/user/games" class="bottom-nav-item active">
+            <i class="bi bi-controller"></i>
+            <span>Games</span>
+        </a>
+        <a href="/user/add-new-post" class="bottom-nav-item">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Add Post</span>
+        </a>
+        <a href="/user/mutual-crush" class="bottom-nav-item">
+            <i class="bi bi-heart-fill"></i>
+            <span>Crush</span>
+        </a>
+        <a href="/user/dashboard" class="bottom-nav-item">
+            <i class="bi bi-house-door-fill"></i>
+            <span>Dashboard</span>
+        </a>
+    </nav>
+    <div class="main-container">
+        <!--Tab section -->
+        <div class="card shadow-sm p-3 rounded-4">
+            <!-- RESPONSIVE TAB HEADERS -->
+            <ul class="nav nav-tabs nav-fill mb-3 crush-tabs" id="crushTab" role="tablist"
+                style="display:flex; gap:6px;">
+
+                <li class="nav-item flex-fill" role="presentation">
+                    <button class="nav-link active fw-bold text-danger" id="whisper-tab" data-bs-toggle="tab"
+                        data-bs-target="#wheel1" type="button" role="tab">Wheel</button>
+                </li>
+
+                <li class="nav-item flex-fill" role="presentation">
+                    <button class="nav-link fw-bold text-danger" id="mutual-tab" data-bs-toggle="tab"
+                        data-bs-target="#casino" type="button" role="tab">Casino</button>
+                </li>
+            </ul>
+            <!-- TAB CONTENT -->
+            <div class="tab-content" id="gamesTabContent">
+                <!-- Wheel CRUSHES -->
+                <div class="tab-pane fade show active" id="wheel1" role="tabpanel">
+                    <div id="result" style="
+    font-size: 26px;
+    font-weight: bold;
+    color: #FFD700;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 6px #000;">
+                    </div>
+
+                    <div class="main">
+                        <div class="pointer"></div>
+                        <div id="wheel" class="wheel">
+                            <div class="slice c1" style="transform: rotate(0deg) skewY(-45deg);"></div>
+                            <div class="slice c2" style="transform: rotate(45deg) skewY(-45deg);"></div>
+                            <div class="slice c3" style="transform: rotate(90deg) skewY(-45deg);"></div>
+                            <div class="slice c4" style="transform: rotate(135deg) skewY(-45deg);"></div>
+                            <div class="slice c5" style="transform: rotate(180deg) skewY(-45deg);"></div>
+                            <div class="slice c6" style="transform: rotate(225deg) skewY(-45deg);"></div>
+                            <div class="slice c7" style="transform: rotate(270deg) skewY(-45deg);"></div>
+                            <div class="slice c8" style="transform: rotate(315deg) skewY(-45deg);"></div>
+
+                            <div class="label" style="transform: rotate(22.5deg);"><span>5</span></div>
+                            <div class="label" style="transform: rotate(67.5deg);"><span>10</span></div>
+                            <div class="label" style="transform: rotate(112.5deg);"><span>Free</span></div>
+                            <div class="label" style="transform: rotate(157.5deg);"><span>20</span></div>
+                            <div class="label" style="transform: rotate(202.5deg);"><span>30</span></div>
+                            <div class="label" style="transform: rotate(247.5deg);"><span>50</span></div>
+                            <div class="label" style="transform: rotate(292.5deg);"><span>Free</span></div>
+                            <div class="label" style="transform: rotate(337.5deg);"><span>0</span></div>
+                        </div>
+                        <button class="spin" id="spinBtn" onclick="letsSpin()">SPIN</button>
+                    </div>
+
+                    <div id="result1" style="
+    margin: 10;
+    font-size: 26px;
+    font-weight: bold;
+    color: #FFD700;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 6px #000;">
+                    </div>
+                </div>
+                <!-- Casino PART -->
+                <div class="tab-pane fade show " id="casino" role="tabpanel">
+
+                    <p>Casino part</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup">
+            <button class="close-btn" onclick="closePopup()">&times;</button>
+
+            <div class="badge-wrapper">
+                <div class="badge">
+                    <div class="shine"></div>
+                    <div class="badge-text">+<span id="badgePoints">50</span></div>
+                </div>
+            </div>
+
+            <div class="points-earned" style="font-size:13px;"><span id="pointsText">You earned 50 points!</span></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+
+        // Active nav state management for mobile
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentPath = window.location.pathname;
+            const navItems = document.querySelectorAll('.bottom-nav-item');
+
+            navItems.forEach(item => {
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+    <!--Wheel JS-->
+    <script>
+        const rewardOptions = [5, 10, "free", 20, 30, 50, "free", 0];
+        const segmentAngle = 360 / rewardOptions.length;
+        let spinning = false;
+
+        function createConfetti() {
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.top = '-10px';
+                    confetti.style.background = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#AA96DA', '#F38181', '#95E1D3'][Math.floor(Math.random() * 6)];
+                    confetti.style.width = (Math.random() * 10 + 5) + 'px';
+                    confetti.style.height = (Math.random() * 10 + 5) + 'px';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 20);
+            }
+        }
+
+        function createFireworks() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#AA96DA', '#F38181', '#95E1D3'];
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const x = Math.random() * window.innerWidth;
+                    const y = Math.random() * (window.innerHeight * 0.5);
+                    for (let j = 0; j < 30; j++) {
+                        const firework = document.createElement('div');
+                        firework.className = 'firework';
+                        firework.style.left = x + 'px';
+                        firework.style.top = y + 'px';
+                        firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        const angle = (Math.PI * 2 * j) / 30;
+                        const velocity = 50 + Math.random() * 100;
+                        firework.style.setProperty('--x', Math.cos(angle) * velocity + 'px');
+                        firework.style.setProperty('--y', Math.sin(angle) * velocity + 'px');
+                        document.body.appendChild(firework);
+                        setTimeout(() => firework.remove(), 1000);
+                    }
+                }, i * 300);
+            }
+        }
+
+        function createCelebrationText() {
+            const messages = ['🎉 AMAZING! 🎉', '⭐ FANTASTIC! ⭐', '🔥 ON FIRE! 🔥', '💫 SPECTACULAR! 💫', '🎊 INCREDIBLE! 🎊'];
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            const celebText = document.createElement('div');
+            celebText.className = 'celebration-text';
+            celebText.textContent = message;
+            celebText.style.left = '50%';
+            celebText.style.top = '30%';
+            celebText.style.transform = 'translateX(-50%)';
+            document.body.appendChild(celebText);
+            setTimeout(() => celebText.remove(), 2000);
+        }
+
+        function createPointsShower(points) {
+            const colors = ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4'];
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.className = 'points-shower';
+                    el.textContent = '+' + points;
+                    el.style.left = (Math.random() * window.innerWidth) + 'px';
+                    el.style.top = '-50px';
+                    el.style.color = colors[Math.floor(Math.random() * colors.length)];
+                    document.body.appendChild(el);
+                    setTimeout(() => el.remove(), 2000);
+                }, i * 100);
+            }
+        }
+
+        function letsSpin() {
+            if (spinning) return;
+            const wheel = document.getElementById('wheel');
+            const result = document.getElementById('result');
+            const userPoints = document.getElementById('userPoints');
+            const spinBtn = document.getElementById('spinBtn');
+
+            spinning = true;
+            spinBtn.disabled = true;
+            result.innerText = "Spinning... 🎡";
+
+            const randomIndex = Math.floor(Math.random() * rewardOptions.length);
+            const reward = rewardOptions[randomIndex];
+            const spins = 10;
+            const stopAngle = randomIndex * segmentAngle + segmentAngle / 2;
+            const totalRotation = spins * 360 + stopAngle;
+
+            wheel.style.transition = "transform 3.8s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
+            wheel.style.transform = `rotate(-${totalRotation}deg)`;
+
+            setTimeout(() => {
+                if (reward === "free") {
+
+                    result.innerHTML = `🎉 You got a <b>FREE SPIN</b>! Click spin again! 🎉`;
+
+                    wheel.style.transition = "none";
+                    wheel.style.transform = "rotate(0deg)";
+
+                    setTimeout(() => {
+                        spinning = false;
+                        spinBtn.disabled = false;
+                    }, 200);
+
+                    return;
+                }
+                result.innerHTML = `You won <b>${reward}</b> points `;
+                const currentPoints = parseFloat(userPoints.innerText) || 0;
+                userPoints.innerText = (currentPoints + reward).toFixed(1);
+
+                fetch("/users/addPoints", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ points: reward })
+                });
+
+                createConfetti();
+                createFireworks();
+                createCelebrationText();
+                createPointsShower(reward);
+
+                wheel.style.transition = "none";
+                wheel.style.transform = `rotate(-${stopAngle}deg)`;
+                spinning = false;
+                spinBtn.disabled = false;
+
+            }, 4000);
+
+        }
+    </script>
+</body>
+
+</html>
