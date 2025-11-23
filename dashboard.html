@@ -19,7 +19,7 @@
     }
 
     body {
-        font-family: 'Caveat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        font-family: 'Caveat', 'system-ui';
         background: #fafafa;
         color: #1a1a1a;
         min-height: 100vh;
@@ -34,7 +34,7 @@
         }
     }
 
-    /* Subtle gradient background */
+    /* Gradient background with floating orbs */
     .bg-gradient {
         position: fixed;
         top: 0;
@@ -46,42 +46,40 @@
         background: #fafafa;
     }
 
-    .bg-gradient::before,
-    .bg-gradient::after,
-    .bg-gradient span {
-        content: '';
+    .gradient-orb {
         position: absolute;
         border-radius: 50%;
         filter: blur(100px);
         opacity: 0.1;
+        animation: float 20s ease-in-out infinite;
     }
 
-    .bg-gradient::before {
+    .orb-1 {
         width: 600px;
         height: 600px;
         background: radial-gradient(circle, #F73B20, transparent);
         top: -10%;
         right: -10%;
-        animation: float 25s ease-in-out infinite;
+        animation-duration: 25s;
     }
 
-    .bg-gradient::after {
+    .orb-2 {
         width: 500px;
         height: 500px;
         background: radial-gradient(circle, #ff5238, transparent);
         bottom: -15%;
         left: -10%;
-        animation: float 20s ease-in-out infinite;
+        animation-duration: 20s;
         animation-delay: 2s;
     }
 
-    .bg-gradient span {
+    .orb-3 {
         width: 400px;
         height: 400px;
         background: radial-gradient(circle, #F73B20, transparent);
         top: 40%;
         left: 50%;
-        animation: float 18s ease-in-out infinite;
+        animation-duration: 18s;
         animation-delay: 1s;
     }
 
@@ -89,6 +87,20 @@
         0%, 100% { transform: translate(0, 0) scale(1); }
         33% { transform: translate(50px, -80px) scale(1.1); }
         66% { transform: translate(-50px, 50px) scale(0.9); }
+    }
+
+    .bg-gradient span {
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, #F73B20, transparent);
+        top: 40%;
+        left: 50%;
+        border-radius: 50%;
+        filter: blur(100px);
+        opacity: 0.1;
+        animation: float 18s ease-in-out infinite;
+        animation-delay: 1s;
     }
 
     /* Desktop Navigation */
@@ -110,6 +122,7 @@
 
     .navbar-desktop.scrolled {
         padding: 1rem 0;
+        box-shadow: 0 4px 30px rgba(247, 59, 32, 0.2);
     }
 
     .navbar-brand {
@@ -125,6 +138,7 @@
 
     .logo-hot {
         color: #F73B20;
+        transition: all 0.3s ease;
     }
 
     .logo-not {
@@ -133,7 +147,7 @@
 
     .nav-link {
         color: rgba(26, 26, 26, 0.85) !important;
-        font-weight: 600;
+        font-weight: 500;
         margin: 0 1rem;
         transition: all 0.3s ease;
         position: relative;
@@ -214,7 +228,7 @@
         align-items: center;
         justify-content: center;
         text-decoration: none;
-        color: rgba(26, 26, 26, 0.6);
+        color: rgba(26, 26, 26, 0.5);
         transition: all 0.3s ease;
         padding: 8px 12px;
         border-radius: 12px;
@@ -246,7 +260,7 @@
         background: rgba(247, 59, 32, 0.1);
     }
 
-    /* Logo for mobile */
+    /* Mobile Logo */
     .mobile-logo {
         position: fixed;
         top: 15px;
@@ -257,6 +271,11 @@
         letter-spacing: -1px;
         display: block;
         text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .mobile-logo:hover {
+        transform: scale(1.05);
     }
 
     @media (min-width: 768px) {
@@ -265,19 +284,7 @@
         }
     }
 
-    .main-container {
-        max-width: 500px;
-        margin: 0 auto;
-        padding: 1rem;
-    }
-
-    @media (max-width: 767px) {
-        .main-container {
-            padding-top: 10px;
-        }
-    }
-
-    /* Dashboard Sections */
+    /* Dashboard Container */
     .dashboard-container {
         padding: 40px 20px;
         max-width: 1400px;
@@ -288,15 +295,17 @@
         text-align: center;
         margin-bottom: 40px;
         padding: 40px;
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
         border: 1px solid rgba(247, 59, 32, 0.15);
         border-radius: 24px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
+        box-shadow: 0 10px 40px rgba(247, 59, 32, 0.15);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .user-profile-section:hover {
-        box-shadow: 0 8px 30px rgba(247, 59, 32, 0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 50px rgba(247, 59, 32, 0.25);
     }
 
     .user-avatar-wrapper {
@@ -312,14 +321,25 @@
         border-radius: 50%;
         overflow: hidden;
         border: 4px solid #F73B20;
-        box-shadow: 0 8px 30px rgba(247, 59, 32, 0.3);
+        box-shadow: 0 8px 30px rgba(247, 59, 32, 0.4);
         background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+        transition: all 0.3s ease;
+    }
+
+    .user-avatar-blob:hover {
+        transform: scale(1.05);
+        border-color: #ff5238;
     }
 
     .user-avatar-blob img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+
+    .user-avatar-blob2 {
+        position: relative;
+        display: inline-block;
     }
 
     .user-display-name {
@@ -329,6 +349,7 @@
         margin-bottom: 10px;
     }
 
+    /* Stats Grid */
     .stats-grid-wrapper {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -337,19 +358,20 @@
     }
 
     .stat-card-item {
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         border: 1px solid rgba(247, 59, 32, 0.15);
         border-radius: 24px;
         padding: 25px;
         text-align: center;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(247, 59, 32, 0.12);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .stat-card-item:hover {
         transform: translateY(-8px);
         border-color: rgba(247, 59, 32, 0.3);
-        box-shadow: 0 8px 30px rgba(247, 59, 32, 0.2);
+        box-shadow: 0 12px 35px rgba(247, 59, 32, 0.25);
     }
 
     .stat-card-label {
@@ -387,24 +409,26 @@
 
     .stat-card-meta {
         font-size: 0.8rem;
-        color: #F73B20;
+        color: #ff5238;
         margin-top: 8px;
         font-weight: 600;
     }
 
+    /* Info Cards */
     .info-card-container {
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         border: 1px solid rgba(247, 59, 32, 0.15);
         border-radius: 24px;
         padding: 30px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(247, 59, 32, 0.12);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         margin-bottom: 30px;
     }
 
     .info-card-container:hover {
         border-color: rgba(247, 59, 32, 0.3);
-        box-shadow: 0 8px 30px rgba(247, 59, 32, 0.15);
+        box-shadow: 0 12px 35px rgba(247, 59, 32, 0.2);
     }
 
     .info-card-title {
@@ -422,6 +446,7 @@
         font-size: 1rem;
     }
 
+    /* Posts Section */
     .posts-section-title {
         font-size: clamp(1.6rem, 3.2vw, 2.2rem);
         font-weight: 900;
@@ -438,12 +463,13 @@
     }
 
     .post-card-item {
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
         border: 1px solid rgba(247, 59, 32, 0.15);
         border-radius: 20px;
         overflow: hidden;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 25px rgba(247, 59, 32, 0.12);
         display: flex;
         flex-direction: column;
         height: 100%;
@@ -451,7 +477,7 @@
 
     .post-card-item:hover {
         transform: translateY(-10px);
-        box-shadow: 0 12px 35px rgba(247, 59, 32, 0.2);
+        box-shadow: 0 15px 45px rgba(247, 59, 32, 0.25);
         border-color: rgba(247, 59, 32, 0.3);
     }
 
@@ -521,7 +547,8 @@
         color: #F73B20;
     }
 
-    .badge-side {
+    /* Badge Side */
+    .badge-side, .referral-badge, .rank-badge {
         position: absolute;
         right: -6%;
         bottom: 6%;
@@ -532,16 +559,16 @@
         align-items: center;
         justify-content: center;
         background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
-        box-shadow: 0 8px 30px rgba(247, 59, 32, 0.4);
-        transition: transform 0.18s ease;
+        box-shadow: 0 8px 30px rgba(247, 59, 32, 0.5);
+        transition: transform 0.3s ease;
         border: 3px solid white;
     }
 
-    .badge-side:hover {
+    .badge-side:hover, .referral-badge:hover, .rank-badge:hover {
         transform: translateY(-5%) scale(1.05);
     }
 
-    .badge-side img {
+    .badge-side img, .referral-badge img, .rank-badge img {
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -550,13 +577,19 @@
 
     /* Leaderboard Section */
     .leaderboard-neighbors {
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         border: 1px solid rgba(247, 59, 32, 0.15);
         border-radius: 24px;
         padding: 2.5rem 1.5rem;
         margin-top: 50px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 40px rgba(247, 59, 32, 0.15);
         text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .leaderboard-neighbors:hover {
+        box-shadow: 0 15px 50px rgba(247, 59, 32, 0.25);
     }
 
     .leaderboard-neighbors h3 {
@@ -584,14 +617,15 @@
     }
 
     .neighbor {
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
         border: 1px solid rgba(247, 59, 32, 0.2);
-        border-radius: 20px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border-radius: 25px;
+        box-shadow: 0 10px 30px rgba(247, 59, 32, 0.15);
         padding: 1.5rem;
         width: 320px;
         text-align: center;
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
         position: relative;
     }
@@ -599,7 +633,7 @@
     .neighbor:hover {
         transform: translateY(-8px);
         border-color: rgba(247, 59, 32, 0.4);
-        box-shadow: 0 12px 35px rgba(247, 59, 32, 0.2);
+        box-shadow: 0 15px 45px rgba(247, 59, 32, 0.3);
     }
 
     .neighbor-img {
@@ -610,7 +644,7 @@
         margin-bottom: 15px;
         border: 4px solid #F73B20;
         box-shadow: 0 6px 20px rgba(247, 59, 32, 0.3);
-        transition: transform 0.3s ease, border-color 0.3s ease;
+        transition: all 0.3s ease;
     }
 
     .neighbor:hover .neighbor-img {
@@ -641,12 +675,14 @@
         white-space: nowrap;
         text-decoration: none;
         color: inherit;
+        transition: all 0.3s ease;
     }
 
     .neighbor-info:hover {
-        text-decoration: underline;
+        color: #F73B20;
     }
 
+    /* Admirers */
     .admirers-container {
         display: flex;
         justify-content: space-around;
@@ -662,7 +698,7 @@
         align-items: center;
         gap: 10px;
         text-decoration: none;
-        transition: transform 0.2s ease;
+        transition: all 0.3s ease;
         min-width: 90px;
     }
 
@@ -693,7 +729,7 @@
 
     .admirer-name {
         font-size: 0.85rem;
-        color: rgba(26, 26, 26, 0.65);
+        color: rgba(26, 26, 26, 0.7);
         font-weight: 700;
         text-align: center;
         word-break: break-word;
@@ -718,7 +754,11 @@
         letter-spacing: 2px;
     }
 
-    /* Popup styles */
+    .chart-section {
+        padding: 20px;
+    }
+
+    /* Popup Styles */
     .popup-overlay {
         position: fixed;
         top: 0;
@@ -741,13 +781,14 @@
     }
 
     .popup {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 250, 245, 0.95));
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         padding: 40px 60px;
         border-radius: 25px;
         text-align: center;
         color: #1a1a1a;
         box-shadow: 0 10px 50px rgba(247, 59, 32, 0.4);
-        border: 3px solid rgba(247, 59, 32, 0.3);
+        border: 2px solid rgba(247, 59, 32, 0.3);
         position: relative;
         overflow: hidden;
         animation: popupScale 0.6s ease-out;
@@ -821,7 +862,7 @@
         background: none;
         border: none;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
         z-index: 1001;
     }
 
@@ -830,13 +871,14 @@
         transform: rotate(90deg);
     }
 
+    /* Responsive Styles */
     @media (max-width: 768px) {
         .user-avatar-wrapper {
             width: clamp(88px, 18vw, 160px);
             height: clamp(88px, 18vw, 160px);
         }
 
-        .badge-side {
+        .badge-side, .referral-badge, .rank-badge {
             width: 30%;
             height: 30%;
             right: -8%;
@@ -845,6 +887,99 @@
 
         .neighbor-container {
             gap: 30px;
+        }
+
+        .leaderboard-neighbors h3 {
+            font-size: 1.5rem;
+        }
+
+        .post-image-wrapper {
+            height: 140px;
+        }
+
+        .post-card-content {
+            padding: 10px;
+        }
+
+        .admirer-item {
+            min-width: 65px;
+        }
+
+        .admirer-photo {
+            width: 65px;
+            height: 65px;
+        }
+
+        .admirer-name {
+            font-size: 0.75rem;
+            max-width: 65px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .dashboard-container {
+            padding: 20px 12px;
+        }
+
+        .user-avatar-wrapper {
+            width: clamp(72px, 28vw, 120px);
+            height: clamp(72px, 28vw, 120px);
+        }
+
+        .badge-side, .referral-badge, .rank-badge {
+            width: 32%;
+            height: 32%;
+            right: -10%;
+            bottom: 10%;
+        }
+
+        .neighbor-container {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .leaderboard-neighbors h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .neighbor-container {
+            flex-direction: row;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: nowrap;
+        }
+
+        .neighbor-wrapper {
+            flex: 1;
+            max-width: 48%;
+        }
+
+        .neighbor {
+            width: 100%;
+            padding: 1rem;
+        }
+
+        .neighbor-img {
+            width: 90px;
+            height: 90px;
+            margin-bottom: 10px;
+        }
+
+        .neighbor-label {
+            font-size: 0.75rem;
+            margin-bottom: 8px;
+        }
+
+        .neighbor-info h4 {
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-neighbors {
+            padding: 1.5rem 0.8rem;
         }
 
         .leaderboard-neighbors h3 {
@@ -870,14 +1005,36 @@
             font-size: 0.8rem;
         }
     }
+
+    /* Fade in animations */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-delay-1 { animation-delay: 0.2s; }
+    .fade-in-delay-2 { animation-delay: 0.4s; }
+    .fade-in-delay-3 { animation-delay: 0.6s; }
+    .fade-in-delay-4 { animation-delay: 0.8s; }
   </style>
 </head>
 <body>
 <div class="bg-gradient">
+  <div class="gradient-orb orb-1"></div>
+  <div class="gradient-orb orb-2"></div>
+  <div class="gradient-orb orb-3"></div>
   <span></span>
 </div>
 
-<!-- Mobile Logo (top-left corner) -->
+<!-- Mobile Logo -->
 <a href="#" class="mobile-logo">
   <span class="logo-hot">Hot</span><span class="logo-not">Or</span><span class="logo-hot">Not</span>
 </a>
@@ -906,7 +1063,7 @@
           <a class="nav-link" href="/user/games">Games</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link " href="/user/mutual-crush">Mutual Crush</a>
+          <a class="nav-link" href="/user/mutual-crush">Mutual Crush</a>
         </li>
         <li class="nav-item ms-3">
           <a href="/logout" class="btn btn-neon btn-sm rounded-pill px-4">Logout</a>
@@ -930,7 +1087,7 @@
     <i class="bi bi-plus-circle-fill"></i>
     <span>Add Post</span>
   </a>
-  <a href="/user/mutual-crush" class="bottom-nav-item ">
+  <a href="/user/mutual-crush" class="bottom-nav-item">
     <i class="bi bi-heart-fill"></i>
     <span>Crush</span>
   </a>
@@ -940,58 +1097,85 @@
   </a>
 </nav>
 
-<div class="dashboard-container">
-  <div class="user-profile-section">
+<div class="dashboard-container fade-in">
+  <div class="user-profile-section fade-in-delay-1">
     <div class="user-avatar-wrapper">
       <div class="user-avatar-blob">
         <img th:src="${profileImage != '' ? profileImage : '/noprofilepic.png'}"
              alt="Profile"/>
       </div>
+    </div>
+    <h5 class="user-display-name" th:text="${user.username}">Username</h5>
+    <div class="user-avatar-blob2">
       <div class="badge-side" th:if="${badgeImage != null}" th:title="${badgeName}">
         <img th:src="${badgeImage}" th:alt="${badgeName} + ' badge'"/>
       </div>
+      <div class="referral-badge" th:if="${referralBadgeImage != null}" th:title="${referralBadgeName}">
+        <img th:src="${referralBadgeImage}" th:alt="${referralBadgeName}"/>
+      </div>
+      <div class="rank-badge" th:if="${rankBadgeImage != null}" th:title="${rankBadgeName}">
+        <img th:src="${rankBadgeImage}" alt="Rank Badge"/>
+      </div>
     </div>
-    <h5 class="user-display-name" th:text="${user.username}">Username</h5>
   </div>
-  
-  <div class="stats-grid-wrapper">
+
+  <div class="stats-grid-wrapper fade-in fade-in-delay-2">
     <div class="stat-card-item">
       <h6 class="stat-card-label">Total Points</h6>
       <h3 class="stat-card-value" th:text="${totalRating}">0</h3>
     </div>
+
     <div class="stat-card-item">
       <h6 class="stat-card-label">Global Rank</h6>
       <h3 class="stat-card-value" th:text="${globalRank}">0</h3>
     </div>
+
+    <div class="stat-card-item">
+      <h6 class="stat-card-label">Local Rank</h6>
+      <h3 class="stat-card-value" th:text="${localRank}">0</h3>
+    </div>
+
+    <div class="stat-card-item" th:if="${isOwnDashboard}">
+      <h6 class="stat-card-label">Mutual Crushes</h6>
+      <h3 class="stat-card-value" th:text="${mutualCount}"></h3>
+    </div>
+
+    <div class="stat-card-item" th:if="${isOwnDashboard}">
+      <h6 class="stat-card-label">Daily Streak</h6>
+      <p>Longest streak: <span th:text="${longestStreak}"></span> days</p>
+      <h3 class="stat-card-value" th:text="${streak}">0</h3>
+    </div>
   </div>
-  
-  <div class="stat-card-item niche" th:if="${isOwnDashboard}">
+
+  <div class="stat-card-item niche fade-in fade-in-delay-3" th:if="${isOwnDashboard}">
     <h6 class="stat-card-label">Top Admirers</h6>
     <div class="admirers-container">
-      <a th:each="admirer, iterStat : ${topAdmirers}" th:href="@{'/user/dashboard/' + ${admirer.id}}" class="admirer-item">
+      <a th:each="admirer, iterStat : ${topAdmirers}" th:href="@{'/user/dashboard/' + ${admirer.id}}"
+         class="admirer-item">
         <span class="admirer-rank" th:text="${iterStat.count} + '.'"></span>
-        <img th:if="${admirer.photo!=null}" th:src="${admirer.photo}" alt="Admirer Photo" class="admirer-photo"/>
+        <img th:if="${admirer.photo!=null}" th:src="${admirer.photo}" alt="Admirer Photo"
+             class="admirer-photo"/>
         <img th:if="${admirer.photo==null}" src="/noprofilepic.png" alt="Admirer Photo" class="admirer-photo"/>
         <span class="admirer-name" th:text="${admirer.name}"></span>
       </a>
       <span th:if="${#lists.isEmpty(topAdmirers)}" class="no-admirers">No admirers yet</span>
     </div>
   </div>
-  
-  <div class="info-card-container">
+
+  <div class="info-card-container fade-in fade-in-delay-4">
     <h6 class="info-card-title">Bio</h6>
     <p class="info-card-text" th:text="${user.bio != null ? user.bio : 'No bio provided.'}">User bio goes here.</p>
   </div>
-  
-  <div class="info-card-container" th:if="${isOwnDashboard}">
+
+  <div class="info-card-container fade-in fade-in-delay-4" th:if="${isOwnDashboard}">
     <h5 class="info-card-title">Analytics</h5>
     <p class="analytics-info-line" th:text="${analyticsLine1}">Analytics line 1</p>
     <p class="analytics-info-line" th:text="${analyticsLine2}">Analytics line 2</p>
     <p class="analytics-info-line" th:text="${analyticsLine4}">Analytics line 4</p>
     <p class="analytics-info-line" th:text="${analyticsLine5}">Analytics line 5</p>
   </div>
-  
-  <div class="stat-card-item" th:if="${isOwnDashboard}">
+
+  <div class="stat-card-item fade-in" th:if="${isOwnDashboard}">
     <div class="chart-section" th:if="${!#maps.isEmpty(categoryPointsMap)}">
       <h4 style="text-align:center; margin-top:30px;" class="today_heading">
         Today's Points Breakdown
@@ -1000,19 +1184,21 @@
     </div>
     <div class="chart-section"
          th:unless="${!#maps.isEmpty(categoryPointsMap)}"
-         style="padding: 30px; text-align:center;">
-      <h4 style="color: #F73B20;">No points available for today</h4>
-      <p style="color: rgba(26, 26, 26, 0.6);">Your activity breakdown will appear here once you earn points.</p>
+         style="padding: 30px; text-align:center; color: rgba(26, 26, 26, 0.6);">
+      <h4>No points available for today</h4>
+      <p>Your activity breakdown will appear here once you earn points.</p>
     </div>
   </div>
-  
-  <div class="leaderboard-neighbors">
+
+  <div class="leaderboard-neighbors fade-in">
     <h3>Leaderboard Neighbours</h3>
     <div class="neighbor-container">
       <div th:if="${aboveUser != null}" class="neighbor-wrapper">
         <p class="neighbor-label">Previous</p>
-        <div class="neighbor" th:attr="onclick=|window.location.href='/user/dashboard/${aboveUser.userId}'|" style="cursor:pointer;">
-          <img th:if="${aboveUserImage != null}" th:src="${aboveUserImage}" alt="User Photo" class="neighbor-img">
+        <div class="neighbor" th:attr="onclick=|window.location.href='/user/dashboard/${aboveUser.userId}'|"
+             style="cursor:pointer;">
+          <img th:if="${aboveUserImage != null}" th:src="${aboveUserImage}" alt="User Photo"
+               class="neighbor-img">
           <img th:if="${aboveUserImage == null}" src="/noprofilepic.png" alt="Default" class="neighbor-img">
           <div class="neighbor-info">
             <h4 th:text="${AboveName}"></h4>
@@ -1021,8 +1207,10 @@
       </div>
       <div th:if="${belowUser != null}" class="neighbor-wrapper">
         <p class="neighbor-label">Next</p>
-        <div class="neighbor" th:attr="onclick=|window.location.href='/user/dashboard/${belowUser.userId}'|" style="cursor:pointer;">
-          <img th:if="${belowUserImage != null}" th:src="${belowUserImage}" alt="User Photo" class="neighbor-img">
+        <div class="neighbor" th:attr="onclick=|window.location.href='/user/dashboard/${belowUser.userId}'|"
+             style="cursor:pointer;">
+          <img th:if="${belowUserImage != null}" th:src="${belowUserImage}" alt="User Photo"
+               class="neighbor-img">
           <img th:if="${belowUserImage == null}" src="/noprofilepic.png" alt="Default" class="neighbor-img">
           <div class="neighbor-info">
             <h4 th:text="${BelowName}"></h4>
@@ -1032,10 +1220,11 @@
     </div>
   </div>
 
-  <h2 class="posts-section-title">Posts</h2>
-  <div class="row g-3">
+  <h2 class="posts-section-title fade-in">Posts</h2>
+  <div class="row g-3 fade-in">
     <div class="col-lg-3 col-md-3 col-4" th:each="p : ${postDtos}">
-      <a th:if="${isOwnDashboard}" th:href="@{'/user/post/' + ${p.postId} + '/demographics'}" class="post-card-link">
+      <a th:if="${isOwnDashboard}" th:href="@{'/user/post/' + ${p.postId} + '/demographics'}"
+         class="post-card-link">
         <div class="post-card-item">
           <div class="post-image-wrapper">
             <img th:if="${p.photoDataUrl != null}" th:src="${p.photoDataUrl}" alt="Post Image">
@@ -1081,18 +1270,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  // Active nav state management for mobile
-  document.addEventListener('DOMContentLoaded', function() {
-      const currentPath = window.location.pathname;
-      const navItems = document.querySelectorAll('.bottom-nav-item');
-
-      navItems.forEach(item => {
-          if (item.getAttribute('href') === currentPath) {
-              item.classList.add('active');
-          }
-      });
-  });
-
   // Navbar scroll effect
   window.addEventListener('scroll', function() {
       const navbar = document.querySelector('.navbar-desktop');
@@ -1103,6 +1280,18 @@
               navbar.classList.remove('scrolled');
           }
       }
+  });
+
+  // Active nav state management for mobile
+  document.addEventListener('DOMContentLoaded', function() {
+      const currentPath = window.location.pathname;
+      const navItems = document.querySelectorAll('.bottom-nav-item');
+
+      navItems.forEach(item => {
+          if (item.getAttribute('href') === currentPath) {
+              item.classList.add('active');
+          }
+      });
   });
 
   // Popup functions
