@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Caveat', 'system-ui';
+            background: #fafafa;
+            color: #1a1a1a;
+            min-height: 100vh;
+            padding: 40px 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background Gradient Orbs */
+        .hero-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.08;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #F73B20, transparent);
+            top: -10%;
+            right: -10%;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #ff5238, transparent);
+            bottom: -15%;
+            left: -10%;
+            animation-duration: 20s;
+            animation-delay: 2s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #F73B20, transparent);
+            top: 40%;
+            left: 50%;
+            animation-duration: 18s;
+            animation-delay: 1s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(50px, -80px) scale(1.1);
+            }
+            66% {
+                transform: translate(-50px, 50px) scale(0.9);
+            }
+        }
+
+        .profile-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(247, 59, 32, 0.15);
+            overflow: hidden;
+            border: 1px solid rgba(247, 59, 32, 0.1);
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, rgba(247, 59, 32, 0.05) 0%, rgba(255, 82, 56, 0.05) 100%);
+            padding: 40px 20px 50px;
+            position: relative;
+            text-align: center;
+            border-bottom: 1px solid rgba(247, 59, 32, 0.1);
+        }
+
+        .profile-pic-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 5px solid #F73B20;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(247, 59, 32, 0.3);
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            transition: all 0.3s ease;
+        }
+
+        .profile-pic-container:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 50px rgba(247, 59, 32, 0.4);
+        }
+
+        .profile-pic-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-pic-container .upload-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(247, 59, 32, 0.95);
+            color: white;
+            padding: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: 600;
+        }
+
+        .profile-pic-container:hover .upload-overlay {
+            opacity: 1;
+        }
+
+        .profile-pic-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            font-size: 60px;
+            color: white;
+        }
+
+        .profile-body {
+            padding: 50px 40px;
+        }
+
+        .section-title {
+            color: #F73B20;
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #F73B20;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label i {
+            color: #F73B20;
+        }
+
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 2px solid rgba(247, 59, 32, 0.2);
+            padding: 14px 18px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #F73B20;
+            box-shadow: 0 0 0 0.25rem rgba(247, 59, 32, 0.15);
+            background: white;
+        }
+
+        .form-control:read-only {
+            background: rgba(247, 59, 32, 0.05);
+            border-color: rgba(247, 59, 32, 0.15);
+        }
+
+        .input-group-text {
+            background: #F73B20;
+            color: white;
+            border: none;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 14px 40px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(247, 59, 32, 0.5);
+        }
+
+        .btn-secondary {
+            border-radius: 50px;
+            padding: 14px 40px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            border: 2px solid #F73B20;
+            background: transparent;
+            color: #F73B20;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #F73B20;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(247, 59, 32, 0.4);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .text-danger {
+            color: #F73B20 !important;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .text-muted {
+            color: rgba(26, 26, 26, 0.5) !important;
+            font-size: 0.9rem;
+        }
+
+        /* Popup Styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup {
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+            padding: 50px 80px;
+            border-radius: 30px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 20px 60px rgba(247, 59, 32, 0.6);
+            position: relative;
+            overflow: hidden;
+            animation: popupScale 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Skip Confirmation Popup */
+        .skip-popup {
+            background: white;
+            padding: 40px 50px;
+            border-radius: 25px;
+            text-align: center;
+            color: #1a1a1a;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            max-width: 500px;
+            animation: popupScale 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .skip-popup h3 {
+            color: #F73B20;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .skip-popup p {
+            color: rgba(26, 26, 26, 0.7);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .skip-popup-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .skip-popup-buttons .btn {
+            min-width: 140px;
+            padding: 12px 30px;
+            font-size: 1rem;
+        }
+
+        /* Validation Styles */
+        .error-message {
+            color: #F73B20;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .form-control.invalid,
+        .form-select.invalid {
+            border-color: #F73B20;
+            background-color: rgba(247, 59, 32, 0.05);
+        }
+
+        .form-control.valid,
+        .form-select.valid {
+            border-color: #28a745;
+            background-color: rgba(40, 167, 69, 0.05);
+        }
+
+        .success-icon,
+        .error-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper .success-icon {
+            color: #28a745;
+        }
+
+        .input-wrapper .error-icon {
+            color: #F73B20;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popupScale {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .badge-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .badge {
+            background: white;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(255, 255, 255, 0.4);
+            animation: pulse 1.5s infinite;
+            margin: 0 auto;
+        }
+
+        .badge-text {
+            font-size: 2.5em;
+            font-weight: 900;
+            color: #F73B20;
+            text-shadow: 0 2px 10px rgba(247, 59, 32, 0.3);
+        }
+
+        .shine {
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+            transform: skewX(-25deg);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -75%;
+            }
+            100% {
+                left: 125%;
+            }
+        }
+
+        .points-earned {
+            font-size: 1.6em;
+            margin-top: 20px;
+            color: white;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 32px;
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            background: white;
+            color: #F73B20;
+            transform: rotate(90deg);
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-delay-1 {
+            animation-delay: 0.1s;
+        }
+        .fade-in-delay-2 {
+            animation-delay: 0.2s;
+        }
+        .fade-in-delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        /* Button Container Styles */
+        .button-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .button-container .btn {
+            flex: 0 1 auto;
+            min-width: 180px;
+        }
+
+        @media (max-width: 768px) {
+            .profile-body {
+                padding: 30px 20px;
+            }
+
+            .popup {
+                padding: 40px 50px;
+                margin: 20px;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .button-container {
+                flex-direction: column;
+                gap: 12px;
+                width: 100%;
+            }
+
+            .button-container .btn {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .profile-pic-container {
+                width: 160px;
+                height: 160px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .button-container {
+                gap: 20px;
+            }
+
+            .button-container .btn {
+                min-width: 200px;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .button-container {
+                gap: 25px;
+            }
+
+            .button-container .btn {
+                min-width: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-bg">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <div class="profile-container fade-in">
+        <div class="profile-card">
+            <div class="profile-body">
+                <h2 class="section-title fade-in-delay-1">
+                    <i class="fas fa-user-circle"></i> Personal Information
+                </h2>
+
+                <form id="profileForm" method="post" th:object="${user}" th:action="@{/completeProfile}"
+                      enctype="multipart/form-data">
+
+                    <div class="profile-header fade-in-delay-2">
+                        <div class="profile-pic-container position-relative text-center">
+                            <div class="profile-pic-placeholder">
+                                <img th:if="${user.profilePhoto != null}"
+                                     th:src="@{/userphoto}"
+                                     alt="Profile Picture"
+                                     style="width:240px; height:240px; object-fit:cover"
+                                     class="rounded-circle border border-1 img-fluid">
+
+                                <i class="bi bi-person-circle text-white"
+                                   th:unless="${user.profilePhoto != null}"
+                                   style="font-size:100px;"></i>
+                            </div>
+
+                            <div class="upload-overlay">
+                                <i class="fas fa-camera"></i> Change Photo
+                                <input type="file" id="profilePicInput" name="profilePhoto"
+                                       accept="image/*" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 pt-4 fade-in-delay-3">
+                        <input type="hidden" th:field="*{userId}">
+                        <div class="col-md-6 mb-3">
+                            <label for="fullName" class="form-label">
+                                <i class="fas fa-user"></i> Full Name <span style="color: #F73B20;">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="text" class="form-control" name="username"
+                                       th:field="*{fullName}" id="fullName" placeholder="Enter your full name" required>
+                                <i class="fas fa-check-circle success-icon"></i>
+                                <i class="fas fa-exclamation-circle error-icon"></i>
+                            </div>
+                            <div class="error-message" id="fullNameError">Please enter your full name (minimum 3 characters)</div>
+                            <div class="text-danger" th:if="${#fields.hasErrors('fullName')}"
+                                 th:errors="*{fullName}"></div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope"></i> Email Address
+                            </label>
+                            <input type="email" class="form-control" th:field="*{email}"
+                                   name="email" id="email" placeholder="your.email@example.com" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user"></i> Username
+                            </label>
+                            <input type="text" class="form-control" name="username"
+                                   th:field="*{username}" id="username" readonly>
+                            <div class="text-danger" th:if="${#fields.hasErrors('username')}"
+                                 th:errors="*{username}"></div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="contact" class="form-label">
+                                <i class="fas fa-phone"></i> Contact Number <span style="color: #F73B20;">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="tel" class="form-control" th:field="*{contactNo}"
+                                       name="contactNo" id="contact" placeholder="+91 XXXXX XXXXX" required>
+                                <i class="fas fa-check-circle success-icon"></i>
+                                <i class="fas fa-exclamation-circle error-icon"></i>
+                            </div>
+                            <div class="error-message" id="contactError">Please enter a valid 10-digit phone number</div>
+                            <div class="text-danger" th:if="${#fields.hasErrors('contactNo')}"
+                                 th:errors="*{contactNo}"></div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="dob" class="form-label">
+                                <i class="fas fa-calendar"></i> Date of Birth <span style="color: #F73B20;">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="date" class="form-control"
+                                       th:value="${#temporals.format(user.dateOfBirth, 'yyyy-MM-dd')}"
+                                       name="dateOfBirth" id="dob" required>
+                                <i class="fas fa-check-circle success-icon"></i>
+                                <i class="fas fa-exclamation-circle error-icon"></i>
+                            </div>
+                            <div class="error-message" id="dobError">You must be at least 13 years old</div>
+                            <div class="text-danger" th:if="${#fields.hasErrors('dateOfBirth')}"
+                                 th:errors="*{dateOfBirth}"></div>
+                            <p th:if="${birthdayError}" style="color: #F73B20; display: block;"
+                               class="birthdayError">You can change only once a year</p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="gender" class="form-label">
+                                <i class="fas fa-venus-mars"></i> Gender
+                            </label>
+                            <input type="text" class="form-control" th:field="*{gender}"
+                                   name="gender" id="gender" readonly>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="location" class="form-label">
+                            <i class="fas fa-map-marker-alt"></i> Location <span style="color: #F73B20;">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="text" class="form-control" th:field="*{jeoLocation}"
+                                   name="jiolocation" id="location" placeholder="City, Country" required>
+                            <i class="fas fa-check-circle success-icon"></i>
+                            <i class="fas fa-exclamation-circle error-icon"></i>
+                        </div>
+                        <div class="error-message" id="locationError">Please enter your location</div>
+                        <div class="text-danger" th:if="${#fields.hasErrors('jeoLocation')}"
+                             th:errors="*{jeoLocation}"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="relationship" class="form-label">
+                            <i class="fas fa-heart"></i> Relationship Status
+                        </label>
+                        <select class="form-select" th:field="*{relationshipStatus}"
+                                name="relationshipStatus" id="relationship">
+                            <option value="">Select Status</option>
+                            <option value="single">Single</option>
+                            <option value="in-relationship">In a Relationship</option>
+                            <option value="engaged">Engaged</option>
+                            <option value="married">Married</option>
+                            <option value="complicated">It's Complicated</option>
+                            <option value="prefer-not-to-say">Prefer not to say</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="bio" class="form-label">
+                            <i class="fas fa-pen"></i> Bio
+                        </label>
+                        <div class="input-wrapper">
+                            <textarea class="form-control" th:field="*{bio}"
+                                      name="bio" id="bio" rows="4" maxlength="150"
+                                      placeholder="Tell us about yourself..."></textarea>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <small class="text-muted">Maximum 150 characters allowed.</small>
+                            <small class="text-muted" id="charCount">0/150</small>
+                        </div>
+                        <div class="error-message" id="bioError">Bio is too long (max 150 characters)</div>
+                        <div class="text-danger" th:if="${#fields.hasErrors('bio')}"
+                             th:errors="*{bio}"></div>
+                    </div>
+
+                    <div class="button-container">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Profile
+                        </button>
+
+                        <a th:href="@{/skipProfile}" class="text-decoration-none">
+                            <button type="button" class="btn btn-secondary" id="skipBtn">
+                                <i class="fas fa-undo"></i> Skip Now
+                            </button>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Points Popup -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup">
+            <button class="close-btn" onclick="closePopup()">&times;</button>
+
+            <div class="badge-wrapper">
+                <div class="badge">
+                    <div class="shine"></div>
+                    <div class="badge-text">+<span id="badgePoints">50</span></div>
+                </div>
+            </div>
+
+            <div class="points-earned">You earned <span id="pointsText">50</span> points!</div>
+        </div>
+    </div>
+
+    <!-- Skip Confirmation Popup -->
+    <div class="popup-overlay" id="skipPopupOverlay">
+        <div class="skip-popup">
+            <button class="close-btn" onclick="closeSkipPopup()" style="color: #F73B20; background: rgba(247, 59, 32, 0.1);">&times;</button>
+            
+            <h3><i class="fas fa-question-circle"></i> Do You Want to Skip?</h3>
+            <p>You can complete your profile later, but completing it now helps you get the best experience!</p>
+            
+            <div class="skip-popup-buttons">
+                <button class="btn btn-secondary" onclick="closeSkipPopup()">
+                    <i class="fas fa-arrow-left"></i> Go Back
+                </button>
+                <button class="btn btn-primary" onclick="confirmSkip()">
+                    <i class="fas fa-forward"></i> Yes, Skip
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Profile pic script -->
+    <script>
+        const fileInput = document.getElementById('profilePicInput');
+        const profileContainer = document.querySelector('.profile-pic-container');
+        const uploadOverlay = document.querySelector('.upload-overlay');
+        const placeholder = document.querySelector('.profile-pic-placeholder');
+
+        profileContainer.addEventListener('click', function (e) {
+            if (e.target !== fileInput) {
+                fileInput.click();
+            }
+        });
+
+        fileInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    placeholder.innerHTML = `
+                        <img src="${e.target.result}"
+                             alt="Profile Picture"
+                             style="width:240px; height:240px; object-fit:cover"
+                             class="rounded-circle border border-1 img-fluid">
+                    `;
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+
+    <!-- Popup script -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const popupMessage = /*[[${popupMessage}]]*/ null;
+
+        function showPopup(points) {
+            document.getElementById('badgePoints').textContent = points;
+            document.getElementById('pointsText').textContent = points;
+            const overlay = document.getElementById('popupOverlay');
+            overlay.classList.add('show');
+            setTimeout(() => overlay.classList.remove('show'), 3000);
+        }
+
+        function closePopup() {
+            const overlay = document.getElementById("popupOverlay");
+            overlay.classList.remove("show");
+        }
+
+        if (popupMessage && popupMessage.includes('50')) {
+            showPopup(50);
+        } else if (popupMessage && popupMessage.includes('100')) {
+            showPopup(100);
+        } else if (popupMessage && popupMessage.includes('150')) {
+            showPopup(150);
+        }
+        /*]]>*/
+    </script>
+
+    <!-- Skip button script -->
+    <script>
+        // Form Validation
+        const form = document.getElementById('profileForm');
+        const fullNameInput = document.getElementById('fullName');
+        const contactInput = document.getElementById('contact');
+        const dobInput = document.getElementById('dob');
+        const locationInput = document.getElementById('location');
+        const bioInput = document.getElementById('bio');
+
+        // Validation functions
+        function validateFullName() {
+            const value = fullNameInput.value.trim();
+            const errorMsg = document.getElementById('fullNameError');
+            const successIcon = fullNameInput.parentElement.querySelector('.success-icon');
+            const errorIcon = fullNameInput.parentElement.querySelector('.error-icon');
+
+            if (value.length < 3) {
+                fullNameInput.classList.add('invalid');
+                fullNameInput.classList.remove('valid');
+                errorMsg.classList.add('show');
+                errorIcon.style.display = 'block';
+                successIcon.style.display = 'none';
+                return false;
+            } else {
+                fullNameInput.classList.remove('invalid');
+                fullNameInput.classList.add('valid');
+                errorMsg.classList.remove('show');
+                errorIcon.style.display = 'none';
+                successIcon.style.display = 'block';
+                return true;
+            }
+        }
+
+        function validateContact() {
+            const value = contactInput.value.trim();
+            const errorMsg = document.getElementById('contactError');
+            const successIcon = contactInput.parentElement.querySelector('.success-icon');
+            const errorIcon = contactInput.parentElement.querySelector('.error-icon');
+            const phoneRegex = /^[0-9]{10}$/;
+
+            if (!phoneRegex.test(value.replace(/\s+/g, '').replace('+91', ''))) {
+                contactInput.classList.add('invalid');
+                contactInput.classList.remove('valid');
+                errorMsg.classList.add('show');
+                errorIcon.style.display = 'block';
+                successIcon.style.display = 'none';
+                return false;
+            } else {
+                contactInput.classList.remove('invalid');
+                contactInput.classList.add('valid');
+                errorMsg.classList.remove('show');
+                errorIcon.style.display = 'none';
+                successIcon.style.display = 'block';
+                return true;
+            }
+        }
+
+        function validateDOB() {
+            const value = dobInput.value;
+            const errorMsg = document.getElementById('dobError');
+            const successIcon = dobInput.parentElement.querySelector('.success-icon');
+            const errorIcon = dobInput.parentElement.querySelector('.error-icon');
+            
+            if (!value) {
+                dobInput.classList.add('invalid');
+                dobInput.classList.remove('valid');
+                errorMsg.textContent = 'Please select your date of birth';
+                errorMsg.classList.add('show');
+                errorIcon.style.display = 'block';
+                successIcon.style.display = 'none';
+                return false;
+            }
+
+            const birthDate = new Date(value);
+            const today = new Date();
+            const age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            if (age < 13) {
+                dobInput.classList.add('invalid');
+                dobInput.classList.remove('valid');
+                errorMsg.textContent = 'You must be at least 13 years old';
+                errorMsg.classList.add('show');
+                errorIcon.style.display = 'block';
+                successIcon.style.display = 'none';
+                return false;
+            } else {
+                dobInput.classList.remove('invalid');
+                dobInput.classList.add('valid');
+                errorMsg.classList.remove('show');
+                errorIcon.style.display = 'none';
+                successIcon.style.display = 'block';
+                return true;
+            }
+        }
+
+        function validateLocation() {
+            const value = locationInput.value.trim();
+            const errorMsg = document.getElementById('locationError');
+            const successIcon = locationInput.parentElement.querySelector('.success-icon');
+            const errorIcon = locationInput.parentElement.querySelector('.error-icon');
+
+            if (value.length < 2) {
+                locationInput.classList.add('invalid');
+                locationInput.classList.remove('valid');
+                errorMsg.classList.add('show');
+                errorIcon.style.display = 'block';
+                successIcon.style.display = 'none';
+                return false;
+            } else {
+                locationInput.classList.remove('invalid');
+                locationInput.classList.add('valid');
+                errorMsg.classList.remove('show');
+                errorIcon.style.display = 'none';
+                successIcon.style.display = 'block';
+                return true;
+            }
+        }
+
+        function updateCharCount() {
+            const count = bioInput.value.length;
+            const charCount = document.getElementById('charCount');
+            charCount.textContent = count + '/150';
+
+            if (count > 150) {
+                charCount.style.color = '#F73B20';
+                document.getElementById('bioError').classList.add('show');
+            } else {
+                charCount.style.color = 'rgba(26, 26, 26, 0.5)';
+                document.getElementById('bioError').classList.remove('show');
+            }
+        }
+
+        // Real-time validation
+        fullNameInput.addEventListener('blur', validateFullName);
+        fullNameInput.addEventListener('input', validateFullName);
+        
+        contactInput.addEventListener('blur', validateContact);
+        contactInput.addEventListener('input', validateContact);
+        
+        dobInput.addEventListener('blur', validateDOB);
+        dobInput.addEventListener('change', validateDOB);
+        
+        locationInput.addEventListener('blur', validateLocation);
+        locationInput.addEventListener('input', validateLocation);
+        
+        bioInput.addEventListener('input', updateCharCount);
+
+        // Initialize character count
+        updateCharCount();
+
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            const isFullNameValid = validateFullName();
+            const isContactValid = validateContact();
+            const isDOBValid = validateDOB();
+            const isLocationValid = validateLocation();
+
+            if (!isFullNameValid || !isContactValid || !isDOBValid || !isLocationValid) {
+                e.preventDefault();
+                
+                // Scroll to first error
+                const firstError = document.querySelector('.form-control.invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+            }
+        });
+
+        // Skip popup functions
+        function showSkipPopup() {
+            document.getElementById('skipPopupOverlay').classList.add('show');
+        }
+
+        function closeSkipPopup() {
+            document.getElementById('skipPopupOverlay').classList.remove('show');
+        }
+
+        function confirmSkip() {
+            window.location.href = "/skipProfile";
+        }
+
+        document.getElementById("skipBtn").addEventListener("click", function (e) {
+            e.preventDefault();
+            showSkipPopup();
+        });
+
+        // Close popup when clicking outside
+        document.getElementById('skipPopupOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSkipPopup();
+            }
+        });
+    </script>
+</body>
+</html>
