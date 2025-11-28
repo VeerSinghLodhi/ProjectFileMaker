@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referral Dashboard - HotOrNot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Caveat', 'system-ui';
+            background: #fafafa;
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem 0;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(247, 59, 32, 0.15);
+        }
+
+        .navbar.scrolled {
+            padding: 1rem 0;
+            box-shadow: 0 4px 30px rgba(247, 59, 32, 0.15);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: #F73B20;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            color: #ff5238;
+            transform: scale(1.05);
+        }
+
+        .nav-link {
+            color: rgba(26, 26, 26, 0.85);
+            font-weight: 500;
+            margin: 0 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: #F73B20;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #F73B20;
+        }
+
+        .nav-link:hover::before {
+            width: 60%;
+        }
+
+        /* Button Styles */
+        .btn-orange {
+            background: #F73B20;
+            border: none;
+            color: white;
+            padding: 0.7rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.3);
+        }
+
+        .btn-orange:hover {
+            background: #ff5238;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(247, 59, 32, 0.5);
+            color: white;
+        }
+
+        .btn-outline-orange {
+            border: 2px solid #F73B20;
+            color: #F73B20;
+            padding: 0.7rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-orange:hover {
+            background: #F73B20;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(247, 59, 32, 0.4);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 40vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 8rem 0 4rem;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #F73B20, transparent);
+            top: -10%;
+            right: -10%;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #ff5238, transparent);
+            bottom: -15%;
+            left: -10%;
+            animation-duration: 20s;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(50px, -80px) scale(1.1);
+            }
+            66% {
+                transform: translate(-50px, 50px) scale(0.9);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(247, 59, 32, 0.15);
+            border: 1px solid rgba(247, 59, 32, 0.3);
+            color: #F73B20;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 7vw, 4rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: #1a1a1a;
+        }
+
+        .orange-text {
+            color: #F73B20;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: rgba(26, 26, 26, 0.65);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            line-height: 1.7;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Stats Cards */
+        .stats-section {
+            padding: 4rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid rgba(247, 59, 32, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-radius: 24px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(247, 59, 32, 0.3);
+            box-shadow: 0 20px 60px rgba(247, 59, 32, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #F73B20;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: rgba(26, 26, 26, 0.6);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Referral Code Section */
+        .referral-section {
+            padding: 4rem 0;
+            background: #ffffff;
+        }
+
+        .referral-card {
+            background: #ffffff;
+            border: 1px solid rgba(247, 59, 32, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .referral-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .referral-subtitle {
+            color: rgba(26, 26, 26, 0.6);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .code-display {
+            background: rgba(247, 59, 32, 0.05);
+            border: 2px dashed rgba(247, 59, 32, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .code-label {
+            font-size: 0.9rem;
+            color: rgba(26, 26, 26, 0.5);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .code-text {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #F73B20;
+            letter-spacing: 0.1em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .share-btn-copy {
+            background: #F73B20;
+            color: white;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.3);
+        }
+
+        .share-btn-copy:hover {
+            background: #ff5238;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(247, 59, 32, 0.5);
+        }
+
+        .share-btn-whatsapp {
+            background: #25D366;
+            color: white;
+            box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);
+        }
+
+        .share-btn-whatsapp:hover {
+            background: #20ba5a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(37, 211, 102, 0.5);
+        }
+
+        .share-btn-twitter {
+            background: #1DA1F2;
+            color: white;
+            box-shadow: 0 4px 20px rgba(29, 161, 242, 0.3);
+        }
+
+        .share-btn-twitter:hover {
+            background: #1a8cd8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(29, 161, 242, 0.5);
+        }
+
+        /* Referral List */
+        .referral-list-section {
+            padding: 4rem 0;
+            background: rgba(247, 59, 32, 0.03);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .referral-list {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .referral-item {
+            background: #ffffff;
+            border: 1px solid rgba(247, 59, 32, 0.15);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        .referral-item:hover {
+            transform: translateX(10px);
+            border-color: rgba(247, 59, 32, 0.3);
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.15);
+        }
+
+        .referral-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(247, 59, 32, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #F73B20;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1a1a1a;
+        }
+
+        .user-date {
+            font-size: 0.9rem;
+            color: rgba(26, 26, 26, 0.5);
+        }
+
+        .referral-status {
+            background: rgba(247, 59, 32, 0.15);
+            color: #F73B20;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            background: #f5f5f5;
+            padding: 4rem 0 2rem;
+            border-top: 1px solid rgba(247, 59, 32, 0.1);
+        }
+
+        .footer-text {
+            text-align: center;
+            color: rgba(26, 26, 26, 0.4);
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-delay-1 { animation-delay: 0.2s; }
+        .fade-in-delay-2 { animation-delay: 0.4s; }
+        .fade-in-delay-3 { animation-delay: 0.6s; }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #F73B20;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.4);
+            transform: translateY(200px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 6rem 0 3rem;
+            }
+
+            .stat-card {
+                padding: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .referral-card {
+                padding: 2rem;
+            }
+
+            .code-text {
+                font-size: 1.8rem;
+            }
+
+            .share-buttons {
+                flex-direction: column;
+            }
+
+            .share-btn {
+                min-width: 100%;
+            }
+
+            .referral-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .toast-notification {
+                right: 1rem;
+                left: 1rem;
+                bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand" href="#">HotOrNot</a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span style="color: #F73B20; font-size: 1.5rem;">☰</span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="#dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#referrals">Referrals</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#rewards">Rewards</a></li>
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                        <button class="btn btn-orange">My Account</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="hero-bg">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge fade-in">🎁 Referral Program</div>
+                <h1 class="hero-title fade-in fade-in-delay-1">
+                    Your <span class="orange-text">Referral Dashboard</span>
+                </h1>
+                <p class="hero-subtitle fade-in fade-in-delay-2">
+                    Share your unique code and earn rewards for every friend who joins!
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4 fade-in">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <span class="stat-number" id="totalReferrals">47</span>
+                        <div class="stat-label">Total Referrals</div>
+                    </div>
+                </div>
+                <div class="col-md-4 fade-in fade-in-delay-1">
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <span class="stat-number" id="activeReferrals">35</span>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                </div>
+                <div class="col-md-4 fade-in fade-in-delay-2">
+                    <div class="stat-card">
+                        <div class="stat-icon">🎁</div>
+                        <span class="stat-number" id="earnedRewards">$245</span>
+                        <div class="stat-label">Rewards Earned</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="referral-section">
+        <div class="container">
+            <div class="referral-card fade-in">
+                <h2 class="referral-title">Your Referral Code</h2>
+                <p class="referral-subtitle">Share this code with friends and family to earn rewards</p>
+                
+                <div class="code-display">
+                    <div class="code-label">Your Unique Code</div>
+                    <div class="code-text" id="referralCode">HOT2024XYZ</div>
+                </div>
+
+                <div class="share-buttons">
+                    <button class="share-btn share-btn-copy" onclick="copyCode()">
+                        📋 Copy Code
+                    </button>
+                    <button class="share-btn share-btn-whatsapp" onclick="shareWhatsApp()">
+                        💬 WhatsApp
+                    </button>
+                    <button class="share-btn share-btn-twitter" onclick="shareTwitter()">
+                        🐦 Twitter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="referral-list-section" id="referrals">
+        <div class="container">
+            <h2 class="section-title">Your Referrals</h2>
+            <div class="referral-list">
+                <div class="referral-item fade-in">
+                    <div class="referral-user">
+                        <div class="user-avatar">JD</div>
+                        <div class="user-info">
+                            <span class="user-name">John Doe</span>
+                            <span class="user-date">Joined 2 days ago</span>
+                        </div>
+                    </div>
+                    <div class="referral-status">✓ Active</div>
+                </div>
+
+                <div class="referral-item fade-in fade-in-delay-1">
+                    <div class="referral-user">
+                        <div class="user-avatar">SM</div>
+                        <div class="user-info">
+                            <span class="user-name">Sarah Miller</span>
+                            <span class="user-date">Joined 5 days ago</span>
+                        </div>
+                    </div>
+                    <div class="referral-status">✓ Active</div>
+                </div>
+
+                <div class="referral-item fade-in fade-in-delay-2">
+                    <div class="referral-user">
+                        <div class="user-avatar">MJ</div>
+                        <div class="user-info">
+                            <span class="user-name">Mike Johnson</span>
+                            <span class="user-date">Joined 1 week ago</span>
+                        </div>
+                    </div>
+                    <div class="referral-status">✓ Active</div>
+                </div>
+
+                <div class="referral-item fade-in fade-in-delay-3">
+                    <div class="referral-user">
+                        <div class="user-avatar">EB</div>
+                        <div class="user-info">
+                            <span class="user-name">Emma Brown</span>
+                            <span class="user-date">Joined 2 weeks ago</span>
+                        </div>
+                    </div>
+                    <div class="referral-status">✓ Active</div>
+                </div>
+
+                <div class="referral-item fade-in">
+                    <div class="referral-user">
+                        <div class="user-avatar">DW</div>
+                        <div class="user-info">
+                            <span class="user-name">David Wilson</span>
+                            <span class="user-date">Joined 3 weeks ago</span>
+                        </div>
+                    </div>
+                    <div class="referral-status">✓ Active</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-text">© 2024 HotOrNot • Referral Dashboard</div>
+        </div>
+    </footer>
+
+    <div class="toast-notification" id="toast">
+        Code copied to clipboard! 🎉
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('mainNav');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Copy referral code
+        function copyCode() {
+            const code = document.getElementById('referralCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast();
+            });
+        }
+
+        // Show toast notification
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Share on WhatsApp
+        function shareWhatsApp() {
+            const code = document.getElementById('referralCode').textContent;
+            const text = `Join me on HotOrNot! Use my referral code: ${code} to get started! 🎁`;
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        // Share on Twitter
+        function shareTwitter() {
+            const code = document.getElementById('referralCode').textContent;
+            const text = `Join me on HotOrNot! Use my referral code: ${code} 🎁`;
+            const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        // Animate numbers on scroll
+        function animateNumber(element, target) {
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, 30);
+        }
+
+        // Trigger number animation when visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const statCards = document.querySelectorAll('.stat-number');
+                    animateNumber(statCards[0], 47);
+                    animateNumber(statCards[1], 35);
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+
+        observer.observe(document.querySelector('.stats-section'));
+    </script>
+</body>
+</html>
