@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Profile - HotOrNot</title>
+  <meta name="_csrf" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #FFF5F0 0%, #FFE8F0 50%, #FFF0F5 100%);
+      color: #2d2d2d;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    /* Gradient background */
+    .bg-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .gradient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.1;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .gradient-orb:nth-child(1) {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, #FA8231, transparent);
+      top: 10%;
+      left: 10%;
+    }
+
+    .gradient-orb:nth-child(2) {
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, #F97F51, transparent);
+      top: 50%;
+      right: 10%;
+      animation-delay: 5s;
+    }
+
+    .gradient-orb:nth-child(3) {
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, #FF6B9D, transparent);
+      bottom: 10%;
+      left: 40%;
+      animation-delay: 10s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(50px, -80px) scale(1.1); }
+      66% { transform: translate(-50px, 50px) scale(0.9); }
+    }
+
+    .profile-container {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      box-shadow: 0 10px 50px rgba(250, 130, 49, 0.2);
+      overflow: hidden;
+      border: 2px solid rgba(250, 130, 49, 0.2);
+    }
+
+    /* Header */
+    .profile-header {
+      background: linear-gradient(135deg, #FA8231 0%, #F97F51 50%, #FF6B9D 100%);
+      color: white;
+      padding: 20px 25px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 4px 15px rgba(250, 130, 49, 0.3);
+    }
+
+    .profile-header .back-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+    }
+
+    .profile-header .back-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateX(-3px);
+    }
+
+    .profile-header .page-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0;
+      flex: 1;
+    }
+
+    /* Profile Picture Section */
+    .profile-pic-section {
+      background: linear-gradient(135deg, rgba(250, 130, 49, 0.05) 0%, rgba(255, 107, 157, 0.05) 100%);
+      padding: 40px 20px;
+      text-align: center;
+      border-bottom: 2px solid rgba(250, 130, 49, 0.1);
+    }
+
+    .profile-pic-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+      border-radius: 50%;
+      border: 5px solid #FA8231;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(250, 130, 49, 0.3);
+      background: linear-gradient(135deg, #FA8231, #FF6B9D);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .profile-pic-container:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 50px rgba(250, 130, 49, 0.4);
+    }
+
+    .profile-pic-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-pic-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      font-size: 60px;
+      color: white;
+    }
+
+    .upload-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(250, 130, 49, 0.95);
+      color: white;
+      padding: 12px;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .profile-pic-container:hover .upload-overlay {
+      opacity: 1;
+    }
+
+    /* Form Section */
+    .profile-body {
+      padding: 40px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .profile-body::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .profile-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .profile-body::-webkit-scrollbar-thumb {
+      background: rgba(250, 130, 49, 0.3);
+      border-radius: 10px;
+    }
+
+    .profile-body::-webkit-scrollbar-thumb:hover {
+      background: rgba(250, 130, 49, 0.5);
+    }
+
+    /* Alert messages */
+    .alert {
+      padding: 12px 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .alert.success {
+      background: #d4ffd8;
+      color: #0d8a17;
+      border-left: 5px solid #0d8a17;
+    }
+
+    .alert.error {
+      background: #ffe0e0;
+      color: #b30000;
+      border-left: 5px solid #b30000;
+    }
+
+    /* Form styles */
+    .form-label {
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-label i {
+      color: #FA8231;
+    }
+
+    .form-control,
+    .form-select {
+      border-radius: 12px;
+      border: 2px solid rgba(250, 130, 49, 0.2);
+      padding: 12px 16px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: #FA8231;
+      box-shadow: 0 0 0 0.25rem rgba(250, 130, 49, 0.15);
+      background: white;
+      outline: none;
+    }
+
+    .form-control:read-only,
+    .form-control:disabled {
+      background: rgba(250, 130, 49, 0.05);
+      border-color: rgba(250, 130, 49, 0.15);
+      cursor: not-allowed;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .success-icon,
+    .error-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+      font-size: 1.1rem;
+    }
+
+    .success-icon {
+      color: #28a745;
+    }
+
+    .error-icon {
+      color: #FA8231;
+    }
+
+    .form-control.valid ~ .success-icon {
+      display: block;
+    }
+
+    .form-control.invalid ~ .error-icon {
+      display: block;
+    }
+
+    .error-message {
+      color: #FA8231;
+      font-size: 0.9rem;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .text-danger {
+      color: #FA8231 !important;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    .text-muted {
+      color: rgba(26, 26, 26, 0.5) !important;
+      font-size: 0.9rem;
+    }
+
+    /* Buttons */
+    .button-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+      padding-bottom: 20px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #FA8231 0%, #F97F51 100%);
+      border: none;
+      border-radius: 50px;
+      padding: 14px 40px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: white;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(250, 130, 49, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(250, 130, 49, 0.5);
+      background: linear-gradient(135deg, #F97F51 0%, #FA8231 100%);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body {
+        padding: 0;
+      }
+
+      .profile-container {
+        border-radius: 0;
+        border: none;
+        min-height: 100vh;
+      }
+
+      .profile-header {
+        border-radius: 0;
+        padding: 15px 20px;
+      }
+
+      .profile-header .page-title {
+        font-size: 1.2rem;
+      }
+
+      .profile-body {
+        padding: 25px 20px;
+        max-height: none;
+      }
+
+      .profile-pic-container {
+        width: 160px;
+        height: 160px;
+      }
+
+      .button-container {
+        flex-direction: column;
+      }
+
+      .btn-primary {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .profile-pic-section {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-gradient">
+    <div class="gradient-orb"></div>
+    <div class="gradient-orb"></div>
+    <div class="gradient-orb"></div>
+  </div>
+
+  <div class="profile-container">
+    <!-- Header -->
+    <div class="profile-header">
+      <button class="back-btn" onclick="window.history.back()">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <h1 class="page-title">
+        <i class="bi bi-person-circle me-2"></i>Edit Profile
+      </h1>
+    </div>
+
+    <!-- Profile Picture Section -->
+    <div class="profile-pic-section">
+      <div class="profile-pic-container" onclick="document.getElementById('profilePicInput').click()">
+        <div class="profile-pic-placeholder">
+          <img th:if="${user.profilePhoto != null}" th:src="@{/userphoto}" alt="Profile Picture">
+          <i class="bi bi-person-circle" th:unless="${user.profilePhoto != null}"></i>
+        </div>
+        <div class="upload-overlay">
+          <i class="bi bi-camera-fill"></i> Change Photo
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form id="profileForm" method="post" th:object="${user}" th:action="@{/user/update-user-profile}" enctype="multipart/form-data">
+      <input type="file" id="profilePicInput" th:field="*{profilePhotoFile}" name="profilePhotoFile" accept="image/*" style="display: none;">
+
+      <div class="profile-body">
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" th:text="${success}" class="alert success"></div>
+        <div th:if="${error}" th:text="${error}" class="alert error"></div>
+
+        <input type="hidden" th:field="*{userId}">
+
+        <!-- Full Name & Email -->
+        <div class="row mb-3">
+          <div class="col-md-6 mb-3">
+            <label for="fullName" class="form-label">
+              <i class="bi bi-person-fill"></i> Full Name
+            </label>
+            <div class="input-wrapper">
+              <input type="text" class="form-control" name="username" th:field="*{fullName}" id="fullName" placeholder="Enter your full name">
+              <i class="bi bi-check-circle-fill success-icon"></i>
+              <i class="bi bi-exclamation-circle-fill error-icon"></i>
+            </div>
+            <div class="error-message" id="fullNameError">Please enter your full name (minimum 3 characters)</div>
+            <div class="text-danger" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="email" class="form-label">
+              <i class="bi bi-envelope-fill"></i> Email Address <span style="color: #FA8231;">*</span>
+            </label>
+            <input type="email" class="form-control" th:field="*{email}" name="email" id="email" placeholder="your.email@example.com" readonly required>
+          </div>
+        </div>
+
+        <!-- Username & Contact -->
+        <div class="row mb-3">
+          <div class="col-md-6 mb-3">
+            <label for="username" class="form-label">
+              <i class="bi bi-at"></i> Username <span style="color: #FA8231;">*</span>
+            </label>
+            <input type="text" class="form-control" name="username" th:field="*{username}" id="username" readonly required>
+            <div class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="contact" class="form-label">
+              <i class="bi bi-telephone-fill"></i> Contact Number
+            </label>
+            <div class="input-wrapper">
+              <input type="tel" class="form-control" th:field="*{contactNo}" name="contactNo" id="contact" placeholder="+91 XXXXX XXXXX">
+              <i class="bi bi-check-circle-fill success-icon"></i>
+              <i class="bi bi-exclamation-circle-fill error-icon"></i>
+            </div>
+            <div class="error-message" id="contactError">Please enter a valid 10-digit phone number</div>
+            <div class="text-danger" th:if="${#fields.hasErrors('contactNo')}" th:errors="*{contactNo}"></div>
+          </div>
+        </div>
+
+        <!-- DOB & Gender -->
+        <div class="row mb-3">
+          <div class="col-md-6 mb-3">
+            <label for="dob" class="form-label">
+              <i class="bi bi-calendar-event-fill"></i> Date of Birth
+            </label>
+            <div class="input-wrapper">
+              <input type="date" class="form-control" th:disabled="${birthdayUpdate}" th:value="${#temporals.format(user.dateOfBirth, 'yyyy-MM-dd')}" name="dateOfBirth" id="dob">
+              <i class="bi bi-check-circle-fill success-icon"></i>
+              <i class="bi bi-exclamation-circle-fill error-icon"></i>
+            </div>
+            <div class="error-message" id="dobError">You must be at least 13 years old</div>
+            <div class="text-danger" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}"></div>
+            <p th:if="${birthdayError}" class="text-danger">You can change only once a year</p>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="gender" class="form-label">
+              <i class="bi bi-gender-ambiguous"></i> Gender <span style="color: #FA8231;">*</span>
+            </label>
+            <input type="text" class="form-control" th:field="*{gender}" name="gender" id="gender" readonly required>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="mb-3">
+          <label for="location" class="form-label">
+            <i class="bi bi-geo-alt-fill"></i> Location
+          </label>
+          <div class="input-wrapper">
+            <input type="text" class="form-control" th:field="*{jeoLocation}" name="jiolocation" id="location" placeholder="City, Country">
+            <i class="bi bi-check-circle-fill success-icon"></i>
+            <i class="bi bi-exclamation-circle-fill error-icon"></i>
+          </div>
+          <div class="error-message" id="locationError">Please enter your location</div>
+          <div class="text-danger" th:if="${#fields.hasErrors('jeoLocation')}" th:errors="*{jeoLocation}"></div>
+        </div>
+
+        <!-- Relationship Status -->
+        <div class="mb-3">
+          <label for="relationship" class="form-label">
+            <i class="bi bi-heart-fill"></i> Relationship Status
+          </label>
+          <select class="form-select" th:field="*{relationshipStatus}" name="relationshipStatus" id="relationship">
+            <option value="">Select Status</option>
+            <option value="single">Single</option>
+            <option value="in-relationship">In a Relationship</option>
+            <option value="engaged">Engaged</option>
+            <option value="married">Married</option>
+            <option value="complicated">It's Complicated</option>
+            <option value="prefer-not-to-say">Prefer not to say</option>
+          </select>
+        </div>
+
+        <!-- Bio -->
+        <div class="mb-4">
+          <label for="bio" class="form-label">
+            <i class="bi bi-pencil-fill"></i> Bio
+          </label>
+          <div class="input-wrapper">
+            <textarea class="form-control" th:field="*{bio}" name="bio" id="bio" rows="4" maxlength="150" placeholder="Tell us about yourself..."></textarea>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+            <small class="text-muted">Maximum 150 characters allowed.</small>
+            <small class="text-muted" id="charCount">0/150</small>
+          </div>
+          <div class="error-message" id="bioError">Bio is too long (max 150 characters)</div>
+          <div class="text-danger" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}"></div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="button-container">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle-fill"></i> Save Profile
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Form Validation
+    const form = document.getElementById('profileForm');
+    const fullNameInput = document.getElementById('fullName');
+    const contactInput = document.getElementById('contact');
+    const dobInput = document.getElementById('dob');
+    const locationInput = document.getElementById('location');
+    const bioInput = document.getElementById('bio');
+
+    function validateFullName() {
+      const value = fullNameInput.value.trim();
+      const errorMsg = document.getElementById('fullNameError');
+
+      if (value.length === 0) {
+        fullNameInput.classList.remove('invalid', 'valid');
+        errorMsg.classList.remove('show');
+        return true;
+      }
+
+      if (value.length < 3) {
+        fullNameInput.classList.add('invalid');
+        fullNameInput.classList.remove('valid');
+        errorMsg.classList.add('show');
+        return false;
+      } else {
+        fullNameInput.classList.remove('invalid');
+        fullNameInput.classList.add('valid');
+        errorMsg.classList.remove('show');
+        return true;
+      }
+    }
+
+    function validateContact() {
+      const value = contactInput.value.trim();
+      const errorMsg = document.getElementById('contactError');
+      const phoneRegex = /^[0-9]{10}$/;
+
+      if (value.length === 0) {
+        contactInput.classList.remove('invalid', 'valid');
+        errorMsg.classList.remove('show');
+        return true;
+      }
+
+      if (!phoneRegex.test(value.replace(/\s+/g, '').replace('+91', ''))) {
+        contactInput.classList.add('invalid');
+        contactInput.classList.remove('valid');
+        errorMsg.classList.add('show');
+        return false;
+      } else {
+        contactInput.classList.remove('invalid');
+        contactInput.classList.add('valid');
+        errorMsg.classList.remove('show');
+        return true;
+      }
+    }
+
+    function validateDOB() {
+      const value = dobInput.value;
+      const errorMsg = document.getElementById('dobError');
+
+      if (!value) {
+        dobInput.classList.remove('invalid', 'valid');
+        errorMsg.classList.remove('show');
+        return true;
+      }
+
+      const birthDate = new Date(value);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      if (age < 13) {
+        dobInput.classList.add('invalid');
+        dobInput.classList.remove('valid');
+        errorMsg.textContent = 'You must be at least 13 years old';
+        errorMsg.classList.add('show');
+        return false;
+      } else {
+        dobInput.classList.remove('invalid');
+        dobInput.classList.add('valid');
+        errorMsg.classList.remove('show');
+        return true;
+      }
+    }
+
+    function validateLocation() {
+      const value = locationInput.value.trim();
+      const errorMsg = document.getElementById('locationError');
+
+      if (value.length === 0) {
+        locationInput.classList.remove('invalid', 'valid');
+        errorMsg.classList.remove('show');
+        return true;
+      }
+
+      if (value.length < 2) {
+        locationInput.classList.add('invalid');
+        locationInput.classList.remove('valid');
+        errorMsg.classList.add('show');
+        return false;
+      } else {
+        locationInput.classList.remove('invalid');
+        locationInput.classList.add('valid');
+        errorMsg.classList.remove('show');
+        return true;
+      }
+    }
+
+    function updateCharCount() {
+      const count = bioInput.value.length;
+      const charCount = document.getElementById('charCount');
+      charCount.textContent = count + '/150';
+
+      if (count > 150) {
+        charCount.style.color = '#FA8231';
+        document.getElementById('bioError').classList.add('show');
+      } else {
+        charCount.style.color = 'rgba(26, 26, 26, 0.5)';
+        document.getElementById('bioError').classList.remove('show');
+      }
+    }
+
+    // Real-time validation
+    fullNameInput.addEventListener('blur', validateFullName);
+    fullNameInput.addEventListener('input', validateFullName);
+
+    contactInput.addEventListener('blur', validateContact);
+    contactInput.addEventListener('input', validateContact);
+
+    dobInput.addEventListener('blur', validateDOB);
+    dobInput.addEventListener('change', validateDOB);
+
+    locationInput.addEventListener('blur', validateLocation);
+    locationInput.addEventListener('input', validateLocation);
+
+    bioInput.addEventListener('input', updateCharCount);
+
+    // Initialize character count
+    updateCharCount();
+
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+      const isFullNameValid = validateFullName();
+      const isContactValid = validateContact();
+      const isDOBValid = validateDOB();
+      const isLocationValid = validateLocation();
+
+      if (!isFullNameValid || !isContactValid || !isDOBValid || !isLocationValid) {
+        e.preventDefault();
+
+        const firstError = document.querySelector('.form-control.invalid');
+        if (firstError) {
+          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstError.focus();
+        }
+      }
+    });
+
+    // Profile pic upload
+    const fileInput = document.getElementById('profilePicInput');
+    const placeholder = document.querySelector('.profile-pic-placeholder');
+
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          placeholder.innerHTML = `<img src="${e.target.result}" alt="Profile Picture">`;
+        };
+
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+
+</html>
