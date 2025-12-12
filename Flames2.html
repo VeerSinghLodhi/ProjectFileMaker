@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLAMES Game - Find Your Relationship</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+          /*  font-family: 'Caveat', 'system-ui'; */
+            font-family: "arial";
+            background: #fafafa;
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+
+        .game-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 4rem 0;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #F73B20, transparent);
+            top: -10%;
+            right: -10%;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #ff5238, transparent);
+            bottom: -15%;
+            left: -10%;
+            animation-duration: 20s;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -80px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(247, 59, 32, 0.15);
+            box-shadow: 0 20px 60px rgba(247, 59, 32, 0.15);
+            border-radius: 30px;
+            padding: 3rem;
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-badge {
+            display: inline-block;
+            background: rgba(247, 59, 32, 0.15);
+            border: 1px solid rgba(247, 59, 32, 0.3);
+            color: #F73B20;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .game-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .orange-text {
+            color: #F73B20;
+        }
+
+        .game-subtitle {
+            text-align: center;
+            color: rgba(26, 26, 26, 0.65);
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .input-group-custom {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group-custom label {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+            display: block;
+            font-size: 1rem;
+        }
+
+        .form-control {
+            border: 2px solid rgba(247, 59, 32, 0.2);
+            border-radius: 15px;
+            padding: 0.9rem 1.2rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #ffffff;
+        }
+
+        .form-control:focus {
+            border-color: #F73B20;
+            box-shadow: 0 0 0 0.2rem rgba(247, 59, 32, 0.15);
+            outline: none;
+        }
+
+        .btn-calculate {
+            width: 100%;
+            background: #F73B20;
+            border: none;
+            color: white;
+            padding: 1rem;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.3);
+            margin-top: 1rem;
+        }
+
+        .btn-calculate:hover {
+            background: #ff5238;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(247, 59, 32, 0.5);
+        }
+
+        .process-container {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: rgba(247, 59, 32, 0.03);
+            border-radius: 20px;
+            border: 1px solid rgba(247, 59, 32, 0.1);
+            display: none;
+        }
+
+        .process-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #F73B20;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .process-step {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 15px;
+            border: 1px solid rgba(247, 59, 32, 0.1);
+        }
+
+        .step-label {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .name-display {
+            font-size: 1.5rem;
+            letter-spacing: 0.3rem;
+            margin: 0.5rem 0;
+            font-family: monospace;
+            font-weight: 600;
+        }
+
+        .letter {
+            display: inline-block;
+            margin: 0 0.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .letter.crossed {
+            text-decoration: line-through;
+            color: #F73B20;
+            opacity: 0.5;
+        }
+
+        .remaining-count {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #F73B20;
+            margin-top: 1rem;
+        }
+
+        .flames-process {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .flame-letter {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(247, 59, 32, 0.1);
+            border: 2px solid rgba(247, 59, 32, 0.3);
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #F73B20;
+            transition: all 0.3s ease;
+        }
+
+        .flame-letter.eliminated {
+            background: rgba(26, 26, 26, 0.05);
+            border-color: rgba(26, 26, 26, 0.2);
+            color: rgba(26, 26, 26, 0.3);
+            text-decoration: line-through;
+        }
+
+        .result-container {
+            margin-top: 2rem;
+            padding: 2.5rem;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+            color: white;
+            text-align: center;
+            display: none;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-emoji {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            opacity: 0.95;
+        }
+
+        .result-letter {
+            font-size: 5rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .result-meaning {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .flames-legend {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(247, 59, 32, 0.03);
+            border-radius: 15px;
+            border: 1px solid rgba(247, 59, 32, 0.1);
+        }
+
+        .legend-title {
+            font-weight: 700;
+            color: #F73B20;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.8rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            color: rgba(26, 26, 26, 0.7);
+        }
+
+        .legend-item strong {
+            color: #F73B20;
+            font-size: 1.1rem;
+            min-width: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 2rem 1.5rem;
+            }
+
+            .name-display {
+                font-size: 1.2rem;
+                letter-spacing: 0.2rem;
+            }
+
+            .flame-letter {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="game-section">
+        <div class="hero-bg">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+        </div>
+        
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="game-container">
+                        <div class="text-center">
+                            <div class="game-badge">💕 Find Your Destiny</div>
+                        </div>
+                        
+                        <h1 class="game-title">
+                            <span class="orange-text">FLAMES</span> Game
+                        </h1>
+                        <p class="game-subtitle">Discover your relationship destiny!</p>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="input-group-custom">
+                                    <label for="name1">Your Name</label>
+                                    <input type="text" class="form-control" id="name1" placeholder="Enter your name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group-custom">
+                                    <label for="name2">Their Name</label>
+                                    <input type="text" class="form-control" id="name2" placeholder="Enter their name">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-calculate" onclick="calculateFlames()">Calculate FLAMES ✨</button>
+                        
+                        <div class="process-container" id="processContainer">
+                            <div class="process-title">📝 Calculation Process</div>
+                            
+                            <div class="process-step">
+                                <div class="step-label">Step 1: Original Names</div>
+                                <div class="name-display" id="originalName1"></div>
+                                <div class="name-display" id="originalName2"></div>
+                            </div>
+                            
+                            <div class="process-step">
+                                <div class="step-label">Step 2: After Removing Common Letters</div>
+                                <div class="name-display" id="processedName1"></div>
+                                <div class="name-display" id="processedName2"></div>
+                                <div class="remaining-count" id="remainingCount"></div>
+                            </div>
+                            
+                            <div class="process-step">
+                                <div class="step-label">Step 3: FLAMES Elimination Process</div>
+                                <div class="flames-process" id="flamesProcess"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-container" id="result">
+                            <div class="result-emoji" id="resultEmoji">💖</div>
+                            <div class="result-title">Your Relationship is:</div>
+                            <div class="result-letter" id="resultLetter"></div>
+                            <div class="result-meaning" id="resultMeaning"></div>
+                        </div>
+                        
+                        <div class="flames-legend">
+                            <div class="legend-title">What does FLAMES mean?</div>
+                            <div class="legend-grid">
+                                <div class="legend-item"><strong>F</strong> - Friends</div>
+                                <div class="legend-item"><strong>L</strong> - Lovers</div>
+                                <div class="legend-item"><strong>A</strong> - Affection</div>
+                                <div class="legend-item"><strong>M</strong> - Marriage</div>
+                                <div class="legend-item"><strong>E</strong> - Enemies</div>
+                                <div class="legend-item"><strong>S</strong> - Siblings</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function calculateFlames() {
+            const name1Input = document.getElementById('name1').value.trim();
+            const name2Input = document.getElementById('name2').value.trim();
+            
+            if (!name1Input || !name2Input) {
+                alert('Please enter both names!');
+                return;
+            }
+            
+            const name1 = name1Input.toLowerCase().replace(/\s/g, '');
+            const name2 = name2Input.toLowerCase().replace(/\s/g, '');
+            
+            // Display original names
+            document.getElementById('originalName1').innerHTML = createLetterSpans(name1);
+            document.getElementById('originalName2').innerHTML = createLetterSpans(name2);
+            
+            // Create arrays from names
+            let arr1 = name1.split('');
+            let arr2 = name2.split('');
+            
+            // Track which letters are crossed
+            let crossed1 = new Array(arr1.length).fill(false);
+            let crossed2 = new Array(arr2.length).fill(false);
+            
+            // Remove common letters
+            for (let i = 0; i < arr1.length; i++) {
+                for (let j = 0; j < arr2.length; j++) {
+                    if (arr1[i] === arr2[j] && !crossed1[i] && !crossed2[j]) {
+                        crossed1[i] = true;
+                        crossed2[j] = true;
+                        break;
+                    }
+                }
+            }
+            
+            // Display processed names with crossed letters
+            document.getElementById('processedName1').innerHTML = createCrossedLetterSpans(arr1, crossed1);
+            document.getElementById('processedName2').innerHTML = createCrossedLetterSpans(arr2, crossed2);
+            
+            // Count remaining letters
+            const count = crossed1.filter(x => !x).length + crossed2.filter(x => !x).length;
+            
+            if (count === 0) {
+                alert('Names are identical! Try different names.');
+                return;
+            }
+            
+            document.getElementById('remainingCount').textContent = `Remaining letters: ${count}`;
+            
+            // FLAMES elimination process
+            let flames = ['F', 'L', 'A', 'M', 'E', 'S'];
+            let index = 0;
+            
+            // Show initial FLAMES
+            displayFlamesProcess(flames, -1);
+            
+            // Eliminate letters one by one with delay
+            let eliminationSteps = [];
+            let tempFlames = [...flames];
+            let tempIndex = 0;
+            
+            while (tempFlames.length > 1) {
+                tempIndex = (tempIndex + count - 1) % tempFlames.length;
+                eliminationSteps.push({flames: [...tempFlames], eliminateIndex: tempIndex});
+                tempFlames.splice(tempIndex, 1);
+            }
+            
+            // Animate elimination
+            let stepIndex = 0;
+            const interval = setInterval(() => {
+                if (stepIndex < eliminationSteps.length) {
+                    displayFlamesProcess(eliminationSteps[stepIndex].flames, eliminationSteps[stepIndex].eliminateIndex);
+                    stepIndex++;
+                } else {
+                    clearInterval(interval);
+                    // Show final result
+                    const result = tempFlames[0];
+                    displayResult(result);
+                }
+            }, 800);
+            
+            // Show process container
+            document.getElementById('processContainer').style.display = 'block';
+        }
+        
+        function createLetterSpans(text) {
+            return text.split('').map(letter => 
+                `<span class="letter">${letter}</span>`
+            ).join('');
+        }
+        
+        function createCrossedLetterSpans(arr, crossed) {
+            return arr.map((letter, i) => 
+                `<span class="letter ${crossed[i] ? 'crossed' : ''}">${letter}</span>`
+            ).join('');
+        }
+        
+        function displayFlamesProcess(flames, eliminateIndex) {
+            const container = document.getElementById('flamesProcess');
+            const allLetters = ['F', 'L', 'A', 'M', 'E', 'S'];
+            
+            container.innerHTML = allLetters.map(letter => {
+                const isEliminated = !flames.includes(letter);
+                const isCurrentlyEliminating = flames[eliminateIndex] === letter;
+                return `<div class="flame-letter ${isEliminated ? 'eliminated' : ''}" 
+                            style="${isCurrentlyEliminating ? 'transform: scale(1.2); background: rgba(247, 59, 32, 0.3);' : ''}">${letter}</div>`;
+            }).join('');
+        }
+        
+        function displayResult(result) {
+            const meanings = {
+                'F': { text: 'Friends', emoji: '👥' },
+                'L': { text: 'Lovers', emoji: '💕' },
+                'A': { text: 'Affection', emoji: '💖' },
+                'M': { text: 'Marriage', emoji: '💍' },
+                'E': { text: 'Enemies', emoji: '⚔️' },
+                'S': { text: 'Siblings', emoji: '👫' }
+            };
+            
+            document.getElementById('resultEmoji').textContent = meanings[result].emoji;
+            document.getElementById('resultLetter').textContent = result;
+            document.getElementById('resultMeaning').textContent = meanings[result].text;
+            document.getElementById('result').style.display = 'block';
+            
+            // Scroll to result
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // Allow Enter key to calculate
+        document.getElementById('name2').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateFlames();
+            }
+        });
+    </script>
+</body>
+</html>
