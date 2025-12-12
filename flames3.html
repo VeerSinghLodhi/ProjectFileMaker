@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLAMES Game - Find Your Relationship</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1a1a1a;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float-particle 15s infinite;
+        }
+
+        @keyframes float-particle {
+            0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.3; }
+            50% { transform: translateY(-100px) translateX(50px) scale(1.5); opacity: 0.6; }
+        }
+
+        .game-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding: 3rem 0;
+            z-index: 1;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(30px);
+            border-radius: 40px;
+            padding: 3.5rem;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.3),
+                        0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+            animation: slideUp 0.8s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .floating-hearts {
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            font-size: 3rem;
+            animation: float-hearts 3s ease-in-out infinite;
+        }
+
+        @keyframes float-hearts {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .game-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 0.6rem 1.8rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .game-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .game-subtitle {
+            text-align: center;
+            color: rgba(26, 26, 26, 0.6);
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+
+        .input-group-custom {
+            margin-bottom: 1.8rem;
+            position: relative;
+        }
+
+        .input-group-custom label {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.7rem;
+            display: block;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control {
+            border: 3px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #667eea, #764ba2) border-box;
+            border-radius: 20px;
+            padding: 1.1rem 1.5rem;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .form-control:focus {
+            outline: none;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #f093fb, #f5576c) border-box;
+        }
+
+        .form-control::placeholder {
+            color: rgba(26, 26, 26, 0.4);
+        }
+
+        .btn-calculate {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 1.3rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            margin-top: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-calculate:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-calculate:hover:before {
+            left: 100%;
+        }
+
+        .btn-calculate:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #f093fb 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(118, 75, 162, 0.5);
+        }
+
+        .btn-calculate:active {
+            transform: translateY(-1px);
+        }
+
+        .process-container {
+            margin-top: 3rem;
+            display: none;
+        }
+
+        .process-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .process-step {
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            border-radius: 25px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            animation: fadeInScale 0.5s ease;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .step-label {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-number {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .name-display {
+            font-size: 1.8rem;
+            letter-spacing: 0.4rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .letter {
+            display: inline-block;
+            margin: 0 0.2rem;
+            padding: 0.5rem 0.8rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 12px;
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .letter.crossed {
+            background: linear-gradient(135deg, #f5576c, #f093fb);
+            text-decoration: line-through;
+            opacity: 0.6;
+            transform: scale(0.9);
+        }
+
+        .remaining-count {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 1.5rem;
+            text-align: center;
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+        }
+
+        .flames-process {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin: 1.5rem 0;
+        }
+
+        .flame-letter {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: 3px solid white;
+            border-radius: 20px;
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            position: relative;
+        }
+
+        .flame-letter::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            bottom: -5px;
+            left: -5px;
+            border-radius: 23px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s;
+        }
+
+        .flame-letter.eliminating {
+            transform: scale(1.3) rotate(360deg);
+            background: linear-gradient(135deg, #f5576c, #f093fb);
+            box-shadow: 0 15px 40px rgba(245, 87, 108, 0.6);
+        }
+
+        .flame-letter.eliminating::after {
+            opacity: 1;
+        }
+
+        .flame-letter.eliminated {
+            background: rgba(26, 26, 26, 0.1);
+            border-color: rgba(26, 26, 26, 0.2);
+            color: rgba(26, 26, 26, 0.3);
+            transform: scale(0.7);
+            box-shadow: none;
+        }
+
+        .result-container {
+            margin-top: 3rem;
+            padding: 3.5rem;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: white;
+            text-align: center;
+            display: none;
+            animation: resultAppear 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 30px 60px rgba(102, 126, 234, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes resultAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) rotate(-10deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .result-emoji {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            animation: bounce 1s ease infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .result-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        .result-letter {
+            font-size: 6rem;
+            font-weight: 900;
+            margin: 1.5rem 0;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+            animation: letterPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes letterPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .result-meaning {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .flames-legend {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+            border-radius: 25px;
+            border: 2px solid rgba(102, 126, 234, 0.15);
+        }
+
+        .legend-title {
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1.05rem;
+            color: rgba(26, 26, 26, 0.7);
+            padding: 0.8rem;
+            background: white;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .legend-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .legend-item strong {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 1.3rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 2rem 1.5rem;
+                border-radius: 30px;
+            }
+
+            .game-title {
+                font-size: 2.5rem;
+            }
+
+            .name-display {
+                font-size: 1.2rem;
+                letter-spacing: 0.2rem;
+            }
+
+            .letter {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.9rem;
+            }
+
+            .flame-letter {
+                width: 55px;
+                height: 55px;
+                font-size: 1.5rem;
+            }
+
+            .result-letter {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <section class="game-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="game-container">
+                        <div class="floating-hearts">💕</div>
+                        
+                        <div class="text-center">
+                            <div class="game-badge">✨ Discover Your Destiny</div>
+                        </div>
+                        
+                        <h1 class="game-title">
+                            FLAMES GAME
+                        </h1>
+                        <p class="game-subtitle">Find out your relationship status magically! 💖</p>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="input-group-custom">
+                                    <label for="name1">💙 Your Name</label>
+                                    <input type="text" class="form-control" id="name1" placeholder="Enter your name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group-custom">
+                                    <label for="name2">💜 Their Name</label>
+                                    <input type="text" class="form-control" id="name2" placeholder="Enter their name">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-calculate" onclick="calculateFlames()">
+                            ✨ Calculate FLAMES Magic ✨
+                        </button>
+                        
+                        <div class="process-container" id="processContainer">
+                            <div class="process-title">🔮 Magic Calculation Process</div>
+                            
+                            <div class="process-step">
+                                <div class="step-label">
+                                    <div class="step-number">1</div>
+                                    Original Names
+                                </div>
+                                <div class="name-display" id="originalName1"></div>
+                                <div class="name-display" id="originalName2"></div>
+                            </div>
+                            
+                            <div class="process-step">
+                                <div class="step-label">
+                                    <div class="step-number">2</div>
+                                    After Removing Common Letters
+                                </div>
+                                <div class="name-display" id="processedName1"></div>
+                                <div class="name-display" id="processedName2"></div>
+                                <div class="remaining-count" id="remainingCount"></div>
+                            </div>
+                            
+                            <div class="process-step">
+                                <div class="step-label">
+                                    <div class="step-number">3</div>
+                                    FLAMES Elimination Magic
+                                </div>
+                                <div class="flames-process" id="flamesProcess"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-container" id="result">
+                            <div class="result-emoji" id="resultEmoji">💖</div>
+                            <div class="result-title">🌟 Your Relationship Destiny 🌟</div>
+                            <div class="result-letter" id="resultLetter"></div>
+                            <div class="result-meaning" id="resultMeaning"></div>
+                        </div>
+                        
+                        <div class="flames-legend">
+                            <div class="legend-title">💫 What does FLAMES mean?</div>
+                            <div class="legend-grid">
+                                <div class="legend-item"><strong>F</strong> Friends</div>
+                                <div class="legend-item"><strong>L</strong> Lovers</div>
+                                <div class="legend-item"><strong>A</strong> Affection</div>
+                                <div class="legend-item"><strong>M</strong> Marriage</div>
+                                <div class="legend-item"><strong>E</strong> Enemies</div>
+                                <div class="legend-item"><strong>S</strong> Siblings</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = Math.random() * 10 + 5 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = Math.random() * 10 + 10 + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        createParticles();
+
+        function calculateFlames() {
+            const name1Input = document.getElementById('name1').value.trim();
+            const name2Input = document.getElementById('name2').value.trim();
+            
+            if (!name1Input || !name2Input) {
+                alert('Please enter both names! 💕');
+                return;
+            }
+            
+            const name1 = name1Input.toLowerCase().replace(/\s/g, '');
+            const name2 = name2Input.toLowerCase().replace(/\s/g, '');
+            
+            // Display original names
+            document.getElementById('originalName1').innerHTML = createLetterSpans(name1, false);
+            document.getElementById('originalName2').innerHTML = createLetterSpans(name2, false);
+            
+            // Create arrays from names
+            let arr1 = name1.split('');
+            let arr2 = name2.split('');
+            
+            // Track which letters are crossed
+            let crossed1 = new Array(arr1.length).fill(false);
+            let crossed2 = new Array(arr2.length).fill(false);
+            
+            // Remove common letters
+            for (let i = 0; i < arr1.length; i++) {
+                for (let j = 0; j < arr2.length; j++) {
+                    if (arr1[i] === arr2[j] && !crossed1[i] && !crossed2[j]) {
+                        crossed1[i] = true;
+                        crossed2[j] = true;
+                        break;
+                    }
+                }
+            }
+            
+            // Display processed names with crossed letters
+            setTimeout(() => {
+                document.getElementById('processedName1').innerHTML = createCrossedLetterSpans(arr1, crossed1);
+                document.getElementById('processedName2').innerHTML = createCrossedLetterSpans(arr2, crossed2);
+            }, 100);
+            
+            // Count remaining letters
+            const count = crossed1.filter(x => !x).length + crossed2.filter(x => !x).length;
+            
+            if (count === 0) {
+                alert('Names are identical! Try different names. 💫');
+                return;
+            }
+            
+            document.getElementById('remainingCount').textContent = `✨ Remaining letters: ${count} ✨`;
+            
+            // FLAMES elimination process
+            let flames = ['F', 'L', 'A', 'M', 'E', 'S'];
+            let index = 0;
+            
+            // Show initial FLAMES
+            displayFlamesProcess(flames, -1);
+            
+            // Eliminate letters one by one with delay
+            let eliminationSteps = [];
+            let tempFlames = [...flames];
+            let tempIndex = 0;
+            
+            while (tempFlames.length > 1) {
+                tempIndex = (tempIndex + count - 1) % tempFlames.length;
+                eliminationSteps.push({flames: [...tempFlames], eliminateIndex: tempIndex});
+                tempFlames.splice(tempIndex, 1);
+            }
+            
+            // Animate elimination
+            let stepIndex = 0;
+            const interval = setInterval(() => {
+                if (stepIndex < eliminationSteps.length) {
+                    displayFlamesProcess(eliminationSteps[stepIndex].flames, eliminationSteps[stepIndex].eliminateIndex);
+                    stepIndex++;
+                } else {
+                    clearInterval(interval);
+                    // Show final result
+                    setTimeout(() => {
+                        const result = tempFlames[0];
+                        displayResult(result);
+                    }, 500);
+                }
+            }, 1000);
+            
+            // Show process container
+            document.getElementById('processContainer').style.display = 'block';
+        }
+        
+        function createLetterSpans(text, delay = true) {
+            return text.split('').map((letter, i) => 
+                `<span class="letter" style="animation-delay: ${delay ? i * 0.1 : 0}s">${letter}</span>`
+            ).join('');
+        }
+        
+        function createCrossedLetterSpans(arr, crossed) {
+            return arr.map((letter, i) => 
+                `<span class="letter ${crossed[i] ? 'crossed' : ''}" style="animation-delay: ${i * 0.1}s">${letter}</span>`
+            ).join('');
+        }
+        
+        function displayFlamesProcess(flames, eliminateIndex) {
+            const container = document.getElementById('flamesProcess');
+            const allLetters = ['F', 'L', 'A', 'M', 'E', 'S'];
+            
+            container.innerHTML = allLetters.map(letter => {
+                const isEliminated = !flames.includes(letter);
+                const isCurrentlyEliminating = flames[eliminateIndex] === letter;
+                return `<div class="flame-letter ${isEliminated ? 'eliminated' : ''} ${isCurrentlyEliminating ? 'eliminating' : ''}">${letter}</div>`;
+            }).join('');
+        }
+        
+        function displayResult(result) {
+            const meanings = {
+                'F': { text: 'Friends', emoji: '👥' },
+                'L': { text: 'Lovers', emoji: '💕' },
+                'A': { text: 'Affection', emoji: '💖' },
+                'M': { text: 'Marriage', emoji: '💍' },
+                'E': { text: 'Enemies', emoji: '⚔️' },
+                'S': { text: 'Siblings', emoji: '👫' }
+            };
+            
+            document.getElementById('resultEmoji').textContent = meanings[result].emoji;
+            document.getElementById('resultLetter').textContent = result;
+            document.getElementById('resultMeaning').textContent = meanings[result].text;
+            document.getElementById('result').style.display = 'block';
+            
+            // Scroll to result
+            setTimeout(() => {
+                document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+        
+        // Allow Enter key to calculate
+        document.getElementById('name2').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateFlames();
+            }
+        });
+    </script>
+</body>
+</html>
