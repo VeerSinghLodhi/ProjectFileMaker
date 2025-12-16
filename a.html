@@ -1,11 +1,2139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Rate Photos - HotOrNot</title>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+    <!--  <link rel="stylesheet" th:href="@{/css/hotornot.css}">-->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Caveat', 'system-ui';
+            background: #fafafa;
+            color: #1a1a1a;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
+            }
+        }
+
+        /* ========== BACKGROUND GRADIENT ========== */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: #fafafa;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #F73B20, transparent);
+            top: -10%;
+            right: -10%;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #ff5238, transparent);
+            bottom: -15%;
+            left: -10%;
+            animation-duration: 20s;
+            animation-delay: 2s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #F73B20, transparent);
+            top: 40%;
+            left: 50%;
+            animation-duration: 18s;
+            animation-delay: 1s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(50px, -80px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-50px, 50px) scale(0.9);
+            }
+        }
+
+        /* ========== DESKTOP NAVIGATION ========== */
+        .navbar-desktop {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(247, 59, 32, 0.15);
+            box-shadow: 0 4px 30px rgba(247, 59, 32, 0.15);
+            padding: 1.5rem 0;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .navbar-desktop {
+                display: block !important;
+            }
+        }
+
+        .navbar-desktop.scrolled {
+            padding: 1rem 0;
+            box-shadow: 0 4px 30px rgba(247, 59, 32, 0.2);
+        }
+
+        .navbar-brand {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-hot,
+        .logo-not {
+            color: #F73B20;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link {
+            color: rgba(26, 26, 26, 0.85) !important;
+            font-weight: 500;
+            margin: 0 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: #F73B20;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #F73B20 !important;
+        }
+
+        .nav-link:hover::before {
+            width: 60%;
+        }
+
+        .nav-link.active {
+            color: #F73B20 !important;
+        }
+
+        .btn-neon {
+            background: #F73B20;
+            color: white;
+            border: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0.7rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-neon:hover {
+            background: #ff5238;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(247, 59, 32, 0.5);
+            color: white;
+        }
+
+        /* ========== MOBILE BOTTOM NAVIGATION ========== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(247, 59, 32, 0.15);
+            box-shadow: 0 -4px 20px rgba(247, 59, 32, 0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 0;
+            height: 70px;
+        }
+
+        @media (min-width: 768px) {
+            .bottom-nav {
+                display: none;
+            }
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: rgba(26, 26, 26, 0.5);
+            transition: all 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 12px;
+            min-width: 60px;
+        }
+
+        .bottom-nav-item i {
+            font-size: 24px;
+            margin-bottom: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .bottom-nav-item span {
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .bottom-nav-item.active {
+            color: #F73B20;
+        }
+
+        .bottom-nav-item.active i {
+            transform: scale(1.1);
+        }
+
+        .bottom-nav-item:hover {
+            color: #F73B20;
+            background: rgba(247, 59, 32, 0.1);
+        }
+
+        /* ========== MOBILE LOGO ========== */
+        .mobile-logo {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 999;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            display: block;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-logo:hover {
+            transform: scale(1.05);
+        }
+
+        @media (min-width: 768px) {
+            .mobile-logo {
+                display: none;
+            }
+        }
+
+        .dashboard-container {
+            width: 100%;
+            padding: 40px 20px;
+            margin: 0 auto;
+        }
+
+        .user-profile-section {
+            width: 100%;
+            margin-bottom: 40px;
+            padding: 0;
+            background: none;
+            border: none;
+            box-shadow: none;
+        }
+
+        .profile-card {
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 36px 32px 32px;
+            box-shadow:
+                0 20px 50px rgba(15, 23, 42, 0.2),
+                0 0 0 1px rgba(148, 163, 184, 0.15);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .profile-card:hover {
+            transform: translateY(-8px);
+            box-shadow:
+                0 30px 70px rgba(15, 23, 42, 0.25),
+                0 0 0 1px rgba(99, 102, 241, 0.2);
+        }
+
+        .user-avatar-wrapper {
+            margin-bottom: 10px;
+        }
+
+        .avatar-ring {
+            width: 148px;
+            height: 148px;
+            border-radius: 50%;
+            padding: 4px;
+            margin: 0 auto;
+            background: #F73B20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        @keyframes ringPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+            }
+        }
+
+        .user-avatar-blob {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #e5e7eb;
+            border: 5px solid #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .profile-card:hover .user-avatar-blob {
+            transform: scale(1.05);
+        }
+
+        .user-avatar-blob img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-display-name {
+            margin-top: 8px;
+            margin-bottom: 8px;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #111827;
+            background: none;
+            -webkit-text-fill-color: inherit;
+            letter-spacing: -0.5px;
+        }
+
+        /* Badges under username */
+        .profile-badges {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .profile-badges .badge-side,
+        .profile-badges .referral-badge,
+        .profile-badges .rank-badge {
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            border: 3px solid #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .profile-badges .badge-side:hover,
+        .profile-badges .referral-badge:hover,
+        .profile-badges .rank-badge:hover {
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .profile-stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 28px;
+            margin-bottom: 16px;
+            padding: 20px 0;
+            border-top: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .profile-stat {
+            flex: 0 0 calc(33.33% - 12px);
+            padding: 12px;
+            border-radius: 16px;
+            background: transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .profile-stat:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.15);
+        }
+
+        .profile-stat:hover::before {
+            opacity: 1;
+        }
+
+        .profile-stat-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: #F73B20;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .profile-stat-sub {
+            font-size: 0.7rem;
+            color: #6b7280;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .profile-stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #9ca3af;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        .profile-edit-wrapper {
+            margin-top: 20px;
+            margin-bottom: 14px;
+        }
+
+        .profile-edit-btn {
+            display: inline-block;
+            padding: 10px 28px;
+            border-radius: 999px;
+            border: 2px solid transparent;
+            font-size: 0.9rem;
+            font-weight: 700;
+            background: #F73B20;
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .profile-edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+
+        .profile-bio {
+            margin-top: 16px;
+            text-align: left;
+            padding: 16px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+        }
+
+        .profile-bio-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #4b5563;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .profile-bio-text {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #6b7280;
+        }
+
+        .stat-card-item {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(247, 59, 32, 0.15);
+            border-radius: 24px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(247, 59, 32, 0.12);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-card-item:hover {
+            transform: translateY(-8px);
+            border-color: rgba(247, 59, 32, 0.3);
+            box-shadow: 0 12px 35px rgba(247, 59, 32, 0.25);
+        }
+
+        .stat-card-label {
+            font-size: 0.95rem;
+            color: rgba(26, 26, 26, 0.6);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .admirers-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 15px 0;
+        }
+
+        .admirer-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+
+        .admirer-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .admirer-rank {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #F73B20;
+        }
+
+        .admirer-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #F73B20;
+            box-shadow: 0 6px 20px rgba(247, 59, 32, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .admirer-item:hover .admirer-photo {
+            border-color: #ff5238;
+            transform: scale(1.05);
+        }
+
+        .admirer-name {
+            font-size: 0.85rem;
+            color: rgba(26, 26, 26, 0.7);
+            font-weight: 700;
+            text-align: center;
+            word-break: break-word;
+            max-width: 90px;
+        }
+
+        .no-admirers {
+            color: rgba(26, 26, 26, 0.4);
+            font-style: italic;
+            font-size: 0.95rem;
+        }
+
+        .user-avatar-blob2 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .user-avatar-blob2 .badge-side,
+        .user-avatar-blob2 .referral-badge,
+        .user-avatar-blob2 .rank-badge {
+            position: relative;
+            right: auto;
+            bottom: auto;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            --badge-color: rgba(247, 59, 32, 0.8);
+            box-shadow:
+                0 0 10px var(--badge-color),
+                0 0 20px var(--badge-color),
+                0 2px 8px rgba(0, 0, 0, 0.1);
+            animation: badgeGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes badgeGlow {
+
+            0%,
+            100% {
+                box-shadow:
+                    0 0 5px var(--badge-color),
+                    0 0 10px var(--badge-color),
+                    0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            50% {
+                box-shadow:
+                    0 0 10px var(--badge-color),
+                    0 0 20px var(--badge-color),
+                    0 3px 10px rgba(0, 0, 0, 0.15);
+            }
+        }
+
+        .user-avatar-blob2 .badge-side:hover,
+        .user-avatar-blob2 .referral-badge:hover,
+        .user-avatar-blob2 .rank-badge:hover {
+            transform: translateY(-5px) scale(1.08);
+        }
+
+        .user-avatar-blob2 .badge-side img,
+        .user-avatar-blob2 .referral-badge img,
+        .user-avatar-blob2 .rank-badge img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: inherit;
+        }
+
+        /* ========== POSTS SECTION ========== */
+        .posts-section-title {
+            font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+            font-weight: 900;
+            text-align: center;
+            margin: 50px 0 35px;
+            color: #F73B20;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .post-card-link,
+        .post-card-link * {
+            text-decoration: none !important;
+        }
+
+        .post-card-item {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(247, 59, 32, 0.15);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(247, 59, 32, 0.12);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .post-card-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 45px rgba(247, 59, 32, 0.25);
+            border-color: rgba(247, 59, 32, 0.3);
+        }
+
+        .post-image-wrapper {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+        }
+
+        .post-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            transition: transform 0.4s ease;
+        }
+
+        .post-card-item:hover .post-image-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .post-card-content {
+            padding: 12px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            flex-grow: 1;
+        }
+
+        .post-card-title {
+            margin-bottom: 5px;
+            font-size: 15px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+
+        .post-hashtag {
+            color: #F73B20;
+            font-size: 13px;
+            margin-bottom: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .post-datetime {
+            font-size: 0.8rem;
+            color: rgba(26, 26, 26, 0.5);
+        }
+
+        .post-rating-value {
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: #F73B20;
+            line-height: 1.2;
+        }
+
+        .post-rating-value1 {
+            font-weight: 500;
+            font-size: 1.1rem;
+            color: #F73B20;
+            line-height: 1.2;
+        }
+
+        .post-card-content .post-rating-value:last-child {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(26, 26, 26, 0.6);
+            line-height: 1.2;
+        }
+
+        .post-card-footer-section {
+            padding: 10px 15px;
+            background: rgba(247, 59, 32, 0.05);
+            border-top: 1px solid rgba(247, 59, 32, 0.15);
+            text-align: center;
+        }
+
+        .row.g-2 .col-lg-3.col-md-2.col-4 {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+
+        @media (min-width: 768px) {
+            .row.g-2 .col-lg-3.col-md-2.col-4 {
+                flex: 0 0 33.333333%;
+                max-width: 33.333333%;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .row.g-2 .col-lg-3.col-md-2.col-4 {
+                flex: 0 0 25%;
+                max-width: 25%;
+            }
+        }
+
+        .leaderboard-neighbors {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(247, 59, 32, 0.15);
+            border-radius: 24px;
+            padding: 2.5rem 1.5rem;
+            margin-top: 50px;
+            box-shadow: 0 10px 40px rgba(247, 59, 32, 0.15);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-neighbors:hover {
+            box-shadow: 0 15px 50px rgba(247, 59, 32, 0.25);
+        }
+
+        .leaderboard-neighbors h3 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #F73B20;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+        }
+
+        .neighbor-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 50px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .neighbor-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .neighbor {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(247, 59, 32, 0.2);
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(247, 59, 32, 0.15);
+            padding: 1.5rem;
+            width: 320px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .neighbor:hover {
+            transform: translateY(-8px);
+            border-color: rgba(247, 59, 32, 0.4);
+            box-shadow: 0 15px 45px rgba(247, 59, 32, 0.3);
+        }
+
+        .neighbor-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 4px solid #F73B20;
+            box-shadow: 0 6px 20px rgba(247, 59, 32, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .neighbor:hover .neighbor-img {
+            transform: scale(1.08);
+            border-color: #ff5238;
+        }
+
+        .neighbor-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            color: rgba(26, 26, 26, 0.5);
+            margin-bottom: 12px;
+        }
+
+        .neighbor-label-current {
+            color: #F73B20;
+        }
+
+        .neighbor-info h4 {
+            color: #1a1a1a;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .neighbor-info {
+            white-space: nowrap;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .neighbor-info:hover {
+            color: #F73B20;
+        }
+
+        .popup {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px 60px;
+            border-radius: 25px;
+            text-align: center;
+            color: #1a1a1a;
+            box-shadow: 0 10px 50px rgba(247, 59, 32, 0.4);
+            border: 2px solid rgba(247, 59, 32, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: popupScale 0.6s ease-out;
+        }
+
+        @keyframes popupScale {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .badge-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 0 40px rgba(247, 59, 32, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        .badge-text {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .shine {
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+            transform: skewX(-25deg);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -75%;
+            }
+
+            100% {
+                left: 125%;
+            }
+        }
+
+        .points-earned {
+            font-size: 1.2em;
+            margin-top: 15px;
+            color: #F73B20;
+            font-weight: 700;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 32px;
+            color: rgba(26, 26, 26, 0.4);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .close-btn:hover {
+            color: #F73B20;
+            transform: rotate(90deg);
+        }
+
+        /* ========== MISC UTILITY CLASSES ========== */
+        .niche {
+            margin-bottom: 1.5rem;
+        }
+
+        .today_heading {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #F73B20;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .chart-section {
+            padding: 20px;
+        }
+
+        .info-card-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(247, 59, 32, 0.15);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(247, 59, 32, 0.12);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 30px;
+        }
+
+        .info-card-container:hover {
+            border-color: rgba(247, 59, 32, 0.3);
+            box-shadow: 0 12px 35px rgba(247, 59, 32, 0.2);
+        }
+
+        .info-card-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #F73B20;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-card-text,
+        .analytics-info-line {
+            color: rgba(26, 26, 26, 0.65);
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        /* ========== FADE IN ANIMATIONS ========== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .fade-in-delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .fade-in-delay-3 {
+            animation-delay: 0.6s;
+        }
+
+        .fade-in-delay-4 {
+            animation-delay: 0.8s;
+        }
+
+        @media (max-width: 768px) {
+            .user-avatar-wrapper {
+                margin-bottom: 10px;
+            }
+
+            .avatar-ring {
+                width: 128px;
+                height: 128px;
+            }
+
+            .user-avatar-blob2 {
+                gap: 12px;
+            }
+
+            .user-avatar-blob2 .badge-side,
+            .user-avatar-blob2 .referral-badge,
+            .user-avatar-blob2 .rank-badge {
+                width: 50px;
+                height: 50px;
+            }
+
+            .neighbor-container {
+                gap: 30px;
+            }
+
+            .leaderboard-neighbors h3 {
+                font-size: 1.5rem;
+            }
+
+            .post-image-wrapper {
+                height: 140px;
+            }
+
+            .post-card-content {
+                padding: 10px;
+            }
+
+            .admirer-item {
+                min-width: 65px;
+            }
+
+            .admirer-photo {
+                width: 65px;
+                height: 65px;
+            }
+
+            .admirer-name {
+                font-size: 0.75rem;
+                max-width: 65px;
+            }
+
+            .profile-card {
+                padding: 28px 24px 24px;
+                border-radius: 24px;
+            }
+
+            .profile-stat {
+                flex: 0 0 calc(50% - 8px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-container {
+                padding: 20px 12px;
+            }
+
+            .avatar-ring {
+                width: 112px;
+                height: 112px;
+            }
+
+            .user-display-name {
+                font-size: 1.4rem;
+            }
+
+            .profile-badges .badge-side,
+            .profile-badges .referral-badge,
+            .profile-badges .rank-badge {
+                width: 42px;
+                height: 42px;
+                border: 2px solid #ffffff;
+            }
+
+            .user-avatar-blob2 {
+                gap: 10px;
+            }
+
+            .user-avatar-blob2 .badge-side,
+            .user-avatar-blob2 .referral-badge,
+            .user-avatar-blob2 .rank-badge {
+                width: 45px;
+                height: 45px;
+                border: 2px solid white;
+            }
+
+            .neighbor-container {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px;
+            }
+
+            .leaderboard-neighbors {
+                padding: 1.8rem 1rem;
+            }
+
+            .leaderboard-neighbors h3 {
+                margin-bottom: 1.5rem;
+                font-size: 1.3rem;
+            }
+
+            .profile-card {
+                padding: 24px 18px 22px;
+                border-radius: 22px;
+            }
+
+            .profile-stat {
+                flex: 0 0 calc(50% - 8px);
+                padding: 10px;
+            }
+
+            .profile-stat-value {
+                font-size: 1.4rem;
+            }
+
+            .profile-edit-btn {
+                padding: 8px 24px;
+                font-size: 0.85rem;
+            }
+
+            .profile-bio {
+                padding: 14px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .neighbor-container {
+                flex-direction: row;
+                justify-content: center;
+                gap: 15px;
+                flex-wrap: nowrap;
+            }
+
+            .neighbor-wrapper {
+                flex: 1;
+                max-width: 48%;
+            }
+
+            .neighbor {
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .neighbor-img {
+                width: 90px;
+                height: 90px;
+                margin-bottom: 10px;
+            }
+
+            .neighbor-label {
+                font-size: 0.75rem;
+                margin-bottom: 8px;
+            }
+
+            .neighbor-info h4 {
+                font-size: 0.9rem;
+            }
+
+            .leaderboard-neighbors {
+                padding: 1.5rem 0.8rem;
+            }
+
+            .leaderboard-neighbors h3 {
+                font-size: 1.1rem;
+                margin-bottom: 1.2rem;
+            }
+
+            .admirers-container {
+                gap: 8px;
+                justify-content: space-between;
+            }
+
+            .admirer-item {
+                min-width: 58px;
+            }
+
+            .admirer-photo {
+                width: 58px;
+                height: 58px;
+            }
+
+            .admirer-rank {
+                font-size: 0.8rem;
+            }
+
+            .profile-stat {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .avatar-ring {
+                width: 100px;
+                height: 100px;
+            }
+
+            .profile-stats-row {
+                gap: 10px;
+                padding: 16px 0;
+                margin-top: 20px;
+                margin-bottom: 12px;
+            }
+
+            .profile-stat {
+                flex: 0 0 calc(50% - 5px);
+                padding: 10px 8px;
+                border-radius: 12px;
+            }
+
+            .profile-stat-value {
+                font-size: 1.3rem;
+            }
+
+            .profile-stat-sub {
+                font-size: 0.65rem;
+                margin-top: 3px;
+            }
+
+            .profile-stat-label {
+                font-size: 0.65rem;
+                margin-top: 4px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .profile-card {
+                padding: 20px 14px 18px;
+                border-radius: 20px;
+            }
+
+            .avatar-ring {
+                width: 90px;
+                height: 90px;
+                padding: 3px;
+            }
+
+            .user-avatar-blob {
+                border: 4px solid #ffffff;
+            }
+
+            .user-display-name {
+                font-size: 1.25rem;
+                margin-bottom: 4px;
+            }
+
+            .profile-badges .badge-side,
+            .profile-badges .referral-badge,
+            .profile-badges .rank-badge {
+                width: 38px;
+                height: 38px;
+                border: 2px solid #ffffff;
+            }
+
+            .profile-stats-row {
+                gap: 8px;
+                padding: 14px 0;
+                margin-top: 18px;
+                margin-bottom: 10px;
+            }
+
+            .profile-stat {
+                flex: 0 0 calc(50% - 4px);
+                padding: 10px 6px;
+                border-radius: 10px;
+                min-width: 80px;
+            }
+
+            .profile-stat-value {
+                font-size: 1.2rem;
+            }
+
+            .profile-stat-sub {
+                font-size: 0.6rem;
+                margin-top: 2px;
+            }
+
+            .profile-stat-label {
+                font-size: 0.6rem;
+                letter-spacing: 0.05em;
+                margin-top: 3px;
+            }
+
+            .profile-edit-btn {
+                padding: 7px 20px;
+                font-size: 0.8rem;
+            }
+
+            .profile-bio {
+                padding: 12px;
+                border-radius: 14px;
+                margin-top: 14px;
+            }
+
+            .profile-bio-title {
+                font-size: 0.8rem;
+                margin-bottom: 5px;
+            }
+
+            .profile-bio-text {
+                font-size: 0.85rem;
+                line-height: 1.6;
+            }
+
+            .chart-section {
+                padding: 15px 10px;
+            }
+
+            /* Make any charts or canvas elements more responsive */
+            canvas {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+
+            .info-card-container {
+                padding: 20px 15px;
+                border-radius: 20px;
+            }
+
+            .info-card-title {
+                font-size: 1.2rem;
+            }
+
+            .info-card-text,
+            .analytics-info-line {
+                font-size: 0.9rem;
+                line-height: 1.6;
+            }
+        }
+
+        .fancy-post-card {
+            position: relative;
+        }
+
+        .fancy-post-base {
+            transition: filter 0.25s ease, transform 0.25s ease;
+        }
+
+        .fancy-post-overlay {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        .fancy-post-card.is-open .fancy-post-base {
+            filter: blur(3px) brightness(0.6);
+            transform: scale(0.97);
+        }
+
+        .fancy-post-card.is-open .fancy-post-overlay {
+            display: flex;
+        }
+
+        .fancy-post-modal {
+            position: relative;
+            max-width: 95%;
+            max-height: 95%;
+            padding: 10px 10px 6px;
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            background: rgba(15, 15, 15, 0.85);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            transform: scale(0.7);
+            opacity: 0;
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+        }
+
+        .fancy-post-card.is-open .fancy-post-modal {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .fancy-modal-img {
+            max-width: 100%;
+            max-height: 60vh;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        .fancy-modal-caption {
+            margin-top: 6px;
+            text-align: center;
+            color: #f5f5f5;
+            font-size: 0.8rem;
+        }
+
+        .fancy-modal-caption .rating-text {
+            opacity: 0.8;
+            margin-left: 4px;
+        }
+
+        .fancy-close-btn {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            border: none;
+            background: transparent;
+            color: #fff;
+            font-size: 1.4rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .fancy-post-base {
+            cursor: pointer;
+        }
+
+        .btn-light {
+            background: #ffffffa8;
+            backdrop-filter: blur(3px);
+        }
+
+        .btn-light:hover {
+            background: white;
+        }
+
+        .post-menu {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            z-index: 15;
+        }
+
+        .menu-btn {
+            background: rgba(0, 0, 0, 0.15);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: 0.2s ease;
+        }
+
+        .menu-btn:hover {
+            background: rgba(0, 0, 0, 0.35);
+            transform: scale(1.15);
+        }
+
+        .post-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            /* important: give it a height */
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        .post-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            /* keeps aspect ratio, leaves empty area */
+            position: relative;
+            z-index: 2;
+        }
+
+        .post-image-wrapper::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: inherit;
+            /* take from .post-image-wrapper */
+            background-size: cover;
+            background-position: center;
+            filter: blur(20px);
+            transform: scale(1.2);
+            z-index: 1;
+        }
+
+        .post-wrapper {
+            position: relative;
+        }
+
+        .post-menu {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            z-index: 15;
+        }
+
+        .menu-btn {
+            background: rgba(0, 0, 0, 0.15);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: 0.2s ease;
+        }
+
+        .menu-btn:hover {
+            background: rgba(0, 0, 0, 0.35);
+            transform: scale(1.15);
+        }
+
+        /* Sidebar Toggle Floating Button */
+        .sidebar-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            border: none;
+            background: #F73B20;
+            color: #fff;
+            padding: 12px 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.4);
+            font-size: 22px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Sidebar Panel */
+        .sidebar-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            /* Hidden initially */
+            width: 320px;
+            height: 100vh;
+            background: #ffffff;
+            border-left: 2px solid rgba(247, 59, 32, 0.3);
+            box-shadow: -4px 0 30px rgba(247, 59, 32, 0.2);
+            transition: right 0.4s ease;
+            z-index: 3000;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            /* Make it scrollable */
+        }
+
+        /* When sidebar is open */
+        .sidebar-panel.active {
+            right: 0;
+        }
+
+        /* Sidebar Header */
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-header h4 {
+            color: #F73B20;
+            font-weight: 800;
+        }
+
+        /* Close button */
+        .close-sidebar-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #F73B20;
+            cursor: pointer;
+        }
+
+        /* Sidebar Items */
+        .sidebar-links {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: rgba(247, 59, 32, 0.08);
+            color: #F73B20;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            text-decoration: none !important;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover {
+            background: #F73B20;
+            color: #ffffff !important;
+        }
+    </style>
 </head>
+
 <body>
-    
+    <div class="bg-gradient">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <span></span>
+    </div>
+
+
+    <!-- Desktop Navigation -->
+    <th:block th:replace="~{NavFragmentFolder/navbar-desktop :: desktopNav}"></th:block>
+
+    <!-- Mobile Bottom Navigation -->
+    <div th:insert="~{NavFragmentFolder/navbar-mobile :: mobileNav}"></div>
+
+    <div class="dashboard-container fade-in">
+        <div class="user-profile-section fade-in-delay-1">
+            <div class="profile-card">
+                <div class="user-avatar-wrapper">
+                    <div class="avatar-ring">
+                        <div class="user-avatar-blob">
+                            <img th:src="${profileImage != '' ? profileImage : '/noprofilepic.png'}" alt="Profile" />
+                        </div>
+                    </div>
+                </div>
+                <h5 class="user-display-name" th:text="${user.username}">username</h5>
+
+                <div class="profile-badges user-avatar-blob2">
+                    <div class="badge-side" th:if="${badgeImage != null}" th:title="${badgeName}">
+                        <img th:src="${badgeImage}" th:alt="${badgeName} + ' badge'" />
+                    </div>
+                    <div class="referral-badge" th:if="${referralBadgeImage != null}" th:title="${referralBadgeName}">
+                        <img th:src="${referralBadgeImage}" th:alt="${referralBadgeName}" />
+                    </div>
+                    <div class="rank-badge" th:if="${rankBadgeImage != null}" th:title="${rankBadgeName}">
+                        <img th:src="${rankBadgeImage}" alt="Rank Badge" />
+                    </div>
+                </div>
+                <div class="profile-stats-row">
+                    <div class="profile-stat">
+                        <div class="profile-stat-value" th:text="${totalRating}">0</div>
+                        <div class="profile-stat-label">Total Points</div>
+                    </div>
+
+                    <div class="profile-stat">
+                        <div class="profile-stat-value" th:text="${globalRank}">0</div>
+                        <div class="profile-stat-label">Global Rank</div>
+                    </div>
+
+                    <div class="profile-stat">
+                        <div class="profile-stat-value" th:text="${localRank}">0</div>
+                        <div class="profile-stat-label">Local Rank</div>
+                    </div>
+
+                    <div class="profile-stat" th:if="${isOwnDashboard}">
+                        <div class="profile-stat-value" th:text="${mutualCount}">0</div>
+                        <div class="profile-stat-label">Mutual Crush</div>
+                    </div>
+                    <div class="profile-stat" th:if="${isOwnDashboard}">
+                        <div class="profile-stat-value" th:text="${streak}">0</div>
+                        <div class="profile-stat-sub">Longest: <span th:text="${longestStreak}"></span> d</div>
+                        <div class="profile-stat-label">Daily Streak</div>
+                    </div>
+                </div>
+                <div th:if="${isOwnDashboard}" class="profile-edit-wrapper">
+                    <div class="profile-edit-btn">Edit Profile</div>
+                </div>
+                <div th:if="${isOwnDashboard}" class="profile-edit-wrapper">
+                    <a th:href="@{/user/dashboard/deleted}" class="btn btn-outline-secondary btn-sm">
+                        View Deleted Photos
+                    </a>
+                </div>
+                <div class="profile-bio">
+                    <div class="profile-bio-title">Bio</div>
+                    <p class="profile-bio-text" th:text="${user.bio != null ? user.bio : 'No bio provided.'}">
+                        Living life one rating at a time ✨
+                    </p>
+                </div>
+
+            </div>
+        </div>
+        <div class="stat-card-item niche fade-in fade-in-delay-3" th:if="${isOwnDashboard}">
+            <h6 class="stat-card-label">Top Admirers</h6>
+            <div class="admirers-container">
+                <a th:each="admirer, iterStat : ${topAdmirers}" th:href="@{'/user/dashboard/' + ${admirer.id}}"
+                    class="admirer-item">
+                    <span class="admirer-rank" th:text="${iterStat.count} + '.'"></span>
+                    <img th:if="${admirer.photo!=null}" th:src="${admirer.photo}" alt="Admirer Photo"
+                        class="admirer-photo" />
+                    <img th:if="${admirer.photo==null}" src="/noprofilepic.png" alt="Admirer Photo"
+                        class="admirer-photo" />
+                    <span class="admirer-name" th:text="${admirer.name}"></span>
+                </a>
+                <span th:if="${#lists.isEmpty(topAdmirers)}" class="no-admirers">No admirers yet</span>
+            </div>
+        </div>
+        <div class="info-card-container fade-in fade-in-delay-4" th:if="${isOwnDashboard}">
+            <h5 class="info-card-title">Analytics</h5>
+            <p class="analytics-info-line" th:text="${analyticsLine1}">Analytics line 1</p>
+            <p class="analytics-info-line" th:text="${analyticsLine2}">Analytics line 2</p>
+            <p class="analytics-info-line" th:text="${analyticsLine4}">Analytics line 4</p>
+            <p class="analytics-info-line" th:text="${analyticsLine5}">Analytics line 5</p>
+        </div>
+
+        <div class="leaderboard-neighbors fade-in">
+            <h3>Leaderboard Neighbours</h3>
+            <div class="neighbor-container">
+                <div th:if="${aboveUser != null}" class="neighbor-wrapper">
+                    <p class="neighbor-label">Previous</p>
+                    <div class="neighbor" th:attr="onclick=|window.location.href='/user/dashboard/${aboveUser.userId}'|"
+                        style="cursor:pointer;">
+                        <img th:if="${aboveUserImage != null}" th:src="${aboveUserImage}" alt="User Photo"
+                            class="neighbor-img">
+                        <img th:if="${aboveUserImage == null}" src="/noprofilepic.png" alt="Default"
+                            class="neighbor-img">
+                        <div class="neighbor-info">
+                            <h4 th:text="${AboveName}"></h4>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${belowUser != null}" class="neighbor-wrapper">
+                    <p class="neighbor-label">Next</p>
+                    <div class="neighbor" th:attr="onclick=|window.location.href='/user/dashboard/${belowUser.userId}'|"
+                        style="cursor:pointer;">
+                        <img th:if="${belowUserImage != null}" th:src="${belowUserImage}" alt="User Photo"
+                            class="neighbor-img">
+                        <img th:if="${belowUserImage == null}" src="/noprofilepic.png" alt="Default"
+                            class="neighbor-img">
+                        <div class="neighbor-info">
+                            <h4 th:text="${BelowName}"></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2 class="posts-section-title fade-in">Posts</h2>
+
+        <div class="row g-2 fade-in">
+            <div class="col-lg-3 col-md-2 col-4" th:each="p : ${postDtos}">
+                <div class="post-wrapper position-relative">
+                    <div th:if="${isOwnDashboard}" class="dropdown post-menu">
+                        <button class="menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            &#8942;
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <form th:action="@{'/user/post/' + ${p.postId} + '/delete'}" method="post"
+                                    onsubmit="return confirm('Delete this post?');">
+                                    <button class="dropdown-item text-danger" type="submit">Delete Post</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                    <a th:if="${isOwnDashboard}" th:href="@{'/user/post/' + ${p.postId} + '/demographics'}"
+                        class="post-card-link">
+                        <div class="post-card-item">
+                            <div class="post-image-wrapper"
+                                th:style="${p.photoDataUrl} != null ? |background-image: url('${p.photoDataUrl}');| : |background-image: url('/noprofilepic.png');|">
+                                <img th:if="${p.photoDataUrl != null}" th:src="${p.photoDataUrl}" alt="Post Image">
+                                <img th:unless="${p.photoDataUrl != null}" src="/noprofilepic.png" alt="Post Image">
+                            </div>
+                            <div class="post-card-content">
+                                <div class="post-rating-value"
+                                    th:text="${p.avgRating == 0} ? '0' : ${#numbers.formatDecimal(p.avgRating, 1, 1)}">
+                                    0
+                                </div>
+                                <div class="post-rating-value1" th:text="${p.dateTime}">Date</div>
+                            </div>
+                        </div>
+                    </a>
+                    <a th:if="${!isOwnDashboard and canRatePosts}" th:href="@{/user/rating(postId=${p.postId})}"
+                        class="post-card-item"
+                        style="cursor: pointer; text-decoration: none; color: inherit; display:block;">
+                        <div class="post-image-wrapper"
+                            th:style="${p.photoDataUrl} != null ? |background-image: url('${p.photoDataUrl}');| : |background-image: url('/noprofilepic.png');|">
+                            <img th:if="${p.photoDataUrl != null}" th:src="${p.photoDataUrl}" alt="Post Image">
+                            <img th:unless="${p.photoDataUrl != null}" src="/noprofilepic.png" alt="Post Image">
+                        </div>
+                        <div class="post-card-content">
+                            <div class="post-rating-value"
+                                th:text="${p.avgRating == 0} ? '0' : ${#numbers.formatDecimal(p.avgRating, 1, 1)}">
+                                0
+                            </div>
+                        </div>
+                    </a>
+                    <div th:if="${!isOwnDashboard and !canRatePosts}" class="fancy-post-card"
+                        th:attr="data-photo=${p.photoDataUrl}, data-caption=${p.caption}, data-rating=${p.avgRating}">
+                        <div class="post-card-item fancy-post-base">
+                            <div class="post-image-wrapper"
+                                th:style="${p.photoDataUrl} != null ? |background-image: url('${p.photoDataUrl}');| : |background-image: url('/noprofilepic.png');|">
+                                <img th:if="${p.photoDataUrl != null}" th:src="${p.photoDataUrl}" alt="Post Image">
+                                <img th:unless="${p.photoDataUrl != null}" src="/noprofilepic.png" alt="Post Image">
+                            </div>
+                            <div class="post-card-content">
+                                <div class="post-rating-value"
+                                    th:text="${p.avgRating == 0} ? '0' : ${#numbers.formatDecimal(p.avgRating, 1, 1)}">
+                                    0
+                                </div>
+                                <div class="post-rating-value1" th:text="${p.dateTime}">Date</div>
+                            </div>
+                        </div>
+                        <div class="fancy-post-overlay bg-dark">
+                            <div class="fancy-post-modal">
+                                <button type="button" class="fancy-close-btn">&times;</button>
+                                <img class="fancy-modal-img" src="" alt="Post Image">
+                                <div class="fancy-modal-caption bg-dark">
+                                    <span class="caption-text"></span>
+                                    <span class="rating-text"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div> <!-- .post-wrapper -->
+            </div>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup">
+            <button class="close-btn" onclick="closePopup()">&times;</button>
+
+            <div class="badge-wrapper">
+                <div class="badge">
+                    <div class="shine"></div>
+                    <div class="badge-text">+<span id="badgePoints">50</span></div>
+                </div>
+            </div>
+
+            <div class="points-earned" style="font-size:13px;"><span id="pointsText">You earned 50 points!</span></div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/hotornot.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function () {
+            const navbar = document.querySelector('.navbar-desktop');
+            if (navbar) {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+        });
+
+
+        // Popup functions
+        function closePopup() {
+            document.getElementById('popupOverlay').classList.remove('show');
+        }
+    </script>
+
+    <button th:if="${isOwnDashboard}" id="sidebarToggle" class="sidebar-toggle-btn">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <div id="sidebarPanel" class="sidebar-panel">
+
+        <div class="sidebar-header">
+            <h4>Settings</h4>
+            <button id="closeSidebar" class="close-sidebar-btn">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-links">
+            <a href="/user/user-rating" class="sidebar-item">
+                <i class="bi bi-coin"></i> My Points History
+            </a>
+
+
+            <a href="/user/update-profile" class="sidebar-item">
+                <i class="bi bi-person-circle"></i> Update Profile
+            </a>
+
+            <a href="/user/leaderboard" class="sidebar-item">
+                <i class="bi bi-award-fill"></i> Leaderboard
+            </a>
+
+            <a href="/user/referral" class="sidebar-item">
+                <i class="bi bi-share"></i> Referral
+            </a>
+
+            <a href="/user/user-rating" class="sidebar-item">
+                <i class="bi bi-person-x"></i> Block List
+            </a>
+
+            <a href="/user/user-rating" class="sidebar-item">
+                <i class="bi bi-person-dash"></i> Deactivate Account
+            </a>
+
+            <a href="/user/user-rating" class="sidebar-item">
+                <i class="bi bi-question-circle"></i> Help and Support
+            </a>
+
+            <a href="/user/user-rating" class="sidebar-item">
+                <i class="bi bi-archive"></i> Archived Post
+            </a>
+
+            <a href="/user/user-rating" class="sidebar-item">
+                <i class="bi bi-info-circle"></i> About Us
+            </a>
+
+
+
+            <a href="/user/update-password" class="sidebar-item">
+                <i class="bi bi-shield-lock"></i> Update Password
+            </a>
+
+
+            <a href="/logout" class="sidebar-item">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
+
+    </div>
+
+    <script th:if="${isOwnDashboard}">
+        const sidebar = document.getElementById("sidebarPanel");
+        const toggleBtn = document.getElementById("sidebarToggle");
+        const closeBtn = document.getElementById("closeSidebar");
+
+        toggleBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("active");
+        });
+
+        closeBtn.addEventListener("click", () => {
+            sidebar.classList.remove("active");
+        });
+    </script>
+
+
+    <script>
+        function extractMainColor(img) {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            ctx.drawImage(img, 0, 0, img.width, img.height);
+            const data = ctx.getImageData(0, 0, img.width, img.height).data;
+
+            let r = 0, g = 0, b = 0, count = 0;
+            for (let i = 0; i < data.length; i += 20) {
+                r += data[i];
+                g += data[i + 1];
+                b += data[i + 2];
+                count++;
+            }
+
+            return `rgb(${ Math.floor(r / count) }, ${ Math.floor(g / count) }, ${ Math.floor(b / count) })`;
+        }
+        function applyBadgeBorders() {
+            const wrappers = document.querySelectorAll('.user-avatar-blob2 > div img');
+            wrappers.forEach(img => {
+                img.onload = function () {
+                    const color = extractMainColor(img);
+                    img.style.borderColor = color;
+                };
+            });
+        }
+        window.onload = applyBadgeBorders;
+
+        function applyBadgeBorders() {
+            const wrappers = document.querySelectorAll('.user-avatar-blob2 > div');
+            wrappers.forEach(wrapper => {
+                const img = wrapper.querySelector('img');
+                if (img) {
+                    const applyColor = function () {
+                        const color = extractMainColor(img);
+                        wrapper.style.borderColor = color;
+                        wrapper.style.setProperty('--badge-color', color);
+                    };
+
+                    if (img.complete) {
+                        applyColor();
+                    } else {
+                        img.onload = applyColor;
+                    }
+                }
+            });
+        }
+    </script>
+    <script>
+        document.addEventListener('click', function (e) {
+            // Open on clicking base card
+            const card = e.target.closest('.fancy-post-base');
+            if (card) {
+                const wrapper = card.closest('.fancy-post-card');
+                if (!wrapper) return;
+
+                const imgEl = wrapper.querySelector('.fancy-modal-img');
+                const captionEl = wrapper.querySelector('.caption-text');
+                const ratingEl = wrapper.querySelector('.rating-text');
+
+                const photo = wrapper.getAttribute('data-photo') || '/noprofilepic.png';
+                const caption = wrapper.getAttribute('data-caption') || '';
+                const rating = wrapper.getAttribute('data-rating');
+
+                imgEl.src = photo;
+                captionEl.textContent = caption;
+
+                if (rating && !isNaN(rating)) {
+                    ratingEl.textContent = `• Rating: ${ parseFloat(rating).toFixed(1) }`;
+                } else {
+                    ratingEl.textContent = '';
+                }
+
+                wrapper.classList.add('is-open');
+                return;
+            }
+
+            // Close if clicking close button or dark area around modal
+            const closeBtn = e.target.closest('.fancy-close-btn');
+            const overlay = e.target.closest('.fancy-post-overlay');
+
+            if (closeBtn || (overlay && !e.target.closest('.fancy-post-modal'))) {
+                const wrapper = e.target.closest('.fancy-post-card');
+                if (wrapper) {
+                    wrapper.classList.remove('is-open');
+                }
+            }
+        });
+    </script>
+
 </body>
+
 </html>
