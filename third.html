@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petal Fortune</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Caveat', system-ui;
+    background: #fafafa;
+    color: #1a1a1a;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: clamp(12px, 4vw, 24px);
+}
+
+/* Card */
+.container {
+    background: white;
+    width: 100%;
+    max-width: 520px;
+    padding: clamp(24px, 6vw, 40px);
+    border-radius: 28px;
+    box-shadow: 0 25px 60px rgba(247, 59, 32, 0.15);
+    text-align: center;
+}
+
+/* Title */
+h1 {
+    font-size: clamp(1.4rem, 5vw, 2.4rem);
+    color: #F73B20;
+    margin-bottom: clamp(10px, 3vw, 20px);
+}
+
+/* Flower area */
+.flower-wrapper {
+    margin: clamp(10px, 4vw, 20px) auto;
+}
+
+.flower-container {
+    position: relative;
+    width: clamp(200px, 70vw, 280px);
+    height: clamp(200px, 70vw, 280px);
+    margin: 0 auto;
+}
+
+/* =========================
+   FLOWER STYLE (FROM FILE 1)
+========================= */
+
+/* Center */
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(60px, 14vw, 80px);
+    height: clamp(60px, 14vw, 80px);
+    background: radial-gradient(circle at 35% 35%, #fff176 0%, #ffd54f 30%, #ffa726 100%);
+    border-radius: 50%;
+    box-shadow:
+        0 4px 12px rgba(0,0,0,0.3),
+        inset -5px -5px 15px rgba(0,0,0,0.2);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    color: transparent;
+    transition: all 0.4s ease;
+}
+
+.center::before {
+    content: '';
+    position: absolute;
+    inset: 12%;
+    background: repeating-radial-gradient(
+        circle,
+        transparent 0px,
+        transparent 2px,
+        rgba(139,69,19,0.15) 2px,
+        rgba(139,69,19,0.15) 3px
+    );
+    border-radius: 50%;
+}
+
+.center.show-result {
+    width: clamp(90px, 22vw, 120px);
+    height: clamp(90px, 22vw, 120px);
+    font-size: clamp(2.4rem, 7vw, 3rem);
+    color: #c2185b;
+}
+
+.center.loves-me {
+    color: #c2185b;
+}
+
+/* Stem */
+.stem {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: clamp(7px, 2vw, 10px);
+    height: clamp(160px, 45vh, 220px);
+    background: linear-gradient(to right, #558b2f, #7cb342, #689f38);
+    border-radius: 10px;
+    z-index: 1;
+    box-shadow:
+        inset -2px 0 5px rgba(0,0,0,0.3),
+        inset 2px 0 5px rgba(139,195,74,0.5);
+}
+
+/* Petals */
+.petal {
+    position: absolute;
+    width: clamp(45px, 11vw, 60px);
+    height: clamp(80px, 18vw, 105px);
+    background: linear-gradient(135deg, #ff4d8f, #ff6ba5, #ff8fb9, #ffc1d4);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    top: 50%;
+    left: 50%;
+    transform-origin: 50% 100%;
+    box-shadow:
+        0 3px 10px rgba(0,0,0,0.2),
+        inset -3px -6px 10px rgba(255,255,255,0.4),
+        inset 3px 6px 10px rgba(255,107,165,0.3);
+    z-index: 3;
+}
+
+.petal::before {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 30%;
+    width: 40%;
+    height: 50%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.6), transparent);
+    border-radius: 50%;
+    filter: blur(4px);
+}
+
+.petal::after {
+    content: '';
+    position: absolute;
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 20%;
+    background: linear-gradient(to bottom, rgba(255,77,143,0.6), transparent);
+}
+
+/* Pluck animation */
+@keyframes pluck {
+    0% {
+        transform: translate(var(--start-x), var(--start-y)) rotate(var(--start-rotate)) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform:
+            translate(
+                calc(var(--start-x) + var(--dir-x) * 320px),
+                calc(var(--start-y) + var(--dir-y) * 420px)
+            )
+            rotate(calc(var(--start-rotate) + var(--dir-rotate) * 900deg))
+            scale(0.2);
+        opacity: 0;
+    }
+}
+
+.petal.plucking {
+    animation: pluck 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Message */
+.message {
+    z-index:10;
+    min-height: 40px;
+    font-size: clamp(1.2rem, 5vw, 1.6rem);
+    font-weight: 700;
+    margin-top: clamp(8px, 3vw, 15px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.message.show {
+    opacity: 1;
+}
+
+/* Button */
+.restart-btn {
+    margin-top: clamp(16px, 5vw, 25px);
+    padding: clamp(12px, 4vw, 14px) clamp(28px, 10vw, 40px);
+    border-radius: 50px;
+    border: none;
+    background: #F73B20;
+    color: white;
+    font-size: clamp(1rem, 4vw, 1.1rem);
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(247,59,32,0.4);
+    opacity: 0;
+    transform: translateY(30px);
+    pointer-events: none;
+    transition: all 0.4s ease;
+}
+
+.restart-btn.show {
+    opacity: 1;
+    transform: translateY(90px);
+    pointer-events: auto;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🌸 Petal Fortune</h1>
+    <div class="message" id="message"></div>
+    <div class="flower-wrapper">
+        <div class="flower-container" id="flowerContainer">
+            <div class="stem"></div>
+            <div class="center" id="flowerCenter"></div>
+        </div>
+    </div>
+
+    <!-- <div class="message" id="message"></div> -->
+    <button class="restart-btn" id="restartBtn">Start</button>
+</div>
+
+<audio id="pluckSound" src="water-drip-45622.mp3" preload="auto"></audio>
+
+<script>
+const flowerContainer = document.getElementById('flowerContainer');
+const messageEl = document.getElementById('message');
+const restartBtn = document.getElementById('restartBtn');
+const flowerCenter = document.getElementById('flowerCenter');
+const pluckSound = document.getElementById('pluckSound');
+
+let petals = [];
+let currentPetalIndex = 0;
+let totalPetals = 0;
+let isPlucking = false;
+let startWithLovesMe = Math.random() < 0.5;
+
+function createFlower() {
+    totalPetals = Math.floor(Math.random() * 5) + 15;
+    currentPetalIndex = 0;
+    petals = [];
+    isPlucking = false;
+    startWithLovesMe = Math.random() < 0.5;
+
+    flowerContainer.querySelectorAll('.petal').forEach(p => p.remove());
+    flowerCenter.textContent = '';
+    flowerCenter.classList.remove('show-result', 'loves-me');
+
+    const angleStep = (2 * Math.PI) / totalPetals;
+    const centerRadius = 28;
+
+    for (let i = 0; i < totalPetals; i++) {
+        const petal = document.createElement('div');
+        petal.className = 'petal';
+
+        const angle = i * angleStep - Math.PI / 2;
+        const xPos = Math.cos(angle) * centerRadius;
+        const yPos = Math.sin(angle) * centerRadius;
+        const rotation = (angle * 180 / Math.PI) + 90;
+
+        petal.style.transform =
+            `translate(calc(-50% + ${xPos}%), calc(-100% + ${yPos}%)) rotate(${rotation}deg)`;
+
+        petal.dataset.angle = angle;
+        petal.dataset.xPos = xPos;
+        petal.dataset.yPos = yPos;
+        petal.dataset.rotation = rotation;
+
+        flowerContainer.appendChild(petal);
+        petals.push(petal);
+    }
+
+    messageEl.textContent = '';
+    messageEl.classList.remove('show');
+}
+
+function playPluckSound() {
+    pluckSound.currentTime = 0;
+    pluckSound.play();
+}
+
+function pluckPetal() {
+    if (isPlucking || currentPetalIndex >= totalPetals - 1) return;
+
+    isPlucking = true;
+    const petal = petals[currentPetalIndex];
+
+    const angle = parseFloat(petal.dataset.angle);
+    const xPos = parseFloat(petal.dataset.xPos);
+    const yPos = parseFloat(petal.dataset.yPos);
+    const rotation = parseFloat(petal.dataset.rotation);
+
+    petal.style.setProperty('--start-x', `calc(-50% + ${xPos}%)`);
+    petal.style.setProperty('--start-y', `calc(-100% + ${yPos}%)`);
+    petal.style.setProperty('--start-rotate', `${rotation}deg`);
+    petal.style.setProperty('--dir-x', Math.cos(angle));
+    petal.style.setProperty('--dir-y', Math.sin(angle));
+    petal.style.setProperty('--dir-rotate', currentPetalIndex % 2 === 0 ? 1 : -1);
+
+    petal.classList.add('plucking');
+    playPluckSound();
+
+    const isLovesMe = startWithLovesMe
+        ? currentPetalIndex % 2 === 0
+        : currentPetalIndex % 2 !== 0;
+
+    messageEl.textContent = isLovesMe ? '💖 Loves me' : '💔 Loves me not';
+    messageEl.classList.add('show');
+
+    currentPetalIndex++;
+
+    if (currentPetalIndex >= totalPetals - 1) {
+        setTimeout(() => {
+            const finalIsLovesMe = startWithLovesMe
+                ? currentPetalIndex % 2 === 0
+                : currentPetalIndex % 2 !== 0;
+
+            messageEl.textContent = finalIsLovesMe
+                ? '💖 LOVES ME!'
+                : '💔 LOVES ME NOT';
+
+            flowerCenter.textContent = finalIsLovesMe ? '💖' : '💔';
+            flowerCenter.classList.add('show-result');
+            if (finalIsLovesMe) flowerCenter.classList.add('loves-me');
+
+            restartBtn.classList.add('show');
+        }, 600);
+    } else {
+        setTimeout(() => {
+            isPlucking = false;
+            pluckPetal();
+        }, 520);
+    }
+}
+
+restartBtn.classList.add('show');
+
+restartBtn.addEventListener('click', () => {
+    restartBtn.classList.remove('show');
+    createFlower();
+    setTimeout(pluckPetal, 300);
+});
+
+createFlower();
+</script>
+
+</body>
+</html>

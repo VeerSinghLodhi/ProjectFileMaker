@@ -1,0 +1,3235 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Crush Zone - HotOrNot</title>
+  <meta name="_csrf" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+     font-family: Tahoma, Arial, system-ui, sans-serif;
+      background: #fafafa;
+      color: #1a1a1a;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      padding-top: 60px;
+      padding-bottom: 80px;
+    }
+
+    @media (min-width: 992px) {
+      body {
+        padding-top: 80px;
+        padding-bottom: 0;
+      }
+    }
+
+    /* Gradient background with floating orbs */
+    .bg-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      background: #fafafa;
+    }
+
+    .bg-gradient span {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, #F73B20, transparent);
+      top: 40%;
+      left: 50%;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.1;
+      animation: float 18s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      33% {
+        transform: translate(50px, -80px) scale(1.1);
+      }
+
+      66% {
+        transform: translate(-50px, 50px) scale(0.9);
+      }
+    }
+
+    /* Mobile Logo */
+    .mobile-logo {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 999;
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      display: block;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .logo-hot {
+      color: #F73B20;
+    }
+
+    .logo-not {
+      color: #F73B20;
+    }
+
+    @media (min-width: 992px) {
+      .mobile-logo {
+        display: none;
+      }
+    }
+
+    /* Desktop Navigation */
+    .navbar-desktop {
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(247, 59, 32, 0.15);
+      box-shadow: 0 4px 30px rgba(247, 59, 32, 0.15);
+      padding: 1rem 0;
+      transition: all 0.3s ease;
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    @media (min-width: 992px) {
+      .navbar-desktop {
+        display: block !important;
+      }
+    }
+
+    .navbar-brand {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link {
+      color: rgba(26, 26, 26, 0.85) !important;
+      font-weight: 500;
+      margin: 0 1rem;
+      transition: all 0.3s ease;
+      position: relative;
+      font-size: 0.95rem;
+    }
+
+    .nav-link::before {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: #F73B20;
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: #F73B20 !important;
+    }
+
+    .nav-link:hover::before {
+      width: 60%;
+    }
+
+    .nav-link.active {
+      color: #F73B20 !important;
+    }
+
+    /* Mobile Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(247, 59, 32, 0.15);
+      box-shadow: 0 -4px 20px rgba(247, 59, 32, 0.1);
+      z-index: 1000;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 0;
+      height: 70px;
+    }
+
+    @media (min-width: 992px) {
+      .bottom-nav {
+        display: none;
+      }
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: rgba(26, 26, 26, 0.5);
+      transition: all 0.3s ease;
+      padding: 8px 12px;
+      border-radius: 12px;
+      min-width: 60px;
+    }
+
+    .bottom-nav-item i {
+      font-size: 24px;
+      margin-bottom: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .bottom-nav-item span {
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .bottom-nav-item.active {
+      color: #F73B20;
+    }
+
+    .bottom-nav-item.active i {
+      transform: scale(1.1);
+    }
+
+    /* Pill Navigation */
+    .pill-nav {
+      padding: 12px 10px;
+      overflow-x: auto;
+      white-space: nowrap;
+      display: flex;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(247, 59, 32, 0.1);
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .pill-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .pill-btn {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid rgba(247, 59, 32, 0.2);
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.3s;
+      box-shadow: 0 2px 8px rgba(247, 59, 32, 0.15);
+      position: relative;
+      color: #F73B20;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .pill-btn.active {
+      background: #F73B20;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(247, 59, 32, 0.3);
+      color: white;
+      border-color: #F73B20;
+    }
+
+    .pill-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ff4757;
+      color: white;
+      border-radius: 10px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    /* Swipe Container */
+    .swipe-container {
+      display: flex;
+      transition: transform 0.3s ease-out;
+      touch-action: pan-y;
+      width: 100%;
+    }
+
+    .section-page {
+      min-width: 100%;
+      width: 100%;
+      padding: 16px;
+      flex-shrink: 0;
+    }
+
+    .swipe-hint {
+      text-align: center;
+      color: rgba(247, 59, 32, 0.6);
+      font-size: 13px;
+      padding: 8px;
+      font-weight: 600;
+    }
+
+    /* Crush List Items */
+    .crush-list-item {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(247, 59, 32, 0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+    }
+
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* Gift Grid */
+    .gift-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 576px) {
+      .gift-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+      }
+    }
+
+    .gift-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(247, 59, 32, 0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .gift-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .gift-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+
+    @media (max-width: 576px) {
+      .gift-card img {
+        height: 140px;
+      }
+    }
+
+    .gift-btn {
+      background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      width: 100%;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .gift-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(247, 59, 32, 0.4);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: rgba(247, 59, 32, 0.8);
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      opacity: 0.5;
+      margin-bottom: 16px;
+      color: #F73B20;
+    }
+
+    /* Alert Box */
+    .alert-light {
+      background: white;
+      border: 2px solid rgba(247, 59, 32, 0.2);
+      border-radius: 12px;
+      color: #F73B20;
+      font-weight: 600;
+    }
+
+    /* Buttons */
+    .btn-outline-danger {
+      border-color: #F73B20;
+      color: #F73B20;
+    }
+
+    .btn-outline-danger:hover {
+      background: #F73B20;
+      color: white;
+    }
+
+    .btn-success {
+      background: #10b981;
+      border: none;
+    }
+
+    .btn-outline-secondary {
+      border-color: #6b7280;
+      color: #6b7280;
+    }
+
+    .btn-outline-primary {
+      border-color: #F73B20;
+      color: #F73B20;
+    }
+
+    .btn-outline-primary:hover {
+      background: #F73B20;
+      color: white;
+    }
+
+    /* Modal Styles */
+    .modal-content {
+      border-radius: 20px;
+      border: none;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+      color: white;
+      border: none;
+    }
+
+    .modal-header .btn-close {
+      filter: brightness(0) invert(1);
+    }
+
+    .modal-footer .btn-primary {
+      background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+      border: none;
+      border-radius: 10px;
+      padding: 10px 30px;
+      font-weight: 600;
+    }
+
+    /* Remove number input arrows */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    /* Popup Styles */
+    #mutualPopup,
+    #termsPopup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    #termsPopup {
+      display: none;
+    }
+
+    .popup-content {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(247, 59, 32, 0.3);
+      max-width: 90%;
+      width: 350px;
+    }
+
+    @media (max-width: 576px) {
+      .popup-content {
+        padding: 20px;
+        width: 100%;
+      }
+    }
+
+    .closeBtn,
+    .agreeBtn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .closeBtn {
+      background: #6b7280;
+      color: white;
+    }
+
+    .agreeBtn {
+      background: #F73B20;
+      color: white;
+      margin-right: 10px;
+    }
+
+    .agreeBtn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Quiz Styles */
+    .quiz-card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(247, 59, 32, 0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .compatibility-badge {
+      background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .waiting-text {
+      color: #F73B20;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .play-quiz-btn {
+      background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+
+    .play-quiz-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(247, 59, 32, 0.4);
+      color: white;
+    }
+
+    /* Quiz Rules Modal */
+    .quiz-rules-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .quiz-rules-modal.show {
+      display: flex;
+    }
+
+    .quiz-rules-content {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 248, 248, 0.98));
+      border-radius: 24px;
+      padding: 40px 35px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(247, 59, 32, 0.3);
+      border: 2px solid rgba(247, 59, 32, 0.2);
+      transform: scale(0.9);
+      opacity: 0;
+      transition: all 0.3s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .quiz-rules-modal.show .quiz-rules-content {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .quiz-rules-content h2 {
+      color: #F73B20;
+      font-size: 28px;
+      margin-bottom: 10px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .quiz-rules-content .subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 25px;
+    }
+
+    .quiz-rules-list {
+      list-style: none;
+      margin-bottom: 30px;
+      padding: 0;
+    }
+
+    .quiz-rules-list li {
+      background: linear-gradient(135deg, rgba(247, 59, 32, 0.08) 0%, rgba(255, 82, 56, 0.08) 100%);
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      border-radius: 14px;
+      font-size: 15px;
+      color: #333;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border: 1px solid rgba(247, 59, 32, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    .quiz-rules-list li:hover {
+      transform: translateX(8px);
+      background: linear-gradient(135deg, rgba(247, 59, 32, 0.12) 0%, rgba(255, 82, 56, 0.12) 100%);
+      border-color: rgba(247, 59, 32, 0.25);
+    }
+
+    .quiz-rules-list li .icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .quiz-rules-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .quiz-start-btn {
+      flex: 1;
+      background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      font-size: 17px;
+      font-weight: 700;
+      border-radius: 14px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      box-shadow: 0 8px 24px rgba(247, 59, 32, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .quiz-start-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(247, 59, 32, 0.4);
+    }
+
+    .quiz-cancel-btn {
+      flex: 1;
+      background: transparent;
+      color: #666;
+      border: 2px solid rgba(247, 59, 32, 0.2);
+      padding: 16px 32px;
+      font-size: 17px;
+      font-weight: 600;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .quiz-cancel-btn:hover {
+      background: rgba(247, 59, 32, 0.08);
+      color: #F73B20;
+      border-color: rgba(247, 59, 32, 0.3);
+    }
+
+    .quiz-rules-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 28px;
+      color: #999;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      line-height: 1;
+      padding: 5px;
+    }
+
+    .quiz-rules-close:hover {
+      color: #F73B20;
+      transform: rotate(90deg);
+    }
+
+    @keyframes pulse-rule {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    .play-quiz-btn {
+      animation: pulse-rule 2s ease-in-out infinite;
+    }
+
+    .play-quiz-btn:hover {
+      animation: none;
+    }
+
+    /* Responsive Fixes */
+    @media (max-width: 576px) {
+      body {
+        padding-top: 55px;
+      }
+
+      .mobile-logo {
+        font-size: 1.1rem;
+        top: 12px;
+        left: 12px;
+      }
+
+      .pill-nav {
+        padding: 8px;
+        gap: 8px;
+      }
+
+      .pill-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+
+      .section-page {
+        padding: 12px;
+      }
+
+      .crush-list-item {
+        padding: 12px;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .crush-list-item>div:last-child {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+      }
+
+      .crush-list-item button {
+        flex: 1;
+      }
+
+      .quiz-card {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .quiz-rules-content {
+        padding: 30px 20px;
+        max-height: 85vh;
+      }
+
+      .quiz-rules-content h2 {
+        font-size: 24px;
+      }
+
+      .quiz-rules-list li {
+        padding: 14px 16px;
+        font-size: 14px;
+      }
+
+      .quiz-rules-buttons {
+        flex-direction: column;
+      }
+
+      .quiz-start-btn,
+      .quiz-cancel-btn {
+        width: 100%;
+        padding: 14px 24px;
+      }
+    }
+
+/* Virtual Gifts Modal Styles */
+.virtual-gift-card {
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+}
+
+.virtual-gift-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(247, 59, 32, 0.2);
+}
+
+.virtual-gift-card.selected {
+  border-color: #F73B20;
+  box-shadow: 0 8px 20px rgba(247, 59, 32, 0.4);
+  transform: translateY(-5px);
+}
+
+.virtual-gift-img {
+  height: 150px;
+  object-fit: cover;
+}
+
+@media (max-width: 576px) {
+  .virtual-gift-img {
+    height: 120px;
+  }
+}
+
+      /* Gift Tabs Styling */
+.gift-tabs {
+  display: flex;
+  gap: 10px;
+  background: white;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(247, 59, 32, 0.1);
+}
+
+.gift-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: 2px solid rgba(247, 59, 32, 0.2);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.gift-tab-btn.active {
+  background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+  color: white;
+  border-color: #F73B20;
+}
+
+.gift-tab-btn:hover:not(.active) {
+  background: rgba(247, 59, 32, 0.1);
+  color: #F73B20;
+}
+
+.gift-tab-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff4757;
+  color: white;
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.gift-tab-content {
+  display: none;
+}
+
+.gift-tab-content.active {
+  display: block;
+}
+
+/* Received Gifts List */
+.received-gifts-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 576px) {
+  .received-gifts-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.received-gift-item {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(247, 59, 32, 0.15);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.received-gift-item.unopened {
+  border-color: #F73B20;
+  animation: pulse-border 2s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    border-color: #F73B20;
+    box-shadow: 0 4px 12px rgba(247, 59, 32, 0.15);
+  }
+  50% {
+    border-color: #ff5238;
+    box-shadow: 0 6px 20px rgba(247, 59, 32, 0.3);
+  }
+}
+
+.received-gift-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.avatar-small {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+  overflow: hidden;
+}
+
+.received-gift-preview {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 12px;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gift-preview-blurred {
+  filter: blur(0px);
+  text-align: center;
+}
+
+.gift-preview-clear {
+  text-align: center;
+}
+
+.received-gift-img {
+  max-width: 150px;
+  max-height: 150px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.btn-open-gift {
+  background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: pulse-btn 2s ease-in-out infinite;
+}
+
+@keyframes pulse-btn {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.btn-open-gift:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(247, 59, 32, 0.4);
+  animation: none;
+}
+
+.btn-opened-gift {
+  background: #e0e0e0;
+  color: #666;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  width: 100%;
+  cursor: not-allowed;
+}
+
+/* Gift Opening Popup */
+.gift-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.gift-popup-overlay.show {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.gift-popup-content {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 248, 248, 0.98));
+  border-radius: 24px;
+  padding: 30px;
+  max-width: 450px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(247, 59, 32, 0.4);
+  border: 3px solid rgba(247, 59, 32, 0.3);
+  text-align: center;
+  animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.gift-popup-header h3 {
+  color: #F73B20;
+  font-size: 28px;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.gift-popup-body {
+  padding: 20px 0;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.gift-box-container {
+  text-align: center;
+}
+
+.gift-box {
+  font-size: 100px;
+  color: #F73B20;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.revealed-gift {
+  text-align: center;
+  animation: revealAnimation 0.5s ease;
+}
+
+@keyframes revealAnimation {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.gift-reveal-animation {
+  animation: sparkle 1s ease infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+  }
+}
+
+.popup-gift-img {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(247, 59, 32, 0.3);
+}
+
+.btn-popup-open,
+.btn-popup-close {
+  background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+  color: white;
+  border: none;
+  padding: 16px 40px;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(247, 59, 32, 0.3);
+}
+
+.btn-popup-open:hover,
+.btn-popup-close:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(247, 59, 32, 0.4);
+}
+
+@media (max-width: 576px) {
+  .gift-popup-content {
+    padding: 24px;
+  }
+
+  .gift-popup-header h3 {
+    font-size: 24px;
+  }
+
+  .gift-box {
+    font-size: 80px;
+  }
+
+  .popup-gift-img {
+    max-width: 160px;
+    max-height: 160px;
+  }
+}
+
+      /* Scratch card container */
+.scratch-card-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto 0;
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+}
+
+@media (max-width: 576px) {
+  .scratch-card-container {
+    padding: 15px;
+    max-width: 100%;
+  }
+}
+
+/* Scratch canvas wrapper */
+.scratch-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-width: 100%;
+  margin: 20px auto;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(247, 59, 32, 0.3);
+}
+
+/* Hidden gift content behind scratch layer */
+.gift-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.gift-content img {
+  max-width: 60%;
+  max-height: 50%;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  margin-bottom: 15px;
+  object-fit: contain;
+}
+
+@media (max-width: 576px) {
+  .gift-content img {
+    max-width: 70%;
+    max-height: 45%;
+  }
+}
+
+.gift-content h3 {
+  color: white;
+  font-size: 22px;
+  margin: 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+@media (max-width: 576px) {
+  .gift-content h3 {
+    font-size: 18px;
+  }
+}
+
+.gift-content p {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Scratch canvas styling */
+#scratchCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none; /* Prevents scrolling while scratching on mobile */
+}
+
+/* Progress indicator */
+.scratch-progress {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #F73B20 0%, #ff5238 100%);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+/* Instructions text */
+.scratch-instructions {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  margin-top: 15px;
+  animation: pulse-instruction 2s ease-in-out infinite;
+}
+
+@keyframes pulse-instruction {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Confetti animation */
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  animation: confetti-fall 3s linear forwards;
+  pointer-events: none;
+}
+
+@keyframes confetti-fall {
+  to {
+    transform: translateY(150px) rotate(360deg);
+    opacity: 0;
+  }
+}
+      /* End of Scratch Wrapper */
+
+      /* ============================================
+   GOOGLE PAY STYLE GIFT WRAPPER - ADDED
+   ============================================ */
+
+/* Gift wrapper container */
+.gpay-gift-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  aspect-ratio: 1;
+  perspective: 1000px;
+}
+
+@media (max-width: 576px) {
+  .gpay-gift-wrapper {
+    max-width: 280px;
+  }
+}
+
+/* Main gift box with float animation */
+.gpay-gift-box-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: gpay-float 3s ease-in-out infinite;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.gpay-gift-box-wrapper:hover {
+  transform: scale(1.05);
+}
+
+@keyframes gpay-float {
+  0%, 100% { transform: translateY(0px) rotateY(0deg); }
+  50% { transform: translateY(-10px) rotateY(5deg); }
+}
+
+/* Gift box base */
+.gpay-gift-box-base {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+  border-radius: 20px;
+  box-shadow:
+    0 20px 60px rgba(247, 59, 32, 0.4),
+    inset 0 -5px 20px rgba(0, 0, 0, 0.2),
+    inset 0 5px 20px rgba(255, 255, 255, 0.2);
+}
+
+/* Vertical ribbon */
+.gpay-ribbon-vertical {
+  position: absolute;
+  width: 15%;
+  height: 100%;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg,
+    rgba(255, 215, 0, 0.3) 0%,
+    rgba(255, 215, 0, 0.8) 20%,
+    rgba(255, 215, 0, 1) 50%,
+    rgba(255, 215, 0, 0.8) 80%,
+    rgba(255, 215, 0, 0.3) 100%);
+  box-shadow:
+    0 0 20px rgba(255, 215, 0, 0.6),
+    inset -2px 0 5px rgba(0, 0, 0, 0.3),
+    inset 2px 0 5px rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  animation: gpay-shimmer 2s ease-in-out infinite;
+}
+
+/* Horizontal ribbon */
+.gpay-ribbon-horizontal {
+  position: absolute;
+  width: 100%;
+  height: 15%;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(180deg,
+    rgba(255, 215, 0, 0.3) 0%,
+    rgba(255, 215, 0, 0.8) 20%,
+    rgba(255, 215, 0, 1) 50%,
+    rgba(255, 215, 0, 0.8) 80%,
+    rgba(255, 215, 0, 0.3) 100%);
+  box-shadow:
+    0 0 20px rgba(255, 215, 0, 0.6),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.3),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  animation: gpay-shimmer 2s ease-in-out infinite 0.5s;
+}
+
+@keyframes gpay-shimmer {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Bow on top */
+.gpay-ribbon-bow {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  animation: gpay-bow-pulse 2s ease-in-out infinite;
+}
+
+@media (max-width: 576px) {
+  .gpay-ribbon-bow {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@keyframes gpay-bow-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+/* Bow loops */
+.gpay-bow-loop {
+  position: absolute;
+  width: 35px;
+  height: 50px;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border-radius: 50% 50% 50% 0;
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.3),
+    inset -2px -2px 5px rgba(0, 0, 0, 0.2),
+    inset 2px 2px 5px rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 576px) {
+  .gpay-bow-loop {
+    width: 25px;
+    height: 40px;
+  }
+}
+
+.gpay-bow-loop-left {
+  left: 0;
+  top: 15px;
+  transform: rotate(-45deg);
+}
+
+.gpay-bow-loop-right {
+  right: 0;
+  top: 15px;
+  transform: rotate(45deg) scaleX(-1);
+}
+
+/* Bow center knot */
+.gpay-bow-knot {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border-radius: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.3),
+    inset -2px -2px 5px rgba(0, 0, 0, 0.2),
+    inset 2px 2px 5px rgba(255, 255, 255, 0.5);
+  z-index: 2;
+}
+
+@media (max-width: 576px) {
+  .gpay-bow-knot {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Bow tails */
+.gpay-bow-tail {
+  position: absolute;
+  width: 20px;
+  height: 40px;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  top: 60px;
+  clip-path: polygon(50% 0%, 0% 0%, 50% 100%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 576px) {
+  .gpay-bow-tail {
+    width: 15px;
+    height: 30px;
+    top: 45px;
+  }
+}
+
+.gpay-bow-tail-left {
+  left: 15px;
+  transform: rotate(-15deg);
+}
+
+.gpay-bow-tail-right {
+  right: 15px;
+  transform: rotate(15deg) scaleX(-1);
+}
+
+/* Sparkles around gift */
+.gpay-sparkle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #ffd700;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ffd700;
+  animation: gpay-sparkle-float 3s ease-in-out infinite;
+}
+
+@keyframes gpay-sparkle-float {
+  0%, 100% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.2);
+    opacity: 1;
+  }
+}
+
+.gpay-sparkle:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+.gpay-sparkle:nth-child(2) { top: 20%; right: 15%; animation-delay: 0.5s; }
+.gpay-sparkle:nth-child(3) { bottom: 15%; left: 15%; animation-delay: 1s; }
+.gpay-sparkle:nth-child(4) { bottom: 20%; right: 10%; animation-delay: 1.5s; }
+.gpay-sparkle:nth-child(5) { top: 50%; left: 5%; animation-delay: 0.75s; }
+.gpay-sparkle:nth-child(6) { top: 50%; right: 5%; animation-delay: 1.25s; }
+
+/* Open instruction text */
+.gpay-open-instruction {
+  text-align: center;
+  color: #F73B20;
+  font-size: 18px;
+  margin-top: 30px;
+  animation: pulse-instruction 2s ease-in-out infinite;
+  font-weight: 600;
+}
+
+@media (max-width: 576px) {
+  .gpay-open-instruction {
+    font-size: 16px;
+    margin-top: 20px;
+  }
+}
+
+/* END OF GOOGLE PAY STYLE WRAPPER */
+
+      /* Scratchable Google Pay Wrapper */
+.scratch-wrapper-gpay {
+  position: relative;
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  aspect-ratio: 1;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(247, 59, 32, 0.4);
+}
+
+@media (max-width: 576px) {
+  .scratch-wrapper-gpay {
+    max-width: 280px;
+  }
+}
+
+/* Hidden gift content behind scratch layer */
+.gift-content-gpay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #F73B20 0%, #ff5c00 100%);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.gift-content-gpay img {
+  max-width: 90%;
+  max-height: 90%;
+  margin-bottom: 15px;
+  object-fit: contain;
+}
+
+@media (max-width: 576px) {
+  .gift-content-gpay img {
+    max-width: 90%;
+    max-height: 90%;
+  }
+}
+
+.gift-content-gpay h3 {
+  color: white;
+  font-size: 22px;
+  margin: 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+@media (max-width: 576px) {
+  .gift-content-gpay h3 {
+    font-size: 18px;
+  }
+}
+
+.gift-content-gpay p {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Scratch canvas with wrapper design */
+#scratchCanvasGpay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+  </style>
+</head>
+
+<body>
+
+<div class="bg-gradient">
+  <span></span>
+</div>
+
+<!-- Mobile Logo -->
+<a href="#" class="mobile-logo">
+  <span class="logo-hot">Hot</span><span class="logo-not">Or</span><span class="logo-hot">Not</span>
+</a>
+
+<!-- Desktop Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light sticky-top navbar-desktop">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="#">
+      <span class="logo-hot">Hot</span><span class="logo-not">Or</span><span class="logo-hot">Not</span>
+    </a>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item">
+          <a class="nav-link" href="/user/dashboard">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/user/rating">Rate</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/user/add-new-post">Add Post</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/user/games">Games</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="/user/mutual-crush">Mutual Crush</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="/user/rating" class="bottom-nav-item">
+    <i class="bi bi-fire"></i>
+    <span>Rate</span>
+  </a>
+  <a href="/user/games" class="bottom-nav-item">
+    <i class="bi bi-controller"></i>
+    <span>Games</span>
+  </a>
+  <a href="/user/add-new-post" class="bottom-nav-item">
+    <i class="bi bi-plus-circle-fill"></i>
+    <span>Add Post</span>
+  </a>
+  <a href="/user/mutual-crush" class="bottom-nav-item active">
+    <i class="bi bi-heart-fill"></i>
+    <span>Crush</span>
+  </a>
+  <a href="/user/dashboard" class="bottom-nav-item">
+    <i class="bi bi-house-door-fill"></i>
+    <span>Dashboard</span>
+  </a>
+</nav>
+
+<!-- Pill Navigation -->
+<div class="pill-nav" id="pillNav">
+  <button class="pill-btn active" onclick="goToSection(0)">💬 Whisper</button>
+  <button class="pill-btn" onclick="goToSection(1)">
+    💕 Mutual
+    <span class="pill-badge" th:if="${mutualCrushes != null and !#lists.isEmpty(mutualCrushes)}"
+          th:text="${#lists.size(mutualCrushes)}"></span>
+  </button>
+  <button class="pill-btn" onclick="goToSection(2)">
+    🎯 Hit-Ups
+    <span class="pill-badge" th:if="${pendingRequests != null and !#lists.isEmpty(pendingRequests)}"
+          th:text="${#lists.size(pendingRequests)}"></span>
+  </button>
+  <button class="pill-btn" onclick="goToSection(3)">➕ Invite</button>
+  <button class="pill-btn" onclick="goToSection(4)">🎁 Gifts</button>
+  <button class="pill-btn" onclick="goToSection(5)">🎮 Play Quiz</button>
+</div>
+
+<div class="swipe-hint">← Swipe to navigate →</div>
+
+<div class="swipe-container" id="swipeContainer">
+  <!-- Whisper Section -->
+  <div class="section-page" data-hash="whisper">
+    <div class="empty-state">
+      <i class="bi bi-chat-heart"></i>
+      <h5>Whisper</h5>
+      <p>Send anonymous whispers to your crushes</p>
+    </div>
+  </div>
+
+  <!-- Mutual Crushes Section -->
+  <div class="section-page" data-hash="mutual">
+    <div th:if="${mutualCrushes == null or #lists.isEmpty(mutualCrushes)}">
+      <div class="empty-state">
+        <i class="bi bi-heart-half"></i>
+        <h5>No Mutual Crushes Yet</h5>
+        <p>Start inviting people you like!</p>
+      </div>
+    </div>
+
+    <div th:each="mc : ${mutualCrushes}" class="crush-list-item">
+      <div class="profile-section d-flex align-items-center justify-content-between">
+        <div class="avatar">
+          <img
+                  th:src="@{'/crushpic/' + ${mc.requestBy.userId == userSession.userId ? mc.requestTo.userId : mc.requestBy.userId}}"
+                  class="avatar-img" alt="Profile" onerror="this.src='/noprofilepic.png'">
+        </div>
+
+        <div class="ms-2 flex-grow-1">
+          <h6 class="mb-0"
+              th:text="${mc.requestBy.userId == userSession.userId ? mc.requestTo.username : mc.requestBy.username}">
+            Username
+          </h6>
+          <small class="text-muted">Mutual Crush</small>
+        </div>
+
+        <form th:action="@{/dumpCrush}" method="post">
+          <input type="hidden" name="dumpId"
+                 th:value="${mc.requestBy.userId == userSession.userId ? mc.requestTo.userId : mc.requestBy.userId}">
+          <button type="submit" class="btn btn-sm btn-outline-danger">Dump</button>
+        </form>
+      </div>
+
+
+    </div>
+  </div>
+
+  <!-- Hit-Ups Section -->
+  <div class="section-page" data-hash="hitups">
+    <div th:if="${pendingRequests == null or #lists.isEmpty(pendingRequests)}">
+      <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h5>No Pending Hit-Ups</h5>
+        <p>You'll see incoming requests here</p>
+      </div>
+    </div>
+
+    <div th:each="req : ${pendingRequests}" class="crush-list-item">
+      <div class="profile-section d-flex align-items-center justify-content-between flex-nowrap">
+
+        <div class="d-flex align-items-center">
+          <div class="avatar me-2">
+            <img th:src="@{'/crushpic/' + ${req.requestBy.userId}}" class="avatar-img" alt="Profile"
+                 onerror="this.src='/noprofilepic.png'">
+          </div>
+
+          <div>
+            <h6 class="mb-0" th:text="${req.requestBy.username}">Username</h6>
+            <small class="text-muted">Sent you a hit</small>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <form th:action="@{/acceptCrush}" method="post">
+            <input type="hidden" name="inviteId" th:value="${req.requestBy.userId}">
+            <button type="submit" class="btn btn-sm btn-success">Accept</button>
+          </form>
+
+          <form th:action="@{/ignoreCrush}" method="post">
+            <input type="hidden" name="inviteId" th:value="${req.requestBy.userId}">
+            <button type="submit" class="btn btn-sm btn-outline-secondary">Dodge</button>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Invite Section -->
+  <div class="section-page" data-hash="invite">
+    <div th:if="${canInvite == null or #lists.isEmpty(canInvite)}">
+      <div class="empty-state">
+        <i class="bi bi-person-plus"></i>
+        <h5>No One to Invite</h5>
+        <p>Check back later for new people</p>
+      </div>
+    </div>
+
+    <div th:each="u : ${canInvite}" class="crush-list-item">
+      <div class="profile-section d-flex align-items-center justify-content-between flex-nowrap">
+
+        <div class="d-flex align-items-center">
+          <div class="avatar me-2">
+            <img th:src="@{'/crushpic/' + ${u.userId}}" class="avatar-img" alt="Profile"
+                 onerror="this.src='/noprofilepic.png'">
+          </div>
+
+          <div>
+            <h6 class="mb-0" th:text="${u.username}">Username</h6>
+            <small class="text-muted">Available</small>
+          </div>
+        </div>
+
+        <form th:action="@{/inviteCrush}"
+              onsubmit="return openTermsPopupForHit(this)"
+              method="post">
+          <input type="hidden" name="targetId" th:value="${u.userId}">
+          <button type="submit" class="btn btn-sm btn-outline-primary">Hit</button>
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+
+    <!-- Gift Points Section - WITH RECEIVED GIFTS -->
+    <div class="section-page" data-hash="gift">
+        <!-- Points Display -->
+        <div class="alert alert-light mb-3">
+            <span class="userPoint">Your Points: <strong th:text="${userSession.points != null ? userSession.points : '0'}">500</strong></span>
+
+            <!-- Navigation Tabs for Send/Receive -->
+            <div class="gift-tabs mb-3">
+                <button class="gift-tab-btn active" onclick="switchGiftTab('send')">
+                    <i class="bi bi-gift"></i> Send
+                </button>
+                <button class="gift-tab-btn" onclick="switchGiftTab('receive')">
+                    <i class="bi bi-inbox-fill"></i> Received
+                    <span th:if="${unreadGiftsCount != null and unreadGiftsCount > 0}"
+                          class="gift-tab-badge"
+                          th:text="${unreadGiftsCount}">3</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SEND GIFTS TAB CONTENT -->
+        <div id="sendGiftsTab" class="gift-tab-content active">
+            <div th:if="${mutualCrushes == null or #lists.isEmpty(mutualCrushes)}">
+                <div class="empty-state">
+                    <i class="bi bi-gift"></i>
+                    <h5>No One to Gift</h5>
+                    <p>Get mutual crushes first to send gifts!</p>
+                </div>
+            </div>
+
+            <div class="gift-grid">
+                <div th:each="mc : ${mutualCrushes}" class="gift-card">
+                    <img th:src="@{'/crushpic/' + ${mc.requestTo.userId != userSession.userId ? mc.requestTo.userId : mc.requestBy.userId}}"
+                         alt="Profile"
+                         onerror="this.src='/noprofilepic.png'">
+
+                    <div class="p-3">
+                        <h6 class="mb-1"
+                            th:text="${mc.requestTo.userId != userSession.userId ? mc.requestTo.username : mc.requestBy.username}">
+                            Username
+                        </h6>
+                        <small class="text-muted d-block mb-2">Mutual ❤</small>
+
+                        <button class="gift-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#giftModal"
+                                th:data-username="${mc.requestTo.userId != userSession.userId ? mc.requestTo.username : mc.requestBy.username}"
+                                th:data-userid="${mc.requestTo.userId != userSession.userId ? mc.requestTo.userId : mc.requestBy.userId}">
+                            <i class="bi bi-gift"></i> Points
+                        </button>
+                        <button class="gift-btn mt-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#virtualGiftsModal"
+                                th:data-username="${mc.requestTo.userId != userSession.userId ? mc.requestTo.username : mc.requestBy.username}"
+                                th:data-userid="${mc.requestTo.userId != userSession.userId ? mc.requestTo.userId : mc.requestBy.userId}">
+                            <i class="bi bi-gift-fill"></i> VGift
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECEIVED GIFTS TAB CONTENT -->
+        <div id="receiveGiftsTab" class="gift-tab-content">
+            <div th:if="${receivedGifts == null or #lists.isEmpty(receivedGifts)}">
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h5>No Gifts Received Yet</h5>
+                    <p>Your received gifts will appear here</p>
+                </div>
+            </div>
+
+            <!-- Received Gifts Grid -->
+            <div class="received-gifts-list">
+                <div th:each="rGift : ${receivedGifts}"
+                     class="received-gift-item"
+                     th:classappend="${!rGift.opened} ? 'unopened' : 'opened'">
+
+                    <div class="received-gift-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <!-- Sender Avatar -->
+                            <div class="avatar-small">
+                                <img th:src="@{'/crushpic/' + ${rGift.sentBy.userId}}"
+                                     class="avatar-img"
+                                     alt="Sender"
+                                     onerror="this.src='/noprofilepic.png'">
+                            </div>
+
+                            <div>
+                                <h6 class="mb-0" th:text="${rGift.sentBy.username}">Sender Name</h6>
+                                <small class="text-muted" th:text="${#temporals.format(rGift.sentAt, 'MMM dd, yyyy hh:mm a')}">
+                                    Dec 15, 2025
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Unopened Badge -->
+                        <span th:if="${!rGift.opened}" class="badge bg-danger">
+            <i class="bi bi-envelope-fill"></i> New
+          </span>
+                    </div>
+
+                    <!-- Gift Preview -->
+                    <div class="received-gift-preview">
+                        <!-- Blurred gift for unopened -->
+                        <div th:if="${!rGift.opened}" class="gift-preview-blurred">
+                            <i class="bi bi-gift-fill" style="font-size: 48px; color: #F73B20;"></i>
+                            <p class="mt-2 mb-0">Virtual Gift</p>
+                        </div>
+
+                        <!-- Clear gift for opened -->
+                        <div th:if="${rGift.opened}" class="gift-preview-clear">
+                            <img th:src="@{'/gift/image/' + ${rGift.giftId.giftId}}"
+                                 class="received-gift-img"
+                                 alt="Gift"
+                                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2220%22%3EGift%3C/text%3E%3C/svg%3E'">
+                            <h6 class="mt-2 mb-0" th:text="${rGift.giftId.giftName}">Gift Name</h6>
+                            <small class="text-muted" th:text="${rGift.giftId.price} + ' Points'">100 Points</small>
+                        </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button th:if="${!rGift.opened}"
+                            class="btn-open-gift"
+                            th:data-gift-id="${rGift.virtualGiftId}"
+                            th:data-gift-name="${rGift.giftId.giftName}"
+                            th:data-sender-name="${rGift.sentBy.username}"
+                            th:data-gift-image="@{'/gift/image/' + ${rGift.giftId.giftId}}"
+                            onclick="openGiftPopup(this)">
+                        <i class="bi bi-gift-fill"></i> Open Gift
+                    </button>
+
+                    <button th:if="${rGift.opened}"
+                            class="btn-opened-gift"
+                            disabled>
+                        <i class="bi bi-check-circle-fill"></i> Opened
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  <!-- PlayQuiz Section -->
+  <div class="section-page" data-hash="quiz">
+    <div class="alert alert-light mb-3">
+      <strong>Test Your Chemistry! 🧪</strong>
+      <p class="mb-0 small">Play fun quizzes with your mutual crushes</p>
+    </div>
+
+    <div th:if="${crushList == null or #lists.isEmpty(crushList)}">
+      <div class="empty-state">
+        <i class="bi bi-controller"></i>
+        <h5>No Quizzes Available</h5>
+        <p>Get mutual crushes to unlock quizzes!</p>
+      </div>
+    </div>
+
+    <div th:each="item : ${crushList}" class="quiz-card">
+      <div class="profile-section">
+        <div class="avatar">
+          <img
+                  th:src="@{'/crushpic/' + ${item.crush.requestTo.userId != userSession.userId ? item.crush.requestTo.userId : item.crush.requestBy.userId}}"
+                  class="avatar-img" alt="Profile" onerror="this.src='/noprofilepic.png'">
+        </div>
+        <div>
+          <h6 class="mb-0"
+              th:text="${item.crush.requestTo.userId != userSession.userId ? item.crush.requestTo.username : item.crush.requestBy.username}">
+            Username
+          </h6>
+          <small class="text-muted">Mutual Crush</small>
+        </div>
+      </div>
+
+      <!-- Case 3: Current user played but other user NOT played -->
+      <span class="waiting-text" th:if="${item.currentUserPlayed == false and item.otherUserPlayed == true}">
+        <span style="color:black;font-weight:bold;" th:text="${item.crush.requestTo.userId != userSession.userId ? item.crush.requestTo.username : item.crush.requestBy.username}"></span>
+         is waiting for you quiz answers...⏳
+        </span>
+
+      <!-- Case 1: Current user has NOT played -->
+      <button class="play-quiz-btn" th:if="${item.currentUserPlayed == false}" onclick="openQuizRulesModal(this)"
+              th:data-quiz-url="@{'/user/playquiz/' + ${item.crush.requestTo.userId != userSession.userId ? item.crush.requestTo.userId : item.crush.requestBy.userId}}"
+              th:data-crush-name="${item.crush.requestTo.userId != userSession.userId ? item.crush.requestTo.username : item.crush.requestBy.username}">
+        <i class="bi bi-play-circle"></i> Play Quiz
+      </button>
+
+      <!-- Case 2: Current user played but other user NOT played -->
+      <span class="waiting-text" th:if="${item.currentUserPlayed == true and item.otherUserPlayed == false}">
+          ⏳ Waiting for response...
+        </span>
+
+      <!-- Case 4: Both played -->
+      <span class="compatibility-badge" th:if="${item.currentUserPlayed == true and item.otherUserPlayed == true}">
+          💖 [[${item.crush.percentage}]]% Compatible
+        </span>
+    </div>
+  </div>
+</div>
+
+<!-- Gift Modal - CORRECTED -->
+<div class="modal fade" id="giftModal" tabindex="-1" aria-labelledby="giftModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="giftModalLabel">Send Gift Points</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Display recipient name and user points -->
+        <div class="d-flex justify-content-between mb-3">
+          <p class="fw-bold mb-0">
+            Gift to: <span id="giftToName" class="text-danger">Username</span>
+          </p>
+          <p class="fw-bold mb-0 userPoint">
+            Your Points: <span th:text="${userSession.points != null ? userSession.points : '0'}">500</span>
+          </p>
+        </div>
+
+        <!-- Points input -->
+        <div class="mb-3">
+          <label for="giftInput" class="form-label">Enter points to gift:</label>
+          <input type="number"
+                 class="form-control giftInput"
+                 id="giftInput"
+                 placeholder="Enter points"
+                 min="1"
+                 max="999999">
+          <input type="hidden" id="giftToUserId">
+        </div>
+
+        <!-- Error message display -->
+        <div id="giftError" class="alert alert-danger" style="display: none;"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary sendGiftBtn">
+          <i class="bi bi-gift"></i> Send Gift
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--  Virtual Gifts Selection Modal -->
+<div class="modal fade" id="virtualGiftsModal" tabindex="-1" aria-labelledby="virtualGiftsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="virtualGiftsModalLabel">
+                    🎁 Send Virtual Gift to <span id="virtualGiftToName" class="text-danger">Username</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- User points display -->
+                <div class="alert alert-light mb-3">
+                    <span class="fw-bold">Your Points: <span class="userPoint" th:text="${userSession.points != null ? userSession.points : '0'}">500</span></span>
+                </div>
+
+                <!-- Gifts grid -->
+                <div class="row g-3" id="virtualGiftsGrid">
+                    <!-- Gifts will be populated here dynamically or via Thymeleaf -->
+                    <div th:each="gift : ${gifts}" class="col-6 col-md-4">
+                        <div class="card virtual-gift-card" style="cursor: pointer;"
+                             th:data-gift-id="${gift.giftId}"
+                             th:data-gift-name="${gift.giftName}"
+                             th:data-gift-price="${gift.price}"
+                             th:data-gift-premium="${gift.premium}"
+                             onclick="selectVirtualGift(this)">
+                            <div class="position-relative">
+                                <!-- Gift image from database -->
+                                <img th:src="@{'/gift/image/' + ${gift.giftId}}"
+                                     class="card-img-top virtual-gift-img"
+                                     alt="Gift"
+                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2220%22%3EGift%3C/text%3E%3C/svg%3E'">
+
+                                <!-- Premium badge -->
+                                <span th:if="${gift.premium}" class="badge bg-warning position-absolute top-0 end-0 m-2">
+                  ⭐ Premium
+                </span>
+                            </div>
+
+                            <div class="card-body text-center p-2">
+                                <h6 class="mb-1 small" th:text="${gift.giftName}">Gift Name</h6>
+                                <p class="mb-0 fw-bold text-danger" th:text="${gift.price} + ' Points'">100 Points</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No gifts available message -->
+                <div th:if="${gifts == null or #lists.isEmpty(gifts)}" class="text-center py-4">
+                    <i class="bi bi-gift" style="font-size: 48px; color: #ccc;"></i>
+                    <p class="text-muted mt-2">No gifts available at the moment</p>
+                </div>
+
+                <!-- Selected gift info -->
+                <div id="selectedGiftInfo" class="alert alert-success mt-3" style="display: none;">
+                    <strong>Selected:</strong> <span id="selectedGiftName"></span> -
+                    <span id="selectedGiftPrice"></span> Points
+                </div>
+
+                <div id="virtualGiftError" class="alert alert-danger mt-3" style="display: none;"></div>
+
+                <input type="hidden" id="virtualGiftToUserId">
+                <input type="hidden" id="selectedGiftId">
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary sendVirtualGiftBtn" disabled>
+                    <i class="bi bi-gift-fill"></i> Send Gift
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gift Opening Popup Modal -->
+
+<div class="gift-popup-overlay" id="giftPopupOverlay">
+    <div class="gift-popup-content">
+        <div class="gift-popup-header">
+            <h3>🎁 You Received a Gift!</h3>
+            <p class="mb-0">From <span id="popupSenderName" class="text-danger fw-bold">Username</span></p>
+        </div>
+
+        <div class="gift-popup-body">
+            <!-- MODIFIED: Scratchable Google Pay wrapper -->
+            <div class="scratch-wrapper-gpay">
+                <!-- Hidden gift content (revealed after scratching) -->
+                <div class="gift-content-gpay">
+                    <img id="scratchGiftImage"
+                         alt="Gift"
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2220%22%3EGift%3C/text%3E%3C/svg%3E'">
+                    <h3 id="scratchGiftName">Gift Name</h3>
+                    <p id="scratchGiftPrice">Points</p>
+                </div>
+
+                <!-- Scratch canvas with Google Pay wrapper design -->
+                <canvas id="scratchCanvasGpay"></canvas>
+            </div>
+
+            <!-- Progress indicator -->
+<!--            <div class="scratch-progress">-->
+<!--                <div id="progressText">Scratch to reveal: 0%</div>-->
+<!--                <div class="progress-bar">-->
+<!--                    <div class="progress-fill" id="progressFill"></div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+            <!-- Instructions -->
+            <div class="scratch-instructions" id="scratchInstructions">
+                👆 Scratch the gift wrapper to reveal!
+            </div>
+        </div>
+
+        <div class="gift-popup-footer">
+<!--            <button id="openGiftBtn" class="btn-popup-open" onclick="revealGift()">-->
+<!--                <i class="bi bi-gift-fill"></i> Open Gift-->
+<!--            </button>-->
+            <button id="closeGiftBtn" class="btn-popup-close" style="display: none;" onclick="closeGiftPopup()">
+                <i class="bi bi-check-circle-fill"></i> Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Quiz Modal -->
+<div class="modal fade" id="quizModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">💖 Crush Quiz</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="quizQuestion">
+          <h6 class="mb-3">Question 1 of 5</h6>
+          <p class="fw-bold">What's your ideal date?</p>
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-danger quiz-option">🌃 City Night Out</button>
+            <button class="btn btn-outline-danger quiz-option">🏖️ Beach Sunset</button>
+            <button class="btn btn-outline-danger quiz-option">🏔️ Mountain Adventure</button>
+            <button class="btn btn-outline-danger quiz-option">🍿 Movie Night</button>
+          </div>
+        </div>
+        <div id="quizResult" style="display: none; text-align: center;">
+          <i class="bi bi-trophy" style="font-size: 48px; color: #F73B20;"></i>
+          <h4 class="mt-3">Quiz Complete! 🎉</h4>
+          <p>Your compatibility score: <strong style="color: #F73B20;">85%</strong></p>
+          <p class="small text-muted">You both love adventure!</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mutual Crush Popup -->
+<div id="mutualPopup" th:if="${showMutualPopup}" style="display: flex;">
+  <div class="popup-content">
+    <h3 style="color:#F73B20;">It's a Mutual Crush! 💖</h3>
+    <p>Congrats! You both like each other.</p>
+    <button class="closeBtn" onclick="document.getElementById('mutualPopup').style.display='none';">Close</button>
+  </div>
+</div>
+
+<!-- Terms Popup -->
+<div id="termsPopup">
+  <div class="popup-content">
+    <h5>Do you Want to Invite?</h5>
+    <div th:if="${firstUse}">
+      <h4 class="text-danger">Terms & Conditions</h4>
+      <p>By inviting, you agree to our terms</p>
+    </div>
+    <button class="agreeBtn">I Agree</button>
+    <button class="closeBtn" onclick="document.getElementById('termsPopup').style.display='none';">Cancel</button>
+  </div>
+</div>
+
+<!-- Quiz Rules Modal -->
+<div id="quizRulesModal" class="quiz-rules-modal">
+  <div class="quiz-rules-content">
+    <button class="quiz-rules-close" onclick="closeQuizRulesModal()">&times;</button>
+
+    <h2>🎮 Quiz Rules</h2>
+    <p class="subtitle">Read carefully before you start!</p>
+
+    <ul class="quiz-rules-list">
+      <li>
+        <span class="icon">📝</span>
+        <span><strong>5 Questions Total:</strong> Answer fun questions about yourself and preferences</span>
+      </li>
+      <li>
+        <span class="icon">⏱️</span>
+        <span><strong>No Time Limit:</strong> Take your time and answer honestly for best results</span>
+      </li>
+      <li>
+        <span class="icon">🎯</span>
+        <span><strong>One Attempt Only:</strong> You can only play the quiz once with each crush</span>
+      </li>
+      <li>
+        <span class="icon">💞</span>
+        <span><strong>Wait for Match:</strong> Both must complete the quiz to see compatibility score</span>
+      </li>
+      <li>
+        <span class="icon">🏆</span>
+        <span><strong>Have Fun:</strong> Be yourself and discover your chemistry together!</span>
+      </li>
+    </ul>
+
+    <div class="quiz-rules-buttons">
+      <button class="quiz-cancel-btn" onclick="closeQuizRulesModal()">Cancel</button>
+      <button class="quiz-start-btn" onclick="startQuizFromModal()">
+        🚀 Start Quiz
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+
+<script th:inline="javascript">
+  // Get CSRF token
+  const token = /*[[${_csrf.token}]]*/ '';
+  const header = /*[[${_csrf.headerName}]]*/ '';
+
+  // Swipeable Navigation Logic
+  let currentSection = 0;
+  let startX = 0;
+  let isDragging = false;
+
+  const container = document.getElementById('swipeContainer');
+  const pillNav = document.getElementById('pillNav');
+  const pills = document.querySelectorAll('.pill-btn');
+  const totalSections = 6;
+  const sections = document.querySelectorAll('.section-page');
+
+    function goToSection(index) {
+      if (index < 0 || index >= totalSections) return;
+
+      currentSection = index;
+      const offset = -index * 100;
+      container.style.transform = `translateX(${offset}vw)`;
+
+      // Active pill update
+      pills.forEach((pill, i) => {
+        pill.classList.toggle('active', i === index);
+      });
+
+      pills[index].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
+      // ✅ Add URL hash update
+      const hash = sections[index]?.getAttribute('data-hash');
+      if (hash) {
+        history.replaceState(null, '', window.location.pathname + '#' + hash);
+      }
+    }
+
+    window.addEventListener('load', function () {
+      const hash = window.location.hash.replace('#', '');
+
+      if (!hash) return;
+
+      sections.forEach((section, index) => {
+        if (section.getAttribute('data-hash') === hash) {
+          goToSection(index);
+        }
+      });
+    });
+
+
+
+  // Touch events
+  container.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    isDragging = true;
+  });
+
+  container.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+
+    const currentX = e.touches[0].clientX;
+    const diff = startX - currentX;
+
+    if (Math.abs(diff) > 50) {
+      if (diff > 0 && currentSection < totalSections - 1) {
+        goToSection(currentSection + 1);
+        isDragging = false;
+      } else if (diff < 0 && currentSection > 0) {
+        goToSection(currentSection - 1);
+        isDragging = false;
+      }
+    }
+  });
+
+  container.addEventListener('touchend', () => {
+    isDragging = false;
+  });
+
+  // Mouse events for desktop
+  container.addEventListener('mousedown', (e) => {
+    startX = e.clientX;
+    isDragging = true;
+  });
+
+  container.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+
+    const currentX = e.clientX;
+    const diff = startX - currentX;
+
+    if (Math.abs(diff) > 100) {
+      if (diff > 0 && currentSection < totalSections - 1) {
+        goToSection(currentSection + 1);
+        isDragging = false;
+      } else if (diff < 0 && currentSection > 0) {
+        goToSection(currentSection - 1);
+        isDragging = false;
+      }
+    }
+  });
+
+  container.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+
+  // Terms Popup
+  let currentForm = null;
+
+  function openTermsPopupForHit(form) {
+    currentForm = form;
+    document.getElementById('termsPopup').style.display = 'flex';
+    return false;
+  }
+
+  document.querySelector(".agreeBtn").addEventListener("click", function () {
+    document.getElementById('termsPopup').style.display = 'none';
+    if (currentForm) currentForm.submit();
+  });
+
+
+  // Gift Points Functionality - COMPLETE & CORRECTED
+document.addEventListener("DOMContentLoaded", function () {
+
+  // Get CSRF token from meta tags
+  const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute("content");
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute("content");
+
+  // Get modal element
+  const giftModal = document.getElementById('giftModal');
+
+  // When modal is shown, populate with user data
+  if (giftModal) {
+    giftModal.addEventListener('show.bs.modal', function (event) {
+      // Button that triggered the modal
+      const button = event.relatedTarget;
+
+      if (button) {
+        // Extract info from data-* attributes
+        const username = button.getAttribute('data-username');
+        const userId = button.getAttribute('data-userid');
+
+        // Update modal content
+        document.getElementById('giftToName').textContent = username || 'Unknown';
+        document.getElementById('giftToUserId').value = userId || '';
+        document.getElementById('giftInput').value = '';
+
+        // Hide error message
+        const errorDiv = document.getElementById('giftError');
+        if (errorDiv) errorDiv.style.display = 'none';
+
+        // Re-enable send button
+        const sendBtn = giftModal.querySelector('.sendGiftBtn');
+        if (sendBtn) {
+          sendBtn.disabled = false;
+          sendBtn.innerHTML = '<i class="bi bi-gift"></i> Send Gift';
+        }
+      }
+    });
+  }
+
+  // Send Gift Button Click Handler
+  const sendGiftBtn = document.querySelector('.sendGiftBtn');
+
+  if (sendGiftBtn) {
+    sendGiftBtn.addEventListener('click', function () {
+
+      // Get values from modal
+      const userId = document.getElementById('giftToUserId').value;
+      const pointsInput = document.getElementById('giftInput');
+      const points = pointsInput.value;
+      const errorDiv = document.getElementById('giftError');
+
+      // Validation
+      if (!points || points <= 0) {
+        errorDiv.textContent = 'Please enter valid points!';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      // Check if user has enough points
+      const userPointsText = document.querySelector('.userPoint strong') ||
+                            document.querySelector('.userPoint span');
+      const userPoints = parseInt(userPointsText.textContent) || 0;
+
+      if (parseInt(points) > userPoints) {
+        errorDiv.textContent = 'You don\'t have enough points!';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      // Hide error and disable button
+      errorDiv.style.display = 'none';
+      this.disabled = true;
+      this.innerHTML = '<i class="bi bi-hourglass-split"></i> Sending...';
+
+      // Prepare form data
+      const formData = new FormData();
+      formData.append("toUserId", userId);
+      formData.append("points", points);
+
+      // Send request
+      fetch("/user/send-point", {
+        method: "POST",
+        headers: {
+          [csrfHeader]: csrfToken
+        },
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success === "sentSuccess") {
+          // Update all user point displays
+          const userPointElements = document.querySelectorAll('.userPoint');
+          userPointElements.forEach(element => {
+            const strongTag = element.querySelector('strong') || element.querySelector('span');
+            if (strongTag) {
+              strongTag.textContent = data.userPoint;
+            } else {
+              element.innerHTML = 'Your Points: <strong>' + data.userPoint + '</strong>';
+            }
+          });
+
+          // Close modal
+          const modalInstance = bootstrap.Modal.getInstance(giftModal);
+          if (modalInstance) {
+            modalInstance.hide();
+          }
+
+          // Show success message
+          alert("Point Sent Successfully!");
+
+          // Clear input
+          pointsInput.value = '';
+
+        } else if (data.insufficientPoint === "failed") {
+          errorDiv.textContent = 'Insufficient points!';
+          errorDiv.style.display = 'block';
+          this.disabled = false;
+          this.innerHTML = '<i class="bi bi-gift"></i> Send Gift';
+        } else {
+          errorDiv.textContent = data.message || 'Failed to send gift';
+          errorDiv.style.display = 'block';
+          this.disabled = false;
+          this.innerHTML = '<i class="bi bi-gift"></i> Send Gift';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        errorDiv.textContent = 'Error sending gift. Please try again.';
+        errorDiv.style.display = 'block';
+        this.disabled = false;
+        this.innerHTML = '<i class="bi bi-gift"></i> Send Gift';
+      });
+    });
+  }
+});
+
+  // Quiz functionality
+  document.querySelectorAll(".quiz-option").forEach(btn => {
+    btn.addEventListener("click", function () {
+      document.getElementById("quizQuestion").style.display = "none";
+      document.getElementById("quizResult").style.display = "block";
+    });
+  });
+
+  // Quiz Rules Modal Functions
+  let currentQuizUrl = '';
+  let currentCrushName = '';
+
+  function openQuizRulesModal(button) {
+    currentQuizUrl = button.getAttribute('data-quiz-url');
+    currentCrushName = button.getAttribute('data-crush-name');
+    document.getElementById('quizRulesModal').classList.add('show');
+  }
+
+  function closeQuizRulesModal() {
+    document.getElementById('quizRulesModal').classList.remove('show');
+    currentQuizUrl = '';
+    currentCrushName = '';
+  }
+
+  function startQuizFromModal() {
+    if (currentQuizUrl) {
+      window.location.href = currentQuizUrl;
+    }
+  }
+
+  // Close modal when clicking outside
+  document.getElementById('quizRulesModal').addEventListener('click', function (e) {
+    if (e.target === this) {
+      closeQuizRulesModal();
+    }
+  });
+
+  // Active nav state management for mobile
+  document.addEventListener('DOMContentLoaded', function () {
+    const currentPath = window.location.pathname;
+    const navItems = document.querySelectorAll('.bottom-nav-item');
+
+    navItems.forEach(item => {
+      if (item.getAttribute('href') === currentPath) {
+        item.classList.add('active');
+      }
+    });
+  });
+
+
+// Virtual Gifts Modal Functionality
+document.addEventListener("DOMContentLoaded", function () {
+  const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute("content");
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute("content");
+
+  const virtualGiftsModal = document.getElementById('virtualGiftsModal');
+
+  // When virtual gifts modal is shown
+  if (virtualGiftsModal) {
+    virtualGiftsModal.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+
+      if (button) {
+        const username = button.getAttribute('data-username');
+        const userId = button.getAttribute('data-userid');
+
+        // Update modal content
+        document.getElementById('virtualGiftToName').textContent = username || 'Unknown';
+        document.getElementById('virtualGiftToUserId').value = userId || '';
+
+        // Reset selection
+        document.querySelectorAll('.virtual-gift-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+
+        document.getElementById('selectedGiftInfo').style.display = 'none';
+        document.getElementById('virtualGiftError').style.display = 'none';
+        document.getElementById('selectedGiftId').value = '';
+
+        const sendBtn = virtualGiftsModal.querySelector('.sendVirtualGiftBtn');
+        if (sendBtn) {
+          sendBtn.disabled = true;
+          sendBtn.innerHTML = '<i class="bi bi-gift-fill"></i> Send Gift';
+        }
+      }
+    });
+  }
+
+
+
+  // Send Virtual Gift Button
+  const sendVirtualGiftBtn = document.querySelector('.sendVirtualGiftBtn');
+
+  if (sendVirtualGiftBtn) {
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute("content");
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute("content");
+
+    sendVirtualGiftBtn.addEventListener('click', function () {
+      const userId = document.getElementById('virtualGiftToUserId').value;
+      const giftId = document.getElementById('selectedGiftId').value;
+      const errorDiv = document.getElementById('virtualGiftError');
+
+      if (!giftId) {
+        errorDiv.textContent = 'Please select a gift!';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      // Get selected gift price
+      const selectedCard = document.querySelector('.virtual-gift-card.selected');
+      const giftPrice = parseInt(selectedCard.getAttribute('data-gift-price'));
+
+      // Check if user has enough points
+      const userPointsText = document.querySelector('.userPoint strong') ||
+                            document.querySelector('.userPoint span');
+      const userPoints = parseInt(userPointsText.textContent) || 0;
+      console.log(userPoints)
+
+
+      if (giftPrice > userPoints) {
+        errorDiv.textContent = 'You don\'t have enough points!';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      errorDiv.style.display = 'none';
+      this.disabled = true;
+      this.innerHTML = '<i class="bi bi-hourglass-split"></i> Sending...';
+
+      // Prepare form data
+      const formData = new FormData();
+      formData.append("toUserId", userId);
+      formData.append("giftId", giftId);
+
+      // Send request
+      fetch("/user/send-virtual-gift", {
+        method: "POST",
+        headers: {
+          [csrfHeader]: csrfToken
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success === "giftSent") {
+          // Update user points
+          const userPointElements = document.querySelectorAll('.userPoint');
+          userPointElements.forEach(element => {
+            element.textContent = data.userPoint;
+          });
+
+          // Close modal
+          const modalInstance = bootstrap.Modal.getInstance(virtualGiftsModal);
+          if (modalInstance) {
+            modalInstance.hide();
+          }
+
+          alert("Gift Sent Successfully!");
+
+        } else if (data.insufficientPoint === "failed") {
+          errorDiv.textContent = 'Insufficient points!';
+          errorDiv.style.display = 'block';
+          this.disabled = false;
+          this.innerHTML = '<i class="bi bi-gift-fill"></i> Send Gift';
+        } else {
+          errorDiv.textContent = data.message || 'Failed to send gift';
+          errorDiv.style.display = 'block';
+          this.disabled = false;
+          this.innerHTML = '<i class="bi bi-gift-fill"></i> Send Gift';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        errorDiv.textContent = 'Error sending gift. Please try again.';
+        errorDiv.style.display = 'block';
+        this.disabled = false;
+        this.innerHTML = '<i class="bi bi-gift-fill"></i> Send Gift';
+      });
+    });
+  }
+});
+
+// Function to select a virtual gift
+function selectVirtualGift(card) {
+  // Remove selection from all cards
+  document.querySelectorAll('.virtual-gift-card').forEach(c => {
+    c.classList.remove('selected');
+  });
+
+  // Select this card
+  card.classList.add('selected');
+
+  // Get gift data
+  const giftId = card.getAttribute('data-gift-id');
+  const giftName = card.getAttribute('data-gift-name');
+  const giftPrice = card.getAttribute('data-gift-price');
+
+  // Update hidden input and info display
+  document.getElementById('selectedGiftId').value = giftId;
+  document.getElementById('selectedGiftName').textContent = giftName;
+  document.getElementById('selectedGiftPrice').textContent = giftPrice;
+  document.getElementById('selectedGiftInfo').style.display = 'block';
+
+  // Enable send button
+  document.querySelector('.sendVirtualGiftBtn').disabled = false;
+}
+
+
+
+// Gift Tab Switching
+function switchGiftTab(tab) {
+  const sendTab = document.getElementById('sendGiftsTab');
+  const receiveTab = document.getElementById('receiveGiftsTab');
+  const buttons = document.querySelectorAll('.gift-tab-btn');
+
+  if (tab === 'send') {
+    sendTab.classList.add('active');
+    receiveTab.classList.remove('active');
+    buttons[0].classList.add('active');
+    buttons[1].classList.remove('active');
+  } else {
+    sendTab.classList.remove('active');
+    receiveTab.classList.add('active');
+    buttons[0].classList.remove('active');
+    buttons[1].classList.add('active');
+  }
+}
+
+// Gift Popup Variables
+let currentGiftId = null;
+
+
+// Reveal Gift Animation
+
+// MODIFIED: Now shows scratch card instead of instant reveal
+
+// MODIFIED: Update openGiftPopup to set scratch card data
+// MODIFIED: Open gift popup with scratchable wrapper
+function openGiftPopup(button) {
+  currentGiftId = button.getAttribute('data-gift-id');
+  const giftName = button.getAttribute('data-gift-name');
+  const senderName = button.getAttribute('data-sender-name');
+  const giftImage = button.getAttribute('data-gift-image');
+  const giftPrice = button.getAttribute('data-gift-price');
+
+  // Set popup data
+  document.getElementById('popupSenderName').textContent = senderName;
+  document.getElementById('scratchGiftName').textContent = giftName;
+  document.getElementById('scratchGiftPrice').textContent = giftPrice;
+  document.getElementById('scratchGiftImage').src = giftImage;
+
+  // Reset progress
+  //document.getElementById('progressText').textContent = 'Scratch to reveal: 0%';
+  //document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('scratchInstructions').style.display = 'block';
+  document.getElementById('closeGiftBtn').style.display = 'none';
+
+  // Show popup
+  document.getElementById('giftPopupOverlay').classList.add('show');
+
+  // Initialize scratchable wrapper
+  setTimeout(() => {
+    initScratchableWrapper();
+  }, 100);
+}
+
+// NEW: Initialize scratchable Google Pay wrapper
+function initScratchableWrapper() {
+  const canvas = document.getElementById('scratchCanvasGpay');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  //const progressText = document.getElementById('progressText');
+  //const progressFill = document.getElementById('progressFill');
+
+  let isScratching = false;
+  let scratchedPercentage = 0;
+  let hasRevealed = false;
+
+  // Set canvas size
+  function resizeCanvas() {
+    const wrapper = canvas.parentElement;
+    canvas.width = wrapper.offsetWidth;
+    canvas.height = wrapper.offsetHeight;
+
+    // Draw Google Pay style wrapper
+    drawGooglePayWrapper();
+  }
+
+  function drawGooglePayWrapper() {
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Gift box base with gradient
+    const boxGradient = ctx.createLinearGradient(0, 0, width, height);
+    boxGradient.addColorStop(0, '#F73B20');
+    boxGradient.addColorStop(1, '#ff5238');
+    ctx.fillStyle = boxGradient;
+    ctx.fillRect(0, 0, width, height);
+
+    // Add shadow effects
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetY = 10;
+
+    // Vertical ribbon
+    const ribbonWidth = width * 0.15;
+    const ribbonGradient = ctx.createLinearGradient(
+      width / 2 - ribbonWidth / 2, 0,
+      width / 2 + ribbonWidth / 2, 0
+    );
+    ribbonGradient.addColorStop(0, 'rgba(255, 215, 0, 0.3)');
+    ribbonGradient.addColorStop(0.5, 'rgba(255, 215, 0, 1)');
+    ribbonGradient.addColorStop(1, 'rgba(255, 215, 0, 0.3)');
+
+    ctx.fillStyle = ribbonGradient;
+    ctx.fillRect(width / 2 - ribbonWidth / 2, 0, ribbonWidth, height);
+
+    // Horizontal ribbon
+    const ribbonHeight = height * 0.15;
+    const hRibbonGradient = ctx.createLinearGradient(
+      0, height / 2 - ribbonHeight / 2,
+      0, height / 2 + ribbonHeight / 2
+    );
+    hRibbonGradient.addColorStop(0, 'rgba(255, 215, 0, 0.3)');
+    hRibbonGradient.addColorStop(0.5, 'rgba(255, 215, 0, 1)');
+    hRibbonGradient.addColorStop(1, 'rgba(255, 215, 0, 0.3)');
+
+    ctx.fillStyle = hRibbonGradient;
+    ctx.fillRect(0, height / 2 - ribbonHeight / 2, width, ribbonHeight);
+
+    // Reset shadow
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Draw bow in center
+    const bowSize = Math.min(width, height) * 0.2;
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    // Bow loops
+    ctx.fillStyle = '#ffd700';
+
+    // Left loop
+    ctx.beginPath();
+    ctx.ellipse(centerX - bowSize * 0.6, centerY, bowSize * 0.5, bowSize * 0.7, -Math.PI / 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Right loop
+    ctx.beginPath();
+    ctx.ellipse(centerX + bowSize * 0.6, centerY, bowSize * 0.5, bowSize * 0.7, Math.PI / 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Bow knot (center circle)
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, bowSize * 0.3, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffed4e';
+    ctx.fill();
+
+    // Add shine effect
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.beginPath();
+    ctx.arc(centerX - bowSize * 0.1, centerY - bowSize * 0.1, bowSize * 0.15, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Add sparkles
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    for (let i = 0; i < 20; i++) {
+      const x = Math.random() * width;
+      const y = Math.random() * height;
+      ctx.fillRect(x, y, 3, 3);
+    }
+
+    // Add "Scratch Here" text
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.font = 'bold 20px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('SCRATCH HERE', centerX, height - 30);
+  }
+
+  resizeCanvas();
+
+  // Scratch function
+  function scratch(x, y) {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    const radius = window.innerWidth < 768 ? 30 : 25;
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Calculate scratched percentage
+  function calculateScratched() {
+    if (hasRevealed) return;
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const pixels = imageData.data;
+    let transparent = 0;
+    const totalPixels = canvas.width * canvas.height;
+
+    for (let i = 3; i < pixels.length; i += 4) {
+      if (pixels[i] < 128) {
+        transparent++;
+      }
+    }
+
+    scratchedPercentage = Math.round((transparent / totalPixels) * 100);
+
+   // progressText.textContent = `Scratched: ${scratchedPercentage}%`;
+   // progressFill.style.width = `${scratchedPercentage}%`;
+
+    if (scratchedPercentage >= 50 && !hasRevealed) {
+      completeReveal();
+    }
+  }
+
+  // Complete reveal
+  function completeReveal() {
+    hasRevealed = true;
+
+    // Call API to mark gift as opened
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute("content");
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute("content");
+
+    fetch(`/user/open-gift/${currentGiftId}`, {
+      method: 'POST',
+      headers: {
+        [csrfHeader]: csrfToken
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log('🎉 Gift opened successfully!');
+      }
+    })
+    .catch(error => {
+      console.error('Error opening gift:', error);
+    });
+
+    canvas.style.transition = 'opacity 0.5s ease';
+    canvas.style.opacity = '0';
+
+    createConfetti();
+
+   // progressText.textContent = '🎉 Gift Revealed! 🎉';
+   // progressFill.style.width = '100%';
+
+    const instructions = document.getElementById('scratchInstructions');
+    if (instructions) {
+      instructions.style.display = 'none';
+    }
+
+    document.getElementById('closeGiftBtn').style.display = 'inline-block';
+  }
+
+  // Confetti effect
+  function createConfetti() {
+    const colors = ['#F73B20', '#ff5238', '#ffd700', '#f093fb', '#f5576c'];
+    const wrapper = document.querySelector('.scratch-wrapper-gpay');
+
+    for (let i = 0; i < 50; i++) {
+      setTimeout(() => {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti-piece';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.top = '-10px';
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        wrapper.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 3000);
+      }, i * 30);
+    }
+  }
+
+  // Throttle calculation
+  let lastCalcTime = 0;
+  const calcThrottle = 150;
+
+  function throttledCalculate() {
+    const now = Date.now();
+    if (now - lastCalcTime > calcThrottle) {
+      lastCalcTime = now;
+      calculateScratched();
+    }
+  }
+
+  // Mouse events
+  canvas.addEventListener('mousedown', (e) => {
+    isScratching = true;
+    const rect = canvas.getBoundingClientRect();
+    scratch(e.clientX - rect.left, e.clientY - rect.top);
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    isScratching = false;
+    calculateScratched();
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (!isScratching) return;
+    const rect = canvas.getBoundingClientRect();
+    scratch(e.clientX - rect.left, e.clientY - rect.top);
+    throttledCalculate();
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    if (isScratching) {
+      isScratching = false;
+      calculateScratched();
+    }
+  });
+
+  // Touch events
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    isScratching = true;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    scratch(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    isScratching = false;
+    calculateScratched();
+  });
+
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (!isScratching) return;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    scratch(touch.clientX - rect.left, touch.clientY - rect.top);
+    throttledCalculate();
+  }, { passive: false });
+
+  canvas.addEventListener('touchcancel', () => {
+    if (isScratching) {
+      isScratching = false;
+      calculateScratched();
+    }
+  });
+}
+
+// Close Gift Popup
+function closeGiftPopup() {
+  document.getElementById('giftPopupOverlay').classList.remove('show');
+  currentGiftId = null;
+
+  // Reload page to update the gift list
+  setTimeout(() => {
+    window.location.reload();
+  }, 300);
+}
+
+// Close popup when clicking outside
+document.getElementById('giftPopupOverlay').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeGiftPopup();
+  }
+});
+
+// Auto-open gift popup if there are new gifts (optional)
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if there's a URL parameter to auto-open gift
+  const urlParams = new URLSearchParams(window.location.search);
+  const autoOpenGiftId = urlParams.get('openGift');
+
+  if (autoOpenGiftId) {
+    // Switch to received tab
+    switchGiftTab('receive');
+
+    // Find the gift button and trigger it
+    setTimeout(() => {
+      const giftButton = document.querySelector(`[data-gift-id="${autoOpenGiftId}"]`);
+      if (giftButton) {
+        giftButton.click();
+      }
+    }, 500);
+  }
+});
+
+
+// ADD THIS KEYFRAME TO SUPPORT THE ANIMATION (can add in CSS or via JS)
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes scaleIn {
+    from {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+`;
+document.head.appendChild(style);
+
+</script>
+
+</body>
+
+</html>
