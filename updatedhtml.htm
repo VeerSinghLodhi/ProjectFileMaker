@@ -592,37 +592,81 @@
             <nav class="sidebar">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="#dashboard">
+                        <a class="nav-link" href="/admin/dashboard">
                             <i class="fas fa-chart-line"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#users">
+                        <a class="nav-link" href="/admin/hon/users">
                             <i class="fas fa-users"></i>
                             <span>HON Users</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="#reports">
+                        <a class="nav-link active" href="/admin/reports">
                             <i class="fas fa-file-alt"></i>
                             <span>Report Section</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#gifts">
+                        <a class="nav-link" href="/admin/virtual/gift">
                             <i class="fas fa-gift"></i>
                             <span>Virtual Gift</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#settings">
+                        <a class="nav-link" href="/admin/settings">
                             <i class="fas fa-cog"></i>
                             <span>Settings</span>
                         </a>
                     </li>
                 </ul>
             </nav>
+        </div>
+
+        <!-- Offcanvas Sidebar for Mobile -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title">Menu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body p-0">
+                <nav class="sidebar">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/dashboard">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/hon/users">
+                                <i class="fas fa-users"></i>
+                                <span>HON Users</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/admin/reports">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Report Section</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/virtual/gift">
+                                <i class="fas fa-gift"></i>
+                                <span>Virtual Gift</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/settings">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
 
         <!-- Main Content -->
@@ -644,14 +688,14 @@
                             <i class="bi bi-flag"></i>
                             Total Reports
                         </div>
-                        <div class="stat-value">128</div>
+                        <div class="stat-value" th:text="${userReport != null ? userReport : 0}">128</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-title">
                             <i class="bi bi-chat-square-text"></i>
                             Reported Chats
                         </div>
-                        <div class="stat-value">74</div>
+                        <div class="stat-value" th:text="${chatReport != null ? chatReport : 0}">74</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-title">
@@ -685,70 +729,44 @@
                                 <th>Action</th>
                             </tr>
                             </thead>
-                            <tbody>
-                            <tr>
-                                <td>@elara</td>
-                                <td>@unknown_soul</td>
-                                <td>Harassment</td>
+                            <tbody th:if="${reportedUserList != null and !reportedUserList.isEmpty()}">
+                            <tr th:each="list : ${reportedUserList}">
+                                <td th:text="${list.reporterUser.username}">@elara</td>
+                                <td th:text="${list.ownerUser.username}">@unknown_soul</td>
+                                <td th:text="${list.reason}">Harassment</td>
                                 <td>
-                                    <span class="badge warning">
-                                        <i class="bi bi-hourglass-split"></i> Pending
-                                    </span>
+                    <span th:switch="${list.status.name()}">
+                      <span th:case="'PENDING'" class="badge warning">
+                        <i class="bi bi-hourglass-split"></i> Pending
+                      </span>
+                      <span th:case="'IN_REVIEW'" class="badge review">
+                        <i class="bi bi-eye"></i> In Review
+                      </span>
+                      <span th:case="'ACTION_TAKEN'" class="badge success">
+                        <i class="bi bi-check-circle"></i> Action Taken
+                      </span>
+                      <span th:case="'REJECTED'" class="badge reject">
+                        <i class="bi bi-x-circle"></i> Rejected
+                      </span>
+                      <span th:case="*">Unknown</span>
+                    </span>
                                 </td>
                                 <td>
-                                    <a href="#" class="action-btn">Review</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>@darknight</td>
-                                <td>@spammer123</td>
-                                <td>Spam Content</td>
-                                <td>
-                                    <span class="badge review">
-                                        <i class="bi bi-eye"></i> In Review
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="#" class="action-btn">Review</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>@safetyfirst</td>
-                                <td>@badactor</td>
-                                <td>Inappropriate Behavior</td>
-                                <td>
-                                    <span class="badge success">
-                                        <i class="bi bi-check-circle"></i> Action Taken
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="#" class="action-btn">Review</a>
+                                    <a th:href="@{/admin/reportReview/{r}/{o}/{reportId}(
+                        r=${list.reporterUser.userId},
+                        o=${list.ownerUser.userId},
+                        reportId=${list.id}
+                      )}" class="action-btn">Review</a>
                                 </td>
                             </tr>
+                            </tbody>
+                            <tbody th:if="${reportedUserList == null or reportedUserList.isEmpty()}">
                             <tr>
-                                <td>@concerned_user</td>
-                                <td>@suspicious_acc</td>
-                                <td>Fake Profile</td>
-                                <td>
-                                    <span class="badge reject">
-                                        <i class="bi bi-x-circle"></i> Rejected
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="#" class="action-btn">Review</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>@vigilant</td>
-                                <td>@scammer99</td>
-                                <td>Scam Attempt</td>
-                                <td>
-                                    <span class="badge warning">
-                                        <i class="bi bi-hourglass-split"></i> Pending
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="#" class="action-btn">Review</a>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <i class="bi bi-inbox"></i>
+                                        <p>No user reports found</p>
+                                    </div>
                                 </td>
                             </tr>
                             </tbody>
@@ -772,44 +790,28 @@
                                 <th>Action</th>
                             </tr>
                             </thead>
-                            <tbody>
-                            <tr>
-                                <td>@elara</td>
-                                <td>@lostboy</td>
-                                <td>Inappropriate Content</td>
+                            <tbody th:if="${reportedChatList != null and !reportedChatList.isEmpty()}">
+                            <tr th:each="list : ${reportedChatList}">
+                                <td th:text="${list.reporter.username}">@elara</td>
+                                <td th:text="${list.owner.username}">@lostboy</td>
+                                <td th:text="${list.reason}">Inappropriate Content</td>
                                 <td>
-                                    <span class="badge warning">
-                                        <i class="bi bi-exclamation-triangle"></i> 5
-                                    </span>
+                    <span class="badge warning">
+                      <i class="bi bi-exclamation-triangle"></i> 5
+                    </span>
                                 </td>
                                 <td>
                                     <a href="#" class="action-btn">Open Chat</a>
                                 </td>
                             </tr>
+                            </tbody>
+                            <tbody th:if="${reportedChatList == null or reportedChatList.isEmpty()}">
                             <tr>
-                                <td>@midnight</td>
-                                <td>@stranger</td>
-                                <td>Harassment</td>
-                                <td>
-                                    <span class="badge warning">
-                                        <i class="bi bi-exclamation-triangle"></i> 3
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="#" class="action-btn">Open Chat</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>@safespace</td>
-                                <td>@toxic_user</td>
-                                <td>Abusive Language</td>
-                                <td>
-                                    <span class="badge warning">
-                                        <i class="bi bi-exclamation-triangle"></i> 8
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="#" class="action-btn">Open Chat</a>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <i class="bi bi-inbox"></i>
+                                        <p>No chat reports found</p>
+                                    </div>
                                 </td>
                             </tr>
                             </tbody>
@@ -821,6 +823,42 @@
     </div>
 </div>
 
+<!-- Success Banners -->
+<div th:if="${warningSuccess}" id="successMsg" class="success-banner">
+    <i class="bi bi-check-circle-fill"></i>
+    Successfully sent warning mail to user.
+</div>
+
+<div th:if="${successMsgReport}" id="successMsgReport" class="success-banner">
+    <i class="bi bi-check-circle-fill"></i>
+    Successfully rejected report for that user.
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    window.addEventListener("DOMContentLoaded", function () {
+      const msg = document.getElementById("successMsg");
+      if (msg) {
+        setTimeout(() => {
+          msg.style.opacity = "0";
+          msg.style.transform = "translateX(100px)";
+          setTimeout(() => {
+            msg.style.display = "none";
+          }, 300);
+        }, 3000);
+      }
+
+      const msgReport = document.getElementById("successMsgReport");
+      if (msgReport) {
+        setTimeout(() => {
+          msgReport.style.opacity = "0";
+          msgReport.style.transform = "translateX(100px)";
+          setTimeout(() => {
+            msgReport.style.display = "none";
+          }, 300);
+        }, 3000);
+      }
+    });
+</script>
 </body>
 </html>
