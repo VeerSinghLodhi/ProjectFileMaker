@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        .theme-sunset {
+            --primary: #FA8231;
+            --secondary: #F97F51;
+            --accent: #FF6B9D;
+            --dark: #3D3D3D;
+            --light: #FFF5E6;
+            --gradient: linear-gradient(135deg, #FA8231 0%, #F97F51 50%, #FF6B9D 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            position: relative;
+        }
+
+        /* Contact Admin Floating Button */
+        .contact-admin-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FA8231 0%, #F97F51 50%, #FF6B9D 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(250, 130, 49, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .contact-admin-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 32px rgba(250, 130, 49, 0.5);
+            color: white;
+        }
+
+        .contact-admin-btn i {
+            font-size: 1.75rem;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 8px 24px rgba(250, 130, 49, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 8px 32px rgba(250, 130, 49, 0.6);
+            }
+        }
+
+        /* Tooltip */
+        .contact-admin-btn::before {
+            content: 'Need Help?';
+            position: absolute;
+            right: 70px;
+            background: rgba(61, 61, 61, 0.95);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .contact-admin-btn:hover::before {
+            opacity: 1;
+            visibility: visible;
+            right: 75px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            width: 400px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            color: var(--dark);
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 15px;
+            color: var(--dark);
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .input-group input::placeholder {
+            color: #999;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .remember-forgot label {
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .remember-forgot input[type="checkbox"] {
+            margin-right: 6px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .remember-forgot a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .remember-forgot a:hover {
+            color: var(--accent);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #FA8231 0%, #F97F51 50%, #FF6B9D 100%);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(250, 130, 49, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        .signup-link a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .signup-link a:hover {
+            color: var(--accent);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            position: relative;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .social-login {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-social {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-social:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease;
+        }
+
+        .popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 248, 240, 0.95));
+            padding: 40px 60px;
+            border-radius: 25px;
+            text-align: center;
+            color: #2d2d2d;
+            box-shadow: 0 10px 50px rgba(250, 130, 49, 0.4);
+            border: 3px solid rgba(250, 130, 49, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: popupScale 0.6s ease-out;
+        }
+
+        @keyframes popupScale {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .badge-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #FA8231, #F97F51, #FF6B9D);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 0 40px rgba(250, 130, 49, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        .badge-text {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .shine {
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+            transform: skewX(-25deg);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -75%; }
+            100% { left: 125%; }
+        }
+
+        .points-earned {
+            font-size: 1.2em;
+            margin-top: 15px;
+            color: #FA8231;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 32px;
+            color: #999;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 1001;
+        }
+
+        .close-btn:hover {
+            color: #FA8231;
+            transform: rotate(90deg);
+        }
+
+        @media (max-width: 576px) {
+            .login-container {
+                width: 100%;
+                max-width: 400px;
+                margin: 0 1rem;
+            }
+
+            .popup {
+                padding: 30px 40px;
+            }
+
+            .badge {
+                width: 100px;
+                height: 100px;
+            }
+
+            .badge-text {
+                font-size: 2em;
+            }
+
+            .contact-admin-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 55px;
+                height: 55px;
+            }
+
+            .contact-admin-btn::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="theme-sunset">
+
+<!-- Floating Contact Admin Button -->
+<a th:href="@{/contact-admin}" class="contact-admin-btn">
+    <i class="bi bi-headset"></i>
+</a>
+
+<div class="login-container">
+    <div class="login-header">
+        <h1>Welcome Back</h1>
+    </div>
+
+    <div th:if="${param.disabled}" class="alert alert-danger">
+        Your account has been blocked by HON admin.
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger">
+        Invalid username or password
+    </div>
+
+    <form id="loginForm" method="post" th:action="@{/login}">
+        <div class="input-group">
+             <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your email" required>
+            <p id="emailCheckMsg" style="color:red;"></p>
+        </div>
+
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <div class="remember-forgot">
+            <label>
+                <input type="checkbox" id="remember">
+                Remember me
+            </label>
+            <a th:href="@{/forgetpassword}">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="login-btn">Sign In</button>
+    </form>
+
+    <div class="signup-link">
+        Don't have an account? <a th:href="@{/register}">Sign up</a>
+    </div>
+
+    <div class="divider">
+        <span>OR</span>
+    </div>
+
+    <div class="social-login">
+        <a th:href="@{'/oauth2/authorization/google'}" class="btn-social text-decoration-none text-dark">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Google
+        </a>
+        <a href="/oauth2/authorization/facebook" class="btn-social text-decoration-none text-dark">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            Facebook
+        </a>
+    </div>
+</div>
+
+<!-- Points Popup -->
+<div th:if="${registrationSuccessful}" class="popup-overlay show" id="popupOverlay">
+    <div class="popup">
+        <button class="close-btn" onclick="closePopup()">&times;</button>
+        <div class="badge-wrapper">
+            <div class="badge">
+                <div class="shine"></div>
+                <div class="badge-text"><span id="badgePoints">❤️</span></div>
+            </div>
+        </div>
+        <div class="points-earned">Registration has been <span id="pointsText">Successful</span></div>
+    </div>
+</div>
+
+<div th:if="${passwordResetDone}" class="popup-overlay show" id="popupOverlay2">
+    <div class="popup">
+        <button class="close-btn" onclick="closePasswordPopup()">&times;</button>
+        <div class="badge-wrapper">
+            <div class="badge">
+                <div class="shine"></div>
+                <div class="badge-text">🤝</div>
+            </div>
+        </div>
+        <div class="points-earned">Password reset successfully. Please Login!</div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    function closePopup() {
+       const overlay = document.getElementById("popupOverlay");
+       overlay.classList.remove("show");
+   }
+
+     function closePasswordPopup() {
+       const overlay = document.getElementById("popupOverlay2");
+       overlay.classList.remove("show");
+   }
+</script>
+</body>
+</html>
