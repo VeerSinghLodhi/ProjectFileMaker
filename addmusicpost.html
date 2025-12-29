@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Post - HON</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f3f4f6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title svg {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #9333ea;
+            background: #faf5ff;
+        }
+
+        .upload-icon {
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        /* Preview */
+        .preview-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-top: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #9333ea;
+        }
+
+        /* Hashtag Suggestions */
+        .hashtag-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .hashtag-btn {
+            padding: 0.5rem 1rem;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hashtag-btn:hover {
+            background: #9333ea;
+            color: white;
+            border-color: #9333ea;
+        }
+
+        /* Music Section */
+        .music-section {
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            background: #faf5ff;
+            border: 2px dashed #d8b4fe;
+            border-radius: 12px;
+        }
+
+        .music-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .music-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .music-label svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: #9333ea;
+        }
+
+        .add-music-btn {
+            padding: 0.625rem 1.25rem;
+            background: linear-gradient(135deg, #9333ea, #a855f7);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .add-music-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+        }
+
+        .selected-music {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .selected-music.show {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .selected-music img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .music-info {
+            flex: 1;
+        }
+
+        .music-title {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+
+        .music-artist {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .remove-music-btn {
+            padding: 0.5rem 0.75rem;
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .remove-music-btn:hover {
+            background: #fecaca;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #9333ea, #a855f7);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        /* Music Modal */
+        .music-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .music-modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #9333ea, #a855f7);
+            color: white;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .close-modal {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-section {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: #fafafa;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #9333ea;
+        }
+
+        .moods-section {
+            padding: 1rem 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            background: #fafafa;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .mood-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .mood-btn:hover {
+            background: #9333ea;
+            color: white;
+            border-color: #9333ea;
+        }
+
+        .song-list {
+            overflow-y: auto;
+            padding: 1rem 1.5rem;
+            flex: 1;
+        }
+
+        .song {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+            align-items: center;
+        }
+
+        .song:hover {
+            background: #f9fafb;
+        }
+
+        .song img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .song-info {
+            flex: 1;
+        }
+
+        .song-title {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+
+        .song-artist {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .song audio {
+            width: 100%;
+            height: 32px;
+        }
+
+        .select-song-btn {
+            background: #9333ea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .select-song-btn:hover {
+            background: #7c3aed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0;
+            }
+
+            .card {
+                border-radius: 0;
+                padding: 1.5rem;
+            }
+
+            .song {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .song img {
+                width: 100%;
+                height: auto;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div class="card-title">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            Upload Picture
+        </div>
+
+        <form id="UploadForm" enctype="multipart/form-data">
+            <input type="file" id="fileInput" name="photo" accept="image/*" class="hidden">
+            <input type="hidden" name="userId" id="userId" value="">
+            <input type="hidden" name="musicId" id="musicId" value="">
+            <input type="hidden" name="musicName" id="musicName" value="">
+            <input type="hidden" name="musicArtist" id="musicArtist" value="">
+
+            <div id="uploadArea" class="upload-area">
+                <div class="upload-icon">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #9333ea; width: 2.5rem; height: 2.5rem;">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                </div>
+                <div class="upload-text">Click to upload image</div>
+                <div class="upload-subtext">PNG, JPG, GIF up to 10MB</div>
+            </div>
+
+            <div id="previewArea" class="hidden preview-container" style="margin-top: 1.5rem;">
+                <img id="previewImage" class="preview-image">
+                <button type="button" id="removeBtn" class="remove-btn">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Caption (Optional)</label>
+                <textarea id="caption" name="caption" rows="4" placeholder="Share your thoughts..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Hashtags (Optional)</label>
+                <textarea id="hashtags" name="hashtags" placeholder="Add Mood like ... #Crazy #Happy"></textarea>
+
+                <div class="hashtag-suggestions" id="hashtagSuggestions">
+                    <button type="button" class="hashtag-btn" data-tag="#Happy">#Happy</button>
+                    <button type="button" class="hashtag-btn" data-tag="#Crazy">#Crazy</button>
+                    <button type="button" class="hashtag-btn" data-tag="#Love">#Love</button>
+                    <button type="button" class="hashtag-btn" data-tag="#Sad">#Sad</button>
+                    <button type="button" class="hashtag-btn" data-tag="#Excited">#Excited</button>
+                    <button type="button" class="hashtag-btn" data-tag="#Chill">#Chill</button>
+                    <button type="button" class="hashtag-btn" data-tag="#Blessed">#Blessed</button>
+                    <button type="button" class="hashtag-btn" data-tag="#Motivated">#Motivated</button>
+                </div>
+            </div>
+
+            <!-- Music Section -->
+            <div class="music-section">
+                <div class="music-header">
+                    <div class="music-label">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M9 18V5l12-2v13M9 18c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-2c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"></path>
+                        </svg>
+                        Add Music (Optional)
+                    </div>
+                    <button type="button" class="add-music-btn" id="addMusicBtn">
+                        🎵 Add Music
+                    </button>
+                </div>
+
+                <div id="selectedMusic" class="selected-music">
+                    <img id="selectedMusicImg" src="" alt="">
+                    <div class="music-info">
+                        <div class="music-title" id="selectedMusicTitle"></div>
+                        <div class="music-artist" id="selectedMusicArtist"></div>
+                    </div>
+                    <button type="button" class="remove-music-btn" id="removeMusicBtn">Remove</button>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="submit-btn" disabled>Upload Post</button>
+        </form>
+    </div>
+</div>
+
+<!-- Music Modal -->
+<div class="music-modal" id="musicModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem;">
+                    <path d="M9 18V5l12-2v13M9 18c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-2c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"></path>
+                </svg>
+                Choose Music
+            </h2>
+            <button class="close-modal" id="closeModal">×</button>
+        </div>
+
+        <div class="search-section">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search for music...">
+        </div>
+
+        <div class="moods-section">
+            <button type="button" class="mood-btn" data-mood="chill">Chill</button>
+            <button type="button" class="mood-btn" data-mood="lofi">Lofi</button>
+            <button type="button" class="mood-btn" data-mood="ambient">Ambient</button>
+            <button type="button" class="mood-btn" data-mood="jazz">Jazz</button>
+            <button type="button" class="mood-btn" data-mood="hip hop">Hip Hop</button>
+            <button type="button" class="mood-btn" data-mood="pop">Pop</button>
+        </div>
+
+        <div class="song-list" id="songList">
+            <div class="loading">Search for music or select a mood...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = "/api/music/search?q=";
+    let selectedSong = null;
+
+    // Upload Area Click
+    document.getElementById('uploadArea').addEventListener('click', () => {
+        document.getElementById('fileInput').click();
+    });
+
+    // File Input Change
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('uploadArea').classList.add('hidden');
+                document.getElementById('previewArea').classList.remove('hidden');
+                checkFormValidity();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Remove Image
+    document.getElementById('removeBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('fileInput').value = '';
+        document.getElementById('uploadArea').classList.remove('hidden');
+        document.getElementById('previewArea').classList.add('hidden');
+        checkFormValidity();
+    });
+
+    // Hashtag Suggestions
+    document.querySelectorAll('.hashtag-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const hashtag = btn.getAttribute('data-tag');
+            const textarea = document.getElementById('hashtags');
+            const current = textarea.value.trim();
+            textarea.value = current ? current + ' ' + hashtag : hashtag;
+        });
+    });
+
+    // Music Modal
+    document.getElementById('addMusicBtn').addEventListener('click', () => {
+        document.getElementById('musicModal').classList.add('show');
+        loadMood('chill');
+    });
+
+    document.getElementById('closeModal').addEventListener('click', () => {
+        document.getElementById('musicModal').classList.remove('show');
+    });
+
+    // Close modal on outside click
+    document.getElementById('musicModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('musicModal')) {
+            document.getElementById('musicModal').classList.remove('show');
+        }
+    });
+
+    // Search Music
+    document.getElementById('searchInput').addEventListener('keyup', (e) => {
+        if (e.key === 'Enter' && e.target.value.trim()) {
+            fetchSongs(e.target.value.trim());
+        }
+    });
+
+    // Mood Buttons
+    document.querySelectorAll('.mood-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const mood = btn.getAttribute('data-mood');
+            document.getElementById('searchInput').value = mood;
+            loadMood(mood);
+        });
+    });
+
+    function loadMood(mood) {
+        fetchSongs(mood);
+    }
+
+    function fetchSongs(query) {
+        const songList = document.getElementById('songList');
+        songList.innerHTML = '<div class="loading">Loading music...</div>';
+
+        fetch(API + encodeURIComponent(query))
+            .then(res => res.json())
+            .then(data => {
+                if (data.results && data.results.length > 0) {
+                    renderSongs(data.results);
+                } else {
+                    songList.innerHTML = '<div class="loading">No music found. Try another search.</div>';
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching songs:', err);
+                songList.innerHTML = '<div class="loading">Error loading music. Please try again.</div>';
+            });
+    }
+
+    function renderSongs(songs) {
+        const list = document.getElementById('songList');
+        list.innerHTML = '';
+
+        songs.forEach(song => {
+            const div = document.createElement('div');
+            div.className = 'song';
+
+            div.innerHTML = `
+                <img src="${song.image}" alt="${song.name}">
+                <div class="song-info">
+                    <div class="song-title">${song.name}</div>
+                    <div class="song-artist">${song.artist_name}</div>
+                    <audio controls preload="none">
+                        <source src="${song.audio}" type="audio/mpeg">
+                    </audio>
+                </div>
+                <button type="button" class="select-song-btn" data-song='${JSON.stringify(song)}'>Select</button>
+            `;
+
+            list.appendChild(div);
+        });
+
+        // Add event listeners to select buttons
+        document.querySelectorAll('.select-song-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const song = JSON.parse(this.getAttribute('data-song'));
+                selectSong(song);
+            });
+        });
+    }
+
+    function selectSong(song) {
+        selectedSong = song;
+
+        // Update hidden fields
+        document.getElementById('musicId').value = song.id || '';
+        document.getElementById('musicName').value = song.name || '';
+        document.getElementById('musicArtist').value = song.artist_name || '';
+
+        // Update display
+        document.getElementById('selectedMusicImg').src = song.image;
+        document.getElementById('selectedMusicTitle').textContent = song.name;
+        document.getElementById('selectedMusicArtist').textContent = song.artist_name;
+        document.getElementById('selectedMusic').classList.add('show');
+
+        // Update button text
+        document.getElementById('addMusicBtn').innerHTML = '✓ Music Added';
+
+        // Close modal
+        document.getElementById('musicModal').classList.remove('show');
+    }
+
+    // Remove Music
+    document.getElementById('removeMusicBtn').addEventListener('click', () => {
+        selectedSong = null;
+        document.getElementById('musicId').value = '';
+        document.getElementById('musicName').value = '';
+        document.getElementById('musicArtist').value = '';
+        document.getElementById('selectedMusic').classList.remove('show');
+        document.getElementById('addMusicBtn').innerHTML = '🎵 Add Music';
+    });
+
+    // Form Validation
+    function checkFormValidity() {
+        const fileInput = document.getElementById('fileInput');
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = !fileInput.files.length;
+    }
+
+    // Form Submit
+    document.getElementById('UploadForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        
+        console.log('Form Data:');
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
+
+        // TODO: Replace with your actual API endpoint
+        // fetch('/user/add-post', {
+        //     method: 'POST',
+        //     body: formData
+        // })
+        // .then(response => response.json())
+        // .then(data => {
+        //     console.log('Success:', data);
+        //     alert('Post uploaded successfully!');
+        // })
+        // .catch(error => {
+        //     console.error('Error:', error);
+        //     alert('Error uploading post');
+        // });
+
+        alert('Post ready to upload!\n\nImage: ' + document.getElementById('fileInput').files[0].name + 
+              '\nMusic: ' + (selectedSong ? selectedSong.name : 'None'));
+    });
+</script>
+
+</body>
+</html>
