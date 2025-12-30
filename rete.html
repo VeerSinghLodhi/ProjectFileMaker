@@ -1,0 +1,255 @@
+/* Add these styles to your existing CSS in the <style>
+    tag */
+
+    /* Base image wrapper - works for all screens */
+    .image-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        max-height: 700px;
+        border-radius: 30px;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(247, 59, 32, 0.08), rgba(247, 59, 32, 0.05));
+        box-shadow: 0 10px 40px rgba(247, 59, 32, 0.15);
+    }
+
+    .image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: relative;
+        z-index: 2;
+        border-radius: 30px;
+    }
+
+    /* Large tablets and small desktops (769px - 1024px) */
+    @media (max-width: 1024px) and (min-width: 769px) {
+        .image-wrapper {
+            max-height: 650px;
+        }
+
+        .image-wrapper img {
+            object-fit: cover;
+        }
+    }
+
+    /* Tablets (577px - 768px) */
+    @media (max-width: 768px) and (min-width: 577px) {
+        .image-wrapper {
+            max-height: 600px;
+            border-radius: 25px;
+        }
+
+        .image-wrapper img {
+            border-radius: 25px;
+            object-fit: cover;
+        }
+
+        .main-container {
+            padding-top: 5px;
+        }
+    }
+
+    /* Small tablets and large phones (577px - 767px) */
+    @media (max-width: 767px) and (min-width: 577px) {
+        .image-wrapper {
+            max-height: 580px;
+        }
+    }
+
+    /* Standard mobile phones (≤576px) */
+    @media (max-width: 576px) {
+        .image-wrapper {
+            max-height: 85vh;
+            height: 85vh;
+            border-radius: 20px;
+        }
+
+        .image-wrapper img {
+            border-radius: 20px;
+            object-fit: cover;
+        }
+
+        .rating-card {
+            padding: 10px 0;
+        }
+
+        .thermometer-container {
+            width: 50px;
+            height: 45%;
+            right: 15px;
+        }
+    }
+
+    /* Small mobile phones (≤480px) */
+    @media (max-width: 480px) {
+        .image-wrapper {
+            max-height: 80vh;
+            height: 80vh;
+            border-radius: 18px;
+        }
+
+        .image-wrapper img {
+            border-radius: 18px;
+        }
+
+        .timer-container {
+            top: 15px;
+            width: 85%;
+        }
+
+        .progress-container {
+            height: 10px;
+        }
+
+        .thermometer-container {
+            width: 45px;
+            height: 40%;
+            right: 12px;
+        }
+
+        .image-overlay {
+            padding: 25px 15px 15px;
+        }
+
+        .overlay-content {
+            padding: 15px;
+        }
+    }
+
+    /* Extra small phones (≤400px) */
+    @media (max-width: 400px) {
+        .image-wrapper {
+            max-height: 75vh;
+            height: 75vh;
+            border-radius: 15px;
+        }
+
+        .image-wrapper img {
+            border-radius: 15px;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+        }
+
+        .username {
+            font-size: 1rem;
+        }
+
+        .caption {
+            font-size: 0.85rem;
+        }
+
+        .hashtag {
+            font-size: 0.8rem;
+            padding: 3px 10px;
+        }
+
+        .timer-container {
+            width: 80%;
+            top: 12px;
+        }
+
+        .thermometer-container {
+            width: 40px;
+            height: 35%;
+            right: 10px;
+        }
+    }
+
+    /* Very small phones (≤360px) */
+    @media (max-width: 360px) {
+        .image-wrapper {
+            max-height: 70vh;
+            height: 70vh;
+            border-radius: 12px;
+        }
+
+        .image-wrapper img {
+            border-radius: 12px;
+        }
+
+        .timer-container {
+            width: 75%;
+            top: 10px;
+        }
+
+        .progress-container {
+            height: 8px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+        }
+
+        .username {
+            font-size: 0.95rem;
+        }
+
+        .caption {
+            font-size: 0.8rem;
+        }
+
+        .overlay-content {
+            padding: 12px;
+        }
+
+        .thermometer-container {
+            width: 38px;
+            height: 32%;
+        }
+
+        .scale-markers {
+            font-size: 9px;
+            left: 6px;
+        }
+    }
+
+    /* Ensure proper aspect ratio on all devices */
+    @media (max-width: 576px) {
+        .rating-card {
+            min-height: auto;
+            height: auto;
+        }
+
+        /* Make sure image takes proper space */
+        .image-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    /* Landscape mode adjustments for mobile */
+    @media (max-width: 768px) and (orientation: landscape) {
+        .image-wrapper {
+            max-height: 90vh;
+            height: 90vh;
+        }
+
+        .thermometer-container {
+            height: 50%;
+        }
+    }
+
+    /* Fix for very wide screens in mobile view */
+    @media (min-width: 768px) {
+        .main-container {
+            width: 450px;
+            margin: 0 auto;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+        }
+
+        .image-wrapper {
+            height: 85vh;
+            max-height: 85vh;
+        }
+
+        .image-wrapper img {
+            object-fit: cover;
+        }
+    }
