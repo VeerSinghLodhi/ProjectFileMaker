@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Circle Quiz Question - HON</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #fafafa;
+        overflow-x: hidden;
+    }
+
+    .bg-gradient {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+        background: #fafafa;
+    }
+
+    .gradient-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(100px);
+        opacity: 0.1;
+        animation: float 20s ease-in-out infinite;
+    }
+
+    .orb-1 {
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, #F73B20, transparent);
+        top: -10%;
+        right: -10%;
+        animation-duration: 25s;
+    }
+
+    .orb-2 {
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, #ff5238, transparent);
+        bottom: -15%;
+        left: -10%;
+        animation-duration: 20s;
+        animation-delay: 2s;
+    }
+
+    .orb-3 {
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, #F73B20, transparent);
+        top: 40%;
+        left: 50%;
+        animation-duration: 18s;
+        animation-delay: 1s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(50px, -80px) scale(1.1); }
+        66% { transform: translate(-50px, 50px) scale(0.9); }
+    }
+
+    .header {
+        background: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+
+    .sidebar {
+        background: white;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+        min-height: calc(100vh - 76px);
+        padding: 2rem 1rem;
+    }
+
+    .nav-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .nav-link {
+        color: #4a5568;
+        padding: 0.875rem 1.25rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .nav-link i {
+        font-size: 1.25rem;
+        width: 24px;
+    }
+
+    .nav-link:hover {
+        background: #f7f7f7;
+        color: #F73B20;
+    }
+
+    .nav-link.active {
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        box-shadow: 0 4px 15px rgba(247, 59, 32, 0.3);
+    }
+
+    .main-content {
+        padding: 2rem;
+        min-height: calc(100vh - 76px);
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border: 1px solid #f0f0f0;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 0.875rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #F73B20;
+        box-shadow: 0 0 0 0.2rem rgba(247, 59, 32, 0.1);
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .image-upload-container {
+        border: 2px dashed #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .image-upload-container:hover {
+        border-color: #F73B20;
+        background: #fef2f2;
+    }
+
+    .image-upload-container.has-image {
+        border-style: solid;
+        border-color: #10b981;
+        background: #f0fdf4;
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+
+    .image-upload-container.has-image .upload-icon {
+        color: #10b981;
+    }
+
+    .upload-text {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-hint {
+        color: #9ca3af;
+        font-size: 0.875rem;
+    }
+
+    .image-preview {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 0.75rem;
+        margin-top: 1rem;
+        display: none;
+    }
+
+    .image-preview.show {
+        display: block;
+    }
+
+    .current-image-container {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .current-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 0.75rem;
+        border: 2px solid #e5e7eb;
+    }
+
+    .remove-image-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ef4444;
+        color: white;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .remove-image-btn:hover {
+        background: #dc2626;
+        transform: scale(1.1);
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.75rem;
+    }
+
+    .radio-option {
+        flex: 1;
+    }
+
+    .radio-option input[type="radio"] {
+        display: none;
+    }
+
+    .radio-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    .radio-option input[type="radio"]:checked + .radio-label {
+        border-color: #F73B20;
+        background: linear-gradient(135deg, rgba(247, 59, 32, 0.1), rgba(255, 82, 56, 0.1));
+        color: #F73B20;
+    }
+
+    .radio-label:hover {
+        border-color: #F73B20;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(247, 59, 32, 0.3);
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #4a5568;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+        color: #4a5568;
+    }
+
+    .button-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b7280;
+        text-decoration: none;
+        margin-bottom: 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+        color: #F73B20;
+    }
+
+    @media (max-width: 767.98px) {
+        .button-group {
+            grid-template-columns: 1fr;
+        }
+
+        .radio-group {
+            flex-direction: column;
+        }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-gradient">
+  <div class="gradient-orb orb-1"></div>
+  <div class="gradient-orb orb-2"></div>
+  <div class="gradient-orb orb-3"></div>
+</div>
+
+<header class="header">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1>HON Dashboard</h1>
+      </div>
+      <div class="user-avatar">A</div>
+    </div>
+  </div>
+</header>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar for Desktop -->
+    <div class="col-lg-3 col-xl-2 d-none d-lg-block p-0">
+      <nav class="sidebar" style="position:sticky;top:70px;">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/dashboard">
+              <i class="fas fa-chart-line"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/hon/users">
+              <i class="fas fa-users"></i>
+              <span>HON Users</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/badge/management">
+              <i class="fas fa-award"></i>
+              <span>Badges</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/get-all-post-report">
+              <i class="fas fa-flag"></i>
+              <span>Reported Posts</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/reports">
+              <i class="fas fa-file-alt"></i>
+              <span>Report Section</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/virtual/gift">
+              <i class="fas fa-gift"></i>
+              <span>Virtual Gift</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/quiz/management">
+              <i class="fas fa-question-circle"></i>
+              <span>Quiz Management</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/admin/circle-quiz/management">
+              <i class="fas fa-users-cog"></i>
+              <span>Circle Quiz Management</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/contact/requests">
+              <i class="fas fa-envelope"></i>
+              <span>Contact Admin</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/settings">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Offcanvas Sidebar for Mobile -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+      </div>
+      <div class="offcanvas-body p-0">
+        <nav class="sidebar">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/hon/users">
+                <i class="fas fa-users"></i>
+                <span>HON Users</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/badge/management">
+                <i class="fas fa-award"></i>
+                <span>Badges</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/get-all-post-report">
+                <i class="fas fa-flag"></i>
+                <span>Reported Posts</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/reports">
+                <i class="fas fa-file-alt"></i>
+                <span>Report Section</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/virtual/gift">
+                <i class="fas fa-gift"></i>
+                <span>Virtual Gift</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/quiz/management">
+                <i class="fas fa-question-circle"></i>
+                <span>Quiz Management</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/admin/circle-quiz/management">
+                <i class="fas fa-users-cog"></i>
+                <span>Circle Quiz Management</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/contact/requests">
+                <i class="fas fa-envelope"></i>
+                <span>Contact Admin</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="col-lg-9 col-xl-10">
+      <main class="main-content">
+        <a href="/admin/circle-quiz/management" class="back-link">
+          <i class="fas fa-arrow-left"></i>
+          Back to Circle Quiz Management
+        </a>
+
+        <div class="page-header">
+          <h2 class="page-title">Edit Circle Quiz Question</h2>
+          <p class="page-subtitle">Update circle quiz question details</p>
+        </div>
+
+        <div class="form-card">
+          <form th:action="@{'/admin/circle-quiz/edit/' + ${question.id}}" method="post" enctype="multipart/form-data">
+            <div class="mb-4">
+              <label for="category" class="form-label">
+                <i class="fas fa-tag me-2"></i>Category
+              </label>
+              <select class="form-select" id="category" name="category" required>
+                <option value="">Select a category</option>
+                <option value="General Knowledge" th:selected="${question.category == 'General Knowledge'}">General Knowledge</option>
+                <option value="Science" th:selected="${question.category == 'Science'}">Science</option>
+                <option value="Technology" th:selected="${question.category == 'Technology'}">Technology</option>
+                <option value="History" th:selected="${question.category == 'History'}">History</option>
+                <option value="Geography" th:selected="${question.category == 'Geography'}">Geography</option>
+                <option value="Sports" th:selected="${question.category == 'Sports'}">Sports</option>
+                <option value="Entertainment" th:selected="${question.category == 'Entertainment'}">Entertainment</option>
+                <option value="Art & Culture" th:selected="${question.category == 'Art & Culture'}">Art & Culture</option>
+                <option value="Business" th:selected="${question.category == 'Business'}">Business</option>
+                <option value="Other" th:selected="${question.category == 'Other'}">Other</option>
+              </select>
+            </div>
+
+            <div class="mb-4">
+              <label for="questionText" class="form-label">
+                <i class="fas fa-question-circle me-2"></i>Question Text
+              </label>
+              <textarea class="form-control" id="questionText" name="questionText" 
+                        placeholder="Enter your question here..." required th:text="${question.questionText}"></textarea>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label">
+                <i class="fas fa-image me-2"></i>Question Image</label>
+              
+              <div th:if="${question.imageBase64 != null and !question.imageBase64.isEmpty()}" 
+                   class="current-image-container" id="currentImageContainer">
+                <img th:src="'data:image/jpeg;base64,' + ${question.imageBase64}" 
+                     class="current-image" 
+                     alt="Current Question Image">
+                <button type="button" class="remove-image-btn" id="removeImageBtn">
+                  <i class="fas fa-times"></i>
+                </button>
+                <input type="hidden" name="removeImage" id="removeImageInput" value="false">
+              </div>
+
+              <div class="image-upload-container" id="imageUploadContainer">
+                <input type="file" id="image" name="image" accept="image/*" style="display: none;">
+                <div class="upload-icon">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="upload-text" th:text="${question.imageBase64 != null and !question.imageBase64.isEmpty()} ? 'Click to change image' : 'Click to upload an image'">
+                  Click to upload an image
+                </div>
+                <div class="upload-hint">PNG, JPG or JPEG (Max 5MB)</div>
+              </div>
+              <img id="imagePreview" class="image-preview" alt="Preview">
+            </div>
+
+            <div class="mb-4">
+              <label for="optionA" class="form-label">
+                <i class="fas fa-check-circle me-2"></i>Option A
+              </label>
+              <input type="text" class="form-control" id="optionA" name="optionA" 
+                     placeholder="Enter option A" required th:value="${question.optionA}">
+            </div>
+
+            <div class="mb-4">
+              <label for="optionB" class="form-label">
+                <i class="fas fa-check-circle me-2"></i>Option B
+              </label>
+              <input type="text" class="form-control" id="optionB" name="optionB" 
+                     placeholder="Enter option B" required th:value="${question.optionB}">
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label">
+                <i class="fas fa-trophy me-2"></i>Correct Answer
+              </label>
+              <div class="radio-group">
+                <div class="radio-option">
+                  <input type="radio" id="answerA" name="correct_answer" value="A" 
+                         required th:checked="${question.correct_answer == 'A'}">
+                  <label for="answerA" class="radio-label">
+                    <i class="fas fa-check-circle me-2"></i>Option A
+                  </label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="answerB" name="correct_answer" value="B" 
+                         required th:checked="${question.correct_answer == 'B'}">
+                  <label for="answerB" class="radio-label">
+                    <i class="fas fa-check-circle me-2"></i>Option B
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="button-group">
+              <a href="/admin/circle-quiz/management" class="btn-cancel">
+                <i class="fas fa-times me-2"></i>Cancel
+              </a>
+              <button type="submit" class="btn-submit">
+                <i class="fas fa-save me-2"></i>Update Question
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const imageInput = document.getElementById('image');
+  const imageUploadContainer = document.getElementById('imageUploadContainer');
+  const imagePreview = document.getElementById('imagePreview');
+  const removeImageBtn = document.getElementById('removeImageBtn');
+  const removeImageInput = document.getElementById('removeImageInput');
+  const currentImageContainer = document.getElementById('currentImageContainer');
+
+  imageUploadContainer.addEventListener('click', () => {
+    imageInput.click();
+  });
+
+  imageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        imagePreview.src = event.target.result;
+        imagePreview.classList.add('show');
+        imageUploadContainer.classList.add('has-image');
+        imageUploadContainer.querySelector('.upload-text').textContent = 'New image selected!';
+        imageUploadContainer.querySelector('.upload-hint').textContent = 'Click to change image';
+        
+        if (currentImageContainer) {
+          currentImageContainer.style.display = 'none';
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  if (removeImageBtn) {
+    removeImageBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (confirm('Are you sure you want to remove this image?')) {
+        currentImageContainer.style.display = 'none';
+        removeImageInput.value = 'true';
+        imageUploadContainer.querySelector('.upload-text').textContent = 'Click to upload an image';
+      }
+    });
+  }
+</script>
+</body>
+</html>
