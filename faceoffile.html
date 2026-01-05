@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="_csrf" th:content="${_csrf.token}">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}">
+  <title>Hot or Not - Competition</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html {
+        height: 100%;
+        overflow: hidden;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        font-family: 'Caveat', cursive;
+        background: #fafafa;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        position: relative;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .hero-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .gradient-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(100px);
+        opacity: 0.08;
+        animation: float 20s ease-in-out infinite;
+        will-change: transform;
+    }
+
+    .orb-1 {
+        width: clamp(300px, 60vw, 600px);
+        height: clamp(300px, 60vw, 600px);
+        background: radial-gradient(circle, #F73B20, transparent);
+        top: -10%;
+        right: -10%;
+        animation-duration: 25s;
+    }
+
+    .orb-2 {
+        width: clamp(250px, 50vw, 500px);
+        height: clamp(250px, 50vw, 500px);
+        background: radial-gradient(circle, #ff5238, transparent);
+        bottom: -15%;
+        left: -10%;
+        animation-duration: 20s;
+        animation-delay: 2s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(50px, -80px) scale(1.1); }
+        66% { transform: translate(-50px, 50px) scale(0.9); }
+    }
+
+    /* ===== TAB CONTAINER - RESPONSIVE WITH ICONS ===== */
+    .tab-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: clamp(10px, 2vh, 15px) clamp(15px, 3vw, 20px);
+        box-shadow: 0 4px 20px rgba(247, 59, 32, 0.1);
+        border-bottom: 1px solid rgba(247, 59, 32, 0.15);
+        position: relative;
+        min-height: 70px;
+    }
+
+    .tab-nav {
+        display: flex;
+        gap: clamp(8px, 2vw, 15px);
+        background: rgba(247, 59, 32, 0.05);
+        border-radius: 50px;
+        padding: clamp(5px, 1vw, 8px);
+        border: 1px solid rgba(247, 59, 32, 0.1);
+        flex-shrink: 0;
+    }
+
+    .tab-btn {
+        padding: clamp(10px, 1.5vh, 12px) clamp(18px, 3.5vw, 35px);
+        font-size: clamp(0.95rem, 2.3vw, 1.2rem);
+        font-weight: 700;
+        font-family: 'Caveat', cursive;
+        color: rgba(26, 26, 26, 0.6);
+        background: transparent;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: clamp(4px, 1vw, 8px);
+        white-space: nowrap;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .tab-btn.active {
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        box-shadow: 0 4px 20px rgba(247, 59, 32, 0.3);
+    }
+
+    .tab-btn:hover:not(.active) {
+        color: #F73B20;
+        background: rgba(247, 59, 32, 0.1);
+    }
+
+    .tab-btn:active {
+        transform: scale(0.95);
+    }
+
+    /* ===== TOP RIGHT ICONS - FULLY RESPONSIVE ===== */
+    .top-right-icons {
+        position: absolute;
+        right: clamp(8px, 2.5vw, 20px);
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        gap: clamp(6px, 1.5vw, 12px);
+        align-items: center;
+        z-index: 150;
+    }
+
+    .info-icon-wrapper,
+    .status-icon-wrapper {
+        position: relative;
+    }
+
+    .info-icon-btn,
+    .status-icon-btn {
+        width: clamp(38px, 7vw, 50px);
+        height: clamp(38px, 7vw, 50px);
+        background: rgba(247, 59, 32, 0.1);
+        border: 2px solid rgba(247, 59, 32, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .info-icon-btn:hover,
+    .status-icon-btn:hover {
+        background: rgba(247, 59, 32, 0.2);
+        border-color: #F73B20;
+        transform: scale(1.1);
+    }
+
+    .info-icon-btn:active,
+    .status-icon-btn:active {
+        transform: scale(0.95);
+    }
+
+    .info-icon-btn i,
+    .status-icon-btn i {
+        font-size: clamp(1.1rem, 2.8vw, 1.5rem);
+        color: #F73B20;
+    }
+
+    .status-badge {
+        position: absolute;
+        top: -3px;
+        right: -3px;
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        min-width: clamp(18px, 3.5vw, 24px);
+        height: clamp(18px, 3.5vw, 24px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(0.6rem, 1.6vw, 0.75rem);
+        font-weight: 700;
+        font-family: 'Poppins', sans-serif;
+        border: 2px solid white;
+        box-shadow: 0 2px 8px rgba(247, 59, 32, 0.4);
+        padding: 2px 4px;
+    }
+
+    /* ===== INSTRUCTIONS POPUP - RESPONSIVE ===== */
+    .popup-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+        padding: clamp(15px, 3vw, 20px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .popup-backdrop.show {
+        display: flex;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .popup {
+        background: white;
+        width: 100%;
+        max-width: min(650px, 95vw);
+        padding: clamp(20px, 4vw, 35px);
+        border-radius: clamp(15px, 3vw, 20px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        animation: popupSlide 0.4s ease-out;
+        max-height: 90vh;
+        overflow-y: auto;
+        font-family: 'Poppins', sans-serif;
+        margin: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    @keyframes popupSlide {
+        from { transform: translateY(-50px) scale(0.9); opacity: 0; }
+        to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .popup h2 {
+        margin-top: 0;
+        color: #F73B20;
+        font-size: clamp(20px, 4vw, 32px);
+        margin-bottom: clamp(15px, 3vh, 20px);
+        text-align: center;
+        font-weight: 800;
+        line-height: 1.3;
+    }
+
+    .popup h3 {
+        color: #F73B20;
+        font-size: clamp(16px, 3vw, 22px);
+        margin-top: clamp(20px, 3vh, 25px);
+        margin-bottom: clamp(10px, 2vh, 12px);
+        font-weight: 700;
+        line-height: 1.4;
+    }
+
+    .popup p, .popup ol, .popup ul {
+        text-align: left;
+        font-size: clamp(13px, 2.5vw, 16px);
+        line-height: 1.7;
+        color: #333;
+        margin-bottom: clamp(12px, 2vh, 15px);
+    }
+
+    .popup ol, .popup ul {
+        padding-left: clamp(20px, 4vw, 25px);
+    }
+
+    .popup li {
+        margin-bottom: clamp(10px, 2vh, 12px);
+    }
+
+    .popup ol li strong,
+    .popup ul li strong {
+        color: #1a1a1a;
+        font-weight: 700;
+    }
+
+    .popup ul {
+        list-style-type: disc;
+    }
+
+    .popup ul ul {
+        list-style-type: circle;
+        padding-left: clamp(15px, 3vw, 20px);
+        margin-top: clamp(6px, 1vh, 8px);
+    }
+
+    .popup ul ul li {
+        margin-bottom: clamp(6px, 1vh, 8px);
+        font-size: clamp(12px, 2.3vw, 15px);
+    }
+
+    .popup h3:first-of-type {
+        margin-top: clamp(15px, 2vh, 20px);
+    }
+
+    .popup-close-btn {
+        margin-top: clamp(20px, 3vh, 25px);
+        padding: clamp(12px, 2vh, 14px) clamp(20px, 4vw, 25px);
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: clamp(15px, 2.5vw, 18px);
+        font-weight: 700;
+        width: 100%;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+        box-shadow: 0 6px 20px rgba(247, 59, 32, 0.3);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .popup-close-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(247, 59, 32, 0.5);
+    }
+
+    .popup-close-btn:active {
+        transform: translateY(-1px);
+    }
+
+    /* ===== SCROLLBAR STYLING ===== */
+    .popup::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .popup::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .popup::-webkit-scrollbar-thumb {
+        background: rgba(247, 59, 32, 0.3);
+        border-radius: 10px;
+    }
+
+    .popup::-webkit-scrollbar-thumb:hover {
+        background: rgba(247, 59, 32, 0.5);
+    }
+
+    /* [REST OF YOUR EXISTING CSS FROM paste.txt] */
+    .overlay2 {
+        position: fixed;
+        top: clamp(60px, 10vh, 80px);
+        left: 50%;
+        transform: translateX(-50%);
+        display: none;
+        z-index: 9999;
+        width: calc(100% - 30px);
+        max-width: 400px;
+        padding: 0 15px;
+    }
+
+    .overlay2.show {
+        display: block;
+    }
+
+    .successMessage {
+        background-color: rgb(61, 181, 61);
+        color: white;
+        font-size: 1.1rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem 1.5rem;
+        gap: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        width: 100%;
+    }
+
+    .text {
+        color: rgb(255, 255, 255);
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+    }
+
+    .text img {
+        height: 28px;
+        width: 28px;
+        flex-shrink: 0;
+    }
+
+    .tab-content {
+        display: none;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .voting-section {
+        height: 100%;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+        background: #ffffff;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .competition-card {
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        height: 100%;
+        width: 100%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .split-container {
+        width: 50%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        position: relative;
+    }
+
+    .competitor-side {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(247, 59, 32, 0.1);
+    }
+
+    .competitor-side:hover {
+        transform: scale(1.01);
+        border-color: rgba(247, 59, 32, 0.3);
+    }
+
+    .competitor-side.selected {
+        z-index: 10;
+        border-color: #F73B20;
+    }
+
+    .image-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .image-wrapper::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: inherit;
+        background-size: cover;
+        background-position: center;
+        filter: blur(30px);
+        transform: scale(1.2);
+        z-index: 1;
+    }
+
+    .competitor-image {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+        background: transparent;
+    }
+
+    .competitor-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0);
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+
+    .competitor-side:not(.selected) .competitor-overlay {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .selection-border {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 0px solid #F73B20;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        z-index: 5;
+    }
+
+    .competitor-side.selected .selection-border {
+        border-width: 6px;
+        box-shadow: inset 0 0 40px rgba(247, 59, 32, 0.3);
+    }
+
+    .selection-indicator {
+        position: absolute;
+        top: 12% !important;
+        left: 16%;
+        transform: translateX(-50%) scale(0);
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        box-shadow: 0 10px 30px rgba(247, 59, 32, 0.5);
+        z-index: 20;
+        border: 3px solid white;
+    }
+
+    .competitor-side.selected .selection-indicator {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+
+    .selection-indicator i {
+        color: white;
+        font-size: 3rem;
+    }
+
+    .user-info-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 15px 12px 20px;
+        background: linear-gradient(to top, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.8), transparent);
+        z-index: 15;
+    }
+
+    .user-info-content {
+        background: rgba(247, 59, 32, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(247, 59, 32, 0.2);
+        border-radius: 15px;
+        padding: 12px;
+    }
+
+    .username {
+        color: #1a1a1a;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+        text-align: center;
+    }
+
+    .user-stats {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        color: rgba(26, 26, 26, 0.7);
+        font-size: 1rem;
+    }
+
+    .stat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .stat i {
+        color: #F73B20;
+    }
+
+    .vs-badge-container {
+        position: absolute;
+        top: 55% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%);
+        z-index: 30;
+        pointer-events: none;
+    }
+
+    .vs-badge {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #F73B20;
+        box-shadow: 0 10px 40px rgba(247, 59, 32, 0.4);
+        animation: pulse 2s infinite;
+        border: 4px solid #F73B20;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+    }
+
+    .apply-section {
+        font-family: 'Poppins', sans-serif;
+        background: #fafafa;
+        height: 100%;
+        padding: 40px 20px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .apply-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .apply-header {
+        text-align: center;
+        margin-bottom: 40px;
+        animation: fadeInDown 0.8s ease;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .apply-header h1 {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #1a1a1a;
+        margin-bottom: 10px;
+    }
+
+    .apply-header .fire {
+        color: #F73B20;
+        font-size: 3rem;
+        display: inline-block;
+        animation: fireFlicker 1.5s infinite;
+    }
+
+    @keyframes fireFlicker {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .apply-header p {
+        font-size: 1.1rem;
+        color: rgba(26, 26, 26, 0.6);
+        font-weight: 500;
+    }
+
+    .contest-frame {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 4px 20px rgba(247, 59, 32, 0.1);
+        animation: fadeInUp 0.8s ease;
+        border: 1px solid rgba(247, 59, 32, 0.15);
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .contestant {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        position: relative;
+        min-height: 450px;
+    }
+
+    .contestant-card {
+        width: 280px;
+        height: 380px;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+        background: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .mystery-card {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mystery-box {
+        text-align: center;
+        color: orangered;
+        padding: 20px;
+    }
+
+    .vs-container {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-around;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .contestant-card:hover {
+        transform: scale(1.05);
+    }
+
+    .contestant-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .placeholder {
+        color: #999;
+        font-size: 1.2rem;
+        text-align: center;
+        padding: 20px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .mystery-box i {
+        font-size: 7rem;
+        margin-bottom: 25px;
+        animation: pulse 2s infinite;
+    }
+
+    .mystery-box p {
+        font-size: 1.4rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .upload-btn {
+        margin-top: 0px;
+        padding: 14px 35px;
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'Poppins', sans-serif;
+        box-shadow: 0 4px 15px rgba(247, 59, 32, 0.3);
+    }
+
+    .upload-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(247, 59, 32, 0.5);
+    }
+
+    .upload-btn i {
+        font-size: 1.2rem;
+    }
+
+    .submit-btn {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 18px;
+        background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.3rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 30px;
+        opacity: 0.5;
+        pointer-events: none;
+        font-family: 'Poppins', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 6px 20px rgba(247, 59, 32, 0.3);
+    }
+
+    .submit-btn:enabled {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .submit-btn:enabled:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(247, 59, 32, 0.5);
+    }
+
+    .submit-btn i {
+        margin-right: 10px;
+        font-size: 1.3rem;
+    }
+
+    .apply-vs-badge {
+        width: 80px;
+        height: 80px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #F73B20;
+        box-shadow: 0 0 40px rgba(247, 59, 32, 0.4);
+        animation: pulsered 2s infinite;
+        border: 5px solid #F73B20;
+        flex-shrink: 0;
+    }
+
+    @keyframes pulsered {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 40px rgba(247, 59, 32, 0.3);
+        }
+        50% {
+            transform: scale(1.15);
+            box-shadow: 0 0 60px rgba(247, 59, 32, 0.5);
+        }
+    }
+
+    .result-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .result-popup.show {
+        display: flex;
+    }
+
+    .result-content {
+        background: white;
+        padding: 50px;
+        border-radius: 30px;
+        text-align: center;
+        max-width: 400px;
+        border: 3px solid rgba(247, 59, 32, 0.3);
+        box-shadow: 0 20px 60px rgba(247, 59, 32, 0.3);
+        animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        font-family: 'Caveat', cursive;
+    }
+
+    @keyframes popIn {
+        from { transform: scale(0.7) rotate(-5deg); opacity: 0; }
+        to { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .result-icon {
+        font-size: 5rem;
+        margin-bottom: 20px;
+        animation: bounce 1s ease infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .result-title {
+        font-size: 2.5rem;
+        color: #F73B20;
+        font-weight: 900;
+        margin-bottom: 15px;
+    }
+
+    .result-message {
+        font-size: 1.4rem;
+        color: rgba(26, 26, 26, 0.7);
+        margin-bottom: 30px;
+    }
+
+    .result-message strong {
+        color: #F73B20;
+        font-size: 1.6rem;
+    }
+
+    .next-btn {
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        border: none;
+        padding: 18px 50px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(247, 59, 32, 0.3);
+        font-family: 'Caveat', cursive;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .next-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(247, 59, 32, 0.5);
+    }
+
+    /* ===== STATUS PANEL ===== */
+    .status-panel {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        width: 420px;
+        max-height: 80vh;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        border: 2px solid rgba(247, 59, 32, 0.15);
+        overflow: hidden;
+        transform: translateY(-20px);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 200;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .status-panel.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .status-header {
+        padding: 20px;
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .status-header h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .total-votes-count {
+        background: rgba(255, 255, 255, 0.3);
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .status-content {
+        overflow-y: auto;
+        max-height: calc(80vh - 70px);
+        padding: 15px;
+    }
+
+    .status-section {
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .section-title.pending-section {
+        color: #f57c00;
+    }
+
+    .section-title.active-section {
+        color: #2e7d32;
+    }
+
+    .vote-item {
+        background: #fafafa;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-left: 4px solid transparent;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .vote-item:hover {
+        background: #f5f5f5;
+        transform: translateX(5px);
+    }
+
+    .vote-item.pending {
+        border-left-color: #ffa500;
+        background: #fff3e0;
+    }
+
+    .vote-item.active {
+        border-left-color: #00cc00;
+        background: #e8f5e9;
+    }
+
+    .vote-item-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .vote-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 2px solid rgba(247, 59, 32, 0.2);
+    }
+
+    .vote-info {
+        flex: 1;
+    }
+
+    .vote-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+    }
+
+    .vote-meta {
+        font-size: 0.85rem;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .vote-stats {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .vote-stat {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .vote-stat i {
+        color: #F73B20;
+    }
+
+    .empty-status {
+        text-align: center;
+        padding: 30px 20px;
+        color: #999;
+    }
+
+    .empty-status i {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        color: #ddd;
+    }
+
+    .empty-status p {
+        font-size: 0.95rem;
+    }
+
+    /* ===== MOBILE RESPONSIVE ===== */
+    @media (max-width: 767px) {
+        .tab-container {
+            padding: 10px 12px;
+            min-height: 65px;
+        }
+
+        .tab-nav {
+            gap: 6px;
+            padding: 5px;
+        }
+
+        .tab-btn {
+            padding: 9px 16px;
+            font-size: 0.95rem;
+            gap: 4px;
+        }
+
+        .tab-btn i {
+            font-size: 0.95rem;
+        }
+
+        .top-right-icons {
+            gap: 6px;
+            right: 8px;
+        }
+
+        .info-icon-btn,
+        .status-icon-btn {
+            width: 40px;
+            height: 40px;
+        }
+
+        .info-icon-btn i,
+        .status-icon-btn i {
+            font-size: 1.15rem;
+        }
+
+        .status-badge {
+            min-width: 19px;
+            height: 19px;
+            font-size: 0.6rem;
+            border-width: 1.5px;
+        }
+
+        .split-container {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr 1fr;
+            width: 80% !important;
+        }
+
+        .competitor-side {
+            min-height: 50vh;
+        }
+
+        .vs-badge {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            border: 3px solid #F73B20;
+        }
+
+        .username {
+            font-size: 1.2rem;
+        }
+
+        .user-info-container {
+            padding: 12px 8px 15px;
+        }
+
+        .user-stats {
+            font-size: 0.9rem;
+            gap: 10px;
+        }
+
+        .apply-section {
+            padding: 30px 15px;
+        }
+
+        .vs-container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .apply-vs-badge {
+            margin: 20px 0;
+        }
+
+        .contestant-card {
+            width: 220px;
+            height: 300px;
+            margin-bottom: 15px;
+        }
+
+        .mystery-box i {
+            font-size: 5rem;
+        }
+
+        .mystery-box p {
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+
+        .submit-btn {
+            font-size: 1.1rem;
+            padding: 15px;
+        }
+
+        .status-panel {
+            width: calc(100vw - 40px);
+            right: 20px;
+        }
+
+        .vote-item-header {
+            flex-direction: row;
+        }
+
+        .vote-image {
+            width: 60px;
+            height: 60px;
+        }
+    }
+
+    /* ===== TABLET ===== */
+    @media (min-width: 768px) and (max-width: 1024px) {
+        .tab-container {
+            padding: 12px 25px;
+            min-height: 68px;
+        }
+
+        .tab-btn {
+            padding: 11px 28px;
+            font-size: 1.1rem;
+        }
+
+        .info-icon-btn,
+        .status-icon-btn {
+            width: 46px;
+            height: 46px;
+        }
+
+        .status-badge {
+            min-width: 22px;
+            height: 22px;
+            font-size: 0.7rem;
+        }
+    }
+
+    /* ===== SMALL MOBILE ===== */
+    @media (max-width: 380px) {
+        .tab-container {
+            padding: 8px 10px;
+            min-height: 60px;
+        }
+
+        .tab-nav {
+            gap: 5px;
+            padding: 4px;
+        }
+
+        .tab-btn {
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            gap: 3px;
+        }
+
+        .tab-btn i {
+            font-size: 0.9rem;
+        }
+
+        .top-right-icons {
+            gap: 5px;
+            right: 6px;
+        }
+
+        .info-icon-btn,
+        .status-icon-btn {
+            width: 36px;
+            height: 36px;
+            border-width: 1.5px;
+        }
+
+        .info-icon-btn i,
+        .status-icon-btn i {
+            font-size: 1.05rem;
+        }
+
+        .status-badge {
+            min-width: 17px;
+            height: 17px;
+            font-size: 0.55rem;
+            top: -2px;
+            right: -2px;
+        }
+
+        .popup {
+            padding: 18px;
+        }
+
+        .contestant-card {
+            width: 180px;
+            height: 260px;
+        }
+
+        .upload-btn {
+            font-size: 0.95rem;
+            padding: 12px 25px;
+        }
+
+        .submit-btn {
+            font-size: 1rem;
+            padding: 14px;
+        }
+    }
+
+    /* ===== VERY SMALL MOBILE ===== */
+    @media (max-width: 340px) {
+        .tab-btn span {
+            font-size: 0.85rem;
+        }
+
+        .top-right-icons {
+            gap: 4px;
+        }
+
+        .info-icon-btn,
+        .status-icon-btn {
+            width: 34px;
+            height: 34px;
+        }
+
+        .info-icon-btn i,
+        .status-icon-btn i {
+            font-size: 1rem;
+        }
+
+        .status-badge {
+            min-width: 16px;
+            height: 16px;
+            font-size: 0.5rem;
+        }
+    }
+
+    /* ===== LANDSCAPE MODE ===== */
+    @media (max-width: 768px) and (orientation: landscape) {
+        .tab-container {
+            min-height: 58px;
+            padding: 8px 15px;
+        }
+
+        .popup {
+            max-height: 85vh;
+        }
+    }
+
+    /* ===== TOUCH OPTIMIZATION ===== */
+    @media (hover: none) and (pointer: coarse) {
+        .tab-btn,
+        .info-icon-btn,
+        .status-icon-btn,
+        .popup-close-btn {
+            min-height: 44px;
+            min-width: 44px;
+        }
+    }
+
+    /* ===== REDUCED MOTION ===== */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+  </style>
+</head>
+<body>
+<div th:if="${successMsg}" class="overlay2 success">
+ <script>
+ </script>
+</div>
+<div th:if="${errorMsg}" class="overlay2 error">
+<script>
+alert('You Have Already Applied ');
+</script>
+</div>
+
+<div class="overlay2" id="Overlay2">
+  <div class="successMessage" id="SuccessMessage">
+    <p class="text" id="text">
+    </p>
+  </div>
+</div>
+
+<div class="hero-bg">
+  <div class="gradient-orb orb-1"></div>
+  <div class="gradient-orb orb-2"></div>
+</div>
+
+<!-- ===== INSTRUCTIONS POPUP ===== -->
+<div id="instructionsPopup" class="popup-backdrop">
+    <div class="popup">
+        <h2>📖 How to Play - Voting & Photo Battle</h2>
+        
+        <p>
+            Welcome to the ultimate voting competition! Vote for your favorite contestant or challenge your friends in a photo battle. Here's how it works:
+        </p>
+
+        <h3>📸 Photo Battle Game</h3>
+        
+        <p>
+            A competitive image showdown where Player 1 uploads a photo and starts the competition!
+        </p>
+
+        <ol>
+            <li>
+                <strong>Set the Theme:</strong> Both players agree on a specific category like "Best Nature Shot", "Funniest Selfie", "Best Street Food", or "Throwback Childhood Photo".
+            </li>
+            <li>
+                <strong>Player 1 Uploads:</strong> Player 1 chooses or takes a photo matching the theme and uploads it first. This sets the standard for the round.
+            </li>
+            <li>
+                <strong>Player 2 Responds:</strong> Player 2 must find or take a better photo within the same theme and upload it to compete.
+            </li>
+            <li>
+                <strong>The Voting:</strong> Decide the winner using one of these methods:
+                <ul>
+                    <li><strong>Public Poll:</strong> Upload both photos to Instagram/WhatsApp Story with a poll sticker. Let followers vote!</li>
+                    <li><strong>Neutral Judge:</strong> Send both images to a mutual friend who picks the winner without knowing whose is whose.</li>
+                    <li><strong>Point System:</strong> Both players rate each other's photo out of 10. Higher score wins!</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Winning:</strong> Play Best of 5 rounds. The person who wins the most rounds is the ultimate champion! 🏆
+            </li>
+        </ol>
+
+        <h3>🎮 Popular Voting Games</h3>
+        
+        <ol>
+            <li>
+                <strong>The Voting Game:</strong> Features 200 questions that uncover "hilarious truths" about players. Vote on which person fits a specific question better.
+            </li>
+            <li>
+                <strong>Who's Most Likely To (Couples Edition):</strong> Presents scenarios where both players vote for who is more likely to perform a certain action.
+            </li>
+            <li>
+                <strong>If You Were... (Mattel):</strong> An adult party game that uses "finger voting" to answer ridiculous questions about fellow players.
+            </li>
+            <li>
+                <strong>Truth or Dare (Couples Edition):</strong> Focuses on personal revelations and interactive challenges between two people.
+            </li>
+        </ol>
+
+        <h3>💻 Digital Voting Options</h3>
+        
+        <ul>
+            <li><strong>Quick Draw & Guess:</strong> Online game similar to Pictionary where you draw images and the other person guesses.</li>
+            <li><strong>Custom Poll Makers:</strong> Use tools like Canva Poll Maker to create custom image-based polls.</li>
+            <li><strong>Social Media Challenges:</strong> Instagram and TikTok "This or That" filters for visual voting.</li>
+        </ul>
+
+        <h3>🔥 Game Instructions (This Platform)</h3>
+        
+        <ol>
+            <li><strong>Swipe:</strong> Scroll through different matchups vertically</li>
+            <li><strong>Vote:</strong> Tap on the contestant you think is better</li>
+            <li><strong>Apply:</strong> Submit your own photo to join the competition</li>
+            <li><strong>Track Status:</strong> Click the status icon to see your votes and applications</li>
+        </ol>
+
+        <button class="popup-close-btn" id="closeInstructionsPopup">Got It! Let's Vote 🔥</button>
+    </div>
+</div>
+
+<div class="tab-container">
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('voting')">
+      <i class="bi bi-fire"></i> Vote
+    </button>
+    <button class="tab-btn" onclick="switchTab('apply')">
+      <i class="bi bi-camera-fill"></i> Apply
+    </button>
+  </div>
+
+  <!-- ===== TOP RIGHT ICONS - FULLY RESPONSIVE ===== -->
+  <div class="top-right-icons">
+    <!-- How to Play Button -->
+    <div class="info-icon-wrapper">
+        <button type="button" class="info-icon-btn" id="showInstructionsBtn" aria-label="Show instructions">
+            <i class="bi bi-question-circle-fill"></i>
+        </button>
+    </div>
+
+    <!-- Status Icon -->
+    <div class="status-icon-wrapper">
+      <div class="status-icon-btn" onclick="toggleStatus()">
+        <i class="bi bi-clipboard-check-fill"></i>
+        <span class="status-badge" th:text="${totalVotesCount != null ? totalVotesCount : '0'}">5</span>
+      </div>
+
+      <div class="status-panel" id="statusPanel">
+        <div class="status-header">
+          <h3><i class="bi bi-clipboard-check"></i> My Status</h3>
+          <span class="total-votes-count" th:text="${totalVotesCount != null ? totalVotesCount + ' Votes' : '0 Votes'}">5 Votes</span>
+        </div>
+
+        <div class="status-content">
+          <!-- Pending Votes Section -->
+          <div class="status-section" th:if="${pendingVotes != null and !pendingVotes.isEmpty()}">
+            <div class="section-title pending-section">
+              <i class="bi bi-clock-history"></i>
+              Pending Votes (<span th:text="${#lists.size(pendingVotes)}">0</span>)
+            </div>
+
+            <div class="vote-item pending" th:each="vote : ${pendingVotes}">
+              <div class="vote-item-header">
+                <img th:src="@{/getImage/{id}(id=${vote.userId})}" alt="Vote" class="vote-image">
+                <div class="vote-info">
+                  <div class="vote-title" th:text="'Contest #' + ${vote.competitionId}">Contest #245</div>
+                  <div class="vote-meta">
+                    <i class="bi bi-calendar3"></i> 
+                    <span th:text="${#dates.format(vote.submittedDate, 'MMM dd, yyyy')}">Dec 28, 2025</span>
+                  </div>
+                </div>
+              </div>
+              <div class="vote-stats">
+                <div class="vote-stat">
+                  <i class="bi bi-hourglass-split"></i>
+                  <span>Under Review</span>
+                </div>
+                <div class="vote-stat" th:if="${vote.daysLeft != null}">
+                  <i class="bi bi-clock"></i>
+                  <span th:text="${vote.daysLeft} + ' days left'">2 days left</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Votes Section -->
+          <div class="status-section" th:if="${activeVotes != null and !activeVotes.isEmpty()}">
+            <div class="section-title active-section">
+              <i class="bi bi-check-circle-fill"></i>
+              Active Votes (<span th:text="${#lists.size(activeVotes)}">0</span>)
+            </div>
+
+            <div class="vote-item active" th:each="vote : ${activeVotes}">
+              <div class="vote-item-header">
+                <img th:src="@{/getImage/{id}(id=${vote.userId})}" alt="Vote" class="vote-image">
+                <div class="vote-info">
+                  <div class="vote-title" th:text="'Contest #' + ${vote.competitionId}">Contest #243</div>
+                  <div class="vote-meta">
+                    <i class="bi bi-calendar3"></i> 
+                    <span th:text="${#dates.format(vote.submittedDate, 'MMM dd, yyyy')}">Dec 25, 2025</span>
+                  </div>
+                </div>
+              </div>
+              <div class="vote-stats">
+                <div class="vote-stat">
+                  <i class="bi bi-fire"></i>
+                  <span>Live Now!</span>
+                </div>
+                <div class="vote-stat" th:if="${vote.totalVotes != null}">
+                  <i class="bi bi-people-fill"></i>
+                  <span th:text="${vote.totalVotes} + ' votes'">234 votes</span>
+                </div>
+                <div class="vote-stat" th:if="${vote.isLeading}">
+                  <i class="bi bi-trophy-fill"></i>
+                  <span>Leading</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-status" th:if="${(pendingVotes == null or pendingVotes.isEmpty()) and (activeVotes == null or activeVotes.isEmpty())}">
+            <i class="bi bi-inbox"></i>
+            <p>No votes yet. Start voting to see your status!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- [REST OF YOUR HTML CONTENT FROM paste.txt - VOTING SECTION, APPLY SECTION, ETC.] -->
+<div class="tab-content active" id="voting">
+  <div class="voting-section">
+    <div class="competition-card" th:each="users, iterStat : ${UsersList}" th:attr="data-card=${iterStat.index + 1}">
+      <input type="hidden" id="VotedBy" th:value="${user_master.userId}">
+      <input type="hidden" id="VotedTo" th:value="${users.id}">
+      <div class="split-container">
+        <div class="competitor-side" id="comp1-left" onclick="selectCompetitor('left', 1)" th:attr="data-id=${users.userid1.id}">
+          <div class="image-wrapper">
+            <img th:src="@{/getImage/{id}(id=${users.userid1.id})}" alt="Competitor" class="competitor-image">
+          </div>
+          <div class="competitor-overlay"></div>
+          <div class="selection-border"></div>
+          <div class="selection-indicator">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div class="user-info-container">
+            <div class="user-info-content">
+              <div class="username" th:text="${users.userid1.user.username}">Sarah</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="competitor-side" id="comp1-right" onclick="selectCompetitor('right', 1)" th:attr="data-id=${users.userid2.id}">
+          <div class="image-wrapper">
+            <img th:src="@{/getImage/{id}(id=${users.userid2.id})}" alt="Competitor" class="competitor-image">
+          </div>
+          <div class="competitor-overlay"></div>
+          <div class="selection-border"></div>
+          <div class="selection-indicator">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div class="user-info-container">
+            <div class="user-info-content">
+              <div class="username" th:text="${users.userid2.user.username}">Michael</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vs-badge-container">
+          <div class="vs-badge">VS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-content" id="apply">
+  <div class="apply-section">
+    <div class="apply-container">
+      <div class="apply-header">
+        <h1>Join The Competition <span class="fire">🔥</span></h1>
+        <p>Think you've got what it takes? Apply now!</p>
+      </div>
+
+      <div class="contest-frame">
+        <div class="vs-container">
+          <div class="contestant">
+            <div class="contestant-card" id="uploadedImageContainer">
+              <div class="placeholder">Your Photo Here</div>
+            </div>
+            <button class="upload-btn" onclick="document.getElementById('photoInput').click()">
+              <i class="bi bi-camera-fill"></i> Change Picture
+            </button>
+          </div>
+
+          <div class="apply-vs-badge">VS</div>
+
+          <div class="contestant">
+            <div class="contestant-card mystery-card">
+              <div class="mystery-box">
+                <i class="bi bi-question-circle-fill"></i>
+                <p>Mystery Opponent</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="submit-btn" id="submitApplicationBtn" disabled>
+          <i class="bi bi-check-circle-fill"></i> Submit Application
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form th:action="@{/user/submitForm}" method="post" enctype="multipart/form-data" class="form-group" id="voteForm">
+  <label>Upload Your Best Photo</label>
+  <div class="file-upload" id="fileUploadBox" onclick="document.getElementById('photoInput').click()">
+    <input type="file" id="photoInput" name="file" accept="image/*" onchange="previewImage(event)" />
+    <div class="file-upload-text">
+      <i class="bi bi-cloud-upload" style="font-size:2.5rem;display:block;margin-bottom:10px;color:#f73b20;"></i>
+      Click to upload
+    </div>
+  </div>
+  <div class="preview-container">
+    <img id="preview" style="display:none; max-width:100%; margin-top:10px;" />
+  </div>
+</form>
+
+<div class="result-popup" id="resultPopup">
+  <div class="result-content">
+    <div class="result-icon">🔥</div>
+    <div class="result-title">Nice Choice!</div>
+    <div class="result-message">
+      You voted for <strong id="winnerName"></strong>
+    </div>
+    <button class="next-btn" onclick="nextCompetition()">
+      Next Match <i class="bi bi-arrow-right"></i>
+    </button>
+  </div>
+</div>
+
+<script>
+  let currentCard = 1;
+  const totalCards = 3;
+  const votes = {};
+
+  // Instructions Popup
+  const instructionsPopup = document.getElementById('instructionsPopup');
+  const showInstructionsBtn = document.getElementById('showInstructionsBtn');
+  const closeInstructionsPopup = document.getElementById('closeInstructionsPopup');
+
+  if (showInstructionsBtn) {
+      showInstructionsBtn.addEventListener('click', () => {
+          instructionsPopup.classList.add('show');
+          document.body.style.overflow = 'hidden';
+      });
+  }
+
+  if (closeInstructionsPopup) {
+      closeInstructionsPopup.addEventListener('click', () => {
+          instructionsPopup.classList.remove('show');
+          document.body.style.overflow = '';
+      });
+  }
+
+  instructionsPopup.addEventListener('click', (e) => {
+      if (e.target === instructionsPopup) {
+          instructionsPopup.classList.remove('show');
+          document.body.style.overflow = '';
+      }
+  });
+
+  document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && instructionsPopup.classList.contains('show')) {
+          instructionsPopup.classList.remove('show');
+          document.body.style.overflow = '';
+      }
+  });
+
+  function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+          tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.classList.remove('active');
+      });
+
+      document.getElementById(tabName).classList.add('active');
+      event.target.closest('.tab-btn').classList.add('active');
+  }
+
+  const photoInput = document.getElementById('photoInput');
+  const uploadedImageContainer = document.getElementById('uploadedImageContainer');
+  const submitApplicationBtn = document.getElementById('submitApplicationBtn');
+  let selectedImage = null;
+
+  if (photoInput) {
+      photoInput.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          
+          if (file) {
+              const reader = new FileReader();
+              
+              reader.onload = function(event) {
+                  selectedImage = event.target.result;
+                  uploadedImageContainer.innerHTML = `<img src="${selectedImage}" alt="Your Photo">`;
+                  submitApplicationBtn.disabled = false;
+                  
+                  document.getElementById('submitBtn').disabled = false;
+              };
+              
+              reader.readAsDataURL(file);
+          }
+      });
+  }
+
+  if (submitApplicationBtn) {
+      submitApplicationBtn.addEventListener('click', function() {
+          if (selectedImage) {
+              document.getElementById('voteForm').submit();
+          }
+      });
+  }
+
+  function closeModal() {
+      document.getElementById('fileInput').value = '';
+      document.getElementById('preview').style.display = 'none';
+      document.getElementById('fileUploadBox').classList.remove('has-image');
+      document.getElementById('submitBtn').disabled = true;
+  }
+
+  function previewImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('preview');
+          const uploadBox = document.getElementById('fileUploadBox');
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+          uploadBox.classList.add('has-image');
+          document.getElementById('submitBtn').disabled = false;
+        };
+        reader.readAsDataURL(file);
+      }
+  }
+
+  function selectCompetitor(side, cardNum) {
+      const clicked = event.currentTarget;
+      const card = clicked.closest('.competition-card');
+
+      const votedBy = card.querySelector('#VotedBy').value;
+      const competitionId = card.querySelector('#VotedTo').value;
+
+      const leftSide = card.querySelector('#comp1-left');
+      const rightSide = card.querySelector('#comp1-right');
+
+      let selectedUserId;
+
+      leftSide.classList.remove('selected');
+      rightSide.classList.remove('selected');
+
+      if (side === 'left') {
+          leftSide.classList.add('selected');
+          selectedUserId = leftSide.dataset.id;
+      } else {
+          rightSide.classList.add('selected');
+          selectedUserId = rightSide.dataset.id;
+      }
+
+      console.log('Voted By:', votedBy);
+      console.log('Competition ID:', competitionId);
+      console.log('Voted To User ID:', selectedUserId);
+
+      const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+      const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+      const formData = new URLSearchParams();
+      formData.append('VotedBy', votedBy);
+      formData.append('VotedTo', selectedUserId);
+      formData.append('competitionId', competitionId);
+
+      fetch('/vote', {
+          method: 'POST',
+          headers: {
+              [csrfHeader]: csrfToken
+          },
+          body: formData
+      })
+      .then(response => {
+          if (!response.ok) {
+              return response.json().then(err => {
+                  throw err;
+           });
+          }
+          return response.json();
+      })
+      .then(data => {
+          console.log('Vote submitted successfully', data);
+    })
+      .catch(err => {
+          console.error(err);
+          const message=document.getElementById('Overlay2');
+          const messageDiv=document.getElementById('SuccessMessage');
+          const text=document.getElementById('text');
+          if(message)
+        {
+          messageDiv.style.backgroundColor='rgb(199, 83, 83)';
+          messageDiv.style.color='white';
+          text.innerHTML='You Already Voted';
+            message.classList.add("show");
+          setTimeout( () => {
+            message.classList.remove("show");
+          },2000);
+        }
+      });
+  }
+
+  function toggleStatus() {
+      const panel = document.getElementById('statusPanel');
+      panel.classList.toggle('active');
+  }
+
+  document.addEventListener('click', function(e) {
+      const panel = document.getElementById('statusPanel');
+      const btn = document.querySelector('.status-icon-btn');
+      
+      if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) {
+          panel.classList.remove('active');
+      }
+  });
+
+  function applyImageBackgrounds() {
+      document.querySelectorAll(".image-wrapper").forEach(wrapper => {
+        const img = wrapper.querySelector("img");
+        if (img && img.src) {
+          wrapper.style.backgroundImage = `url(${img.src})`;
+        }
+      });
+  }
+
+  window.addEventListener("load", applyImageBackgrounds);
+
+  // Viewport Height Fix
+  function setVH() {
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+
+  setVH();
+  window.addEventListener('resize', setVH);
+  window.addEventListener('orientationchange', setVH);
+</script>
+</body>
+</html>
