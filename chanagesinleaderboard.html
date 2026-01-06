@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotOrNot - Leaderboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <style>
+        .highlighted {
+            background: linear-gradient(90deg, #00ffff33, #ff00ff33);
+            border-radius: 10px;
+            padding: 16px 32px;
+            transition: all 0.4s ease;
+            animation: glowPulse 1.5s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            0% {
+                box-shadow: 0 0 5px #00ffff, 0 0 10px #ff00ff;
+            }
+
+            100% {
+                box-shadow: 0 0 20px #00ffff, 0 0 40px #ff00ff;
+            }
+        }
+    </style>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-gradient::before,
+        .bg-gradient::after,
+        .bg-gradient span {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+        }
+
+        .bg-gradient::before {
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 0, 128, 0.2);
+            animation: float1 20s ease-in-out infinite;
+        }
+
+        .bg-gradient::after {
+            width: 600px;
+            height: 600px;
+            background: rgba(0, 255, 255, 0.15);
+            animation: float2 25s ease-in-out infinite;
+        }
+
+        .bg-gradient span {
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 0, 0.12);
+            animation: float3 18s ease-in-out infinite;
+        }
+
+        @keyframes float1 {
+
+            0%,
+            100% {
+                transform: translate(10vw, 20vh) scale(1);
+            }
+
+            25% {
+                transform: translate(60vw, 70vh) scale(1.2);
+            }
+
+            50% {
+                transform: translate(80vw, 30vh) scale(0.9);
+            }
+
+            75% {
+                transform: translate(30vw, 80vh) scale(1.1);
+            }
+        }
+
+        @keyframes float2 {
+
+            0%,
+            100% {
+                transform: translate(70vw, 60vh) scale(1);
+            }
+
+            33% {
+                transform: translate(20vw, 20vh) scale(1.3);
+            }
+
+            66% {
+                transform: translate(50vw, 80vh) scale(0.8);
+            }
+        }
+
+        @keyframes float3 {
+
+            0%,
+            100% {
+                transform: translate(40vw, 10vh) scale(1);
+            }
+
+            30% {
+                transform: translate(10vw, 70vh) scale(1.2);
+            }
+
+            60% {
+                transform: translate(75vw, 50vh) scale(0.9);
+            }
+
+            90% {
+                transform: translate(55vw, 15vh) scale(1.1);
+            }
+        }
+
+        .navbar {
+            background: rgba(10, 10, 10, 0.8) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #ff0080, #ff8c00, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+            margin: 0 0.5rem;
+        }
+
+        .nav-link:hover {
+            color: #ff0080 !important;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #ff0080, #00ffff);
+        }
+
+        .btn-neon {
+            background: linear-gradient(135deg, #ff0080, #ff8c00);
+            color: white;
+            border: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .btn-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(255, 0, 128, 0.8);
+            color: white;
+        }
+
+        .leaderboard-hero {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+
+        .leaderboard-badge {
+            background: rgba(255, 0, 128, 0.2);
+            border: 1px solid #ff0080;
+            color: #ff0080;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+        }
+
+        .leaderboard-title {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 15px;
+        }
+
+        .leaderboard-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .top-winners-section {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .winners-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 30px;
+            margin-bottom: 60px;
+            flex-wrap: wrap;
+        }
+
+        .winner-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            position: relative;
+            max-width: 280px;
+        }
+
+        .winner-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .winner-card.rank-2 {
+            order: 1;
+        }
+
+        .winner-card.rank-1 {
+            order: 2;
+            margin-bottom: 30px;
+        }
+
+        .winner-card.rank-3 {
+            order: 3;
+        }
+
+        .crown-emoji {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 50px;
+            animation: floatCrown 3s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes floatCrown {
+
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            50% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
+        .winner-avatar-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .rank-1 .winner-avatar-wrapper {
+            width: 180px;
+            height: 180px;
+        }
+
+        .rank-2 .winner-avatar-wrapper,
+        .rank-3 .winner-avatar-wrapper {
+            width: 150px;
+            height: 150px;
+        }
+
+        .winner-avatar-blob {
+            width: 100%;
+            height: 100%;
+            border-radius: 45% 55% 52% 48% / 48% 50% 50% 52%;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: blobPulse 4s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes blobPulse {
+
+            0%,
+            100% {
+                border-radius: 45% 55% 52% 48% / 48% 50% 50% 52%;
+                transform: scale(1);
+            }
+
+            50% {
+                border-radius: 52% 48% 45% 55% / 55% 45% 55% 45%;
+                transform: scale(1.05);
+            }
+        }
+
+        .rank-1 .winner-avatar-blob {
+            box-shadow:
+                0 0 40px rgba(255, 0, 128, 0.8),
+                0 0 80px rgba(255, 140, 0, 0.5),
+                inset 0 0 30px rgba(255, 0, 128, 0.3);
+            border: 4px solid transparent;
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                linear-gradient(135deg, #ff0080, #ff8c00, #ff0080) border-box;
+        }
+
+        .rank-2 .winner-avatar-blob {
+            box-shadow:
+                0 0 35px rgba(0, 255, 255, 0.8),
+                0 0 70px rgba(0, 255, 255, 0.5),
+                inset 0 0 25px rgba(0, 255, 255, 0.3);
+            border: 3px solid transparent;
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                linear-gradient(135deg, #00ffff, #00ccff, #00ffff) border-box;
+        }
+
+        .rank-3 .winner-avatar-blob {
+            box-shadow:
+                0 0 30px rgba(255, 255, 0, 0.8),
+                0 0 60px rgba(255, 140, 0, 0.5),
+                inset 0 0 20px rgba(255, 255, 0, 0.3);
+            border: 3px solid transparent;
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                linear-gradient(135deg, #ffff00, #ff8c00, #ffff00) border-box;
+        }
+
+        .winner-avatar-blob img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .winner-username {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .rank-1 .winner-username {
+            background: linear-gradient(135deg, #ff0080, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 20px;
+            text-shadow: 0 0 20px rgba(255, 0, 128, 0.5);
+        }
+
+        .rank-2 .winner-username {
+            color: #00ffff;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+
+        .rank-3 .winner-username {
+            background: linear-gradient(135deg, #ffff00, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
+        }
+
+        .section-divider {
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 128, 0.5), #00ffff, rgba(255, 0, 128, 0.5), transparent);
+            text-align: center;
+            padding: 15px;
+            margin: 60px auto 40px;
+            width: 90%;
+            max-width: 600px;
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #ffffff;
+            border-radius: 50px;
+            box-shadow: 0 0 30px rgba(255, 0, 128, 0.3);
+        }
+
+        .top-performers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 35px;
+            justify-items: center;
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .performer-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .performer-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .performer-card::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle, rgba(255, 0, 128, 0.2), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+            border-radius: 50%;
+        }
+
+        .performer-card:hover::before {
+            opacity: 1;
+        }
+
+        .performer-avatar-wrapper {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin-bottom: 15px;
+        }
+
+        .performer-avatar-blob {
+            width: 100%;
+            height: 100%;
+            border-radius: 42% 58% 55% 45% / 50% 45% 55% 50%;
+            overflow: hidden;
+            box-shadow:
+                0 0 25px rgba(255, 0, 128, 0.5),
+                0 0 50px rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            animation: performerBlobPulse 5s infinite;
+            position: relative;
+            border: 3px solid transparent;
+        }
+
+        @keyframes performerBlobPulse {
+
+            0%,
+            100% {
+                border-radius: 42% 58% 55% 45% / 50% 45% 55% 50%;
+            }
+
+            50% {
+                border-radius: 55% 45% 42% 58% / 45% 55% 45% 55%;
+            }
+        }
+
+        .performer-card:hover .performer-avatar-blob {
+            box-shadow:
+                0 0 40px rgba(255, 0, 128, 0.8),
+                0 0 80px rgba(0, 255, 255, 0.6);
+            transform: scale(1.1);
+        }
+
+        .performer-avatar-blob img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .performer-username {
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+            color: #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 8px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            transition: all 0.3s;
+        }
+
+        .performer-card:hover .performer-username {
+            background: linear-gradient(135deg, #ff0080, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 15px rgba(255, 0, 128, 0.8);
+        }
+
+        .color-variant-1 .performer-avatar-blob {
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                linear-gradient(135deg, #00ffff, #0080ff) border-box;
+        }
+
+        .color-variant-2 .performer-avatar-blob {
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                linear-gradient(135deg, #ff0080, #ff00ff) border-box;
+        }
+
+        .color-variant-3 .performer-avatar-blob {
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                linear-gradient(135deg, #ffff00, #ff8800) border-box;
+        }
+
+        .color-variant-4 .performer-avatar-blob {
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                linear-gradient(135deg, #00ff88, #00ff00) border-box;
+        }
+
+        .color-variant-5 .performer-avatar-blob {
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                linear-gradient(135deg, #ff0080, #ff0040) border-box;
+        }
+
+        .color-variant-6 .performer-avatar-blob {
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                linear-gradient(135deg, #0080ff, #00ffff) border-box;
+        }
+
+        .color-variant-7 .performer-avatar-blob {
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                linear-gradient(135deg, #8000ff, #ff00ff) border-box;
+        }
+
+        .remaining-section {
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow:
+                0 0 30px rgba(255, 0, 128, 0.3),
+                0 0 60px rgba(0, 255, 255, 0.2);
+        }
+
+        .leaderboard-table thead {
+            background: linear-gradient(135deg, rgba(255, 0, 128, 0.2), rgba(0, 255, 255, 0.2));
+            position: relative;
+        }
+
+        .leaderboard-table thead::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff0080, #00ffff, transparent);
+        }
+
+        .leaderboard-table th {
+            padding: 2 0px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff0080, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .leaderboard-table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .leaderboard-table tbody tr:hover {
+            background: rgba(255, 0, 128, 0.1);
+            box-shadow: inset 0 0 20px rgba(255, 0, 128, 0.2);
+        }
+
+        .leaderboard-table td {
+            padding: 18px;
+            text-align: center;
+            vertical-align: middle;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .leaderboard-table td:first-child {
+            background: linear-gradient(135deg, #ff0080, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .leaderboard-table td img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid transparent;
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                linear-gradient(135deg, #00ffff, #ff0080) border-box;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            transition: all 0.3s;
+        }
+
+        .leaderboard-table tbody tr:hover td img {
+            box-shadow: 0 0 30px rgba(255, 0, 128, 0.8);
+            transform: scale(1.1);
+        }
+
+        .winners-wrapper {
+            gap: 20px;
+        }
+
+        .rank-1 .winner-avatar-wrapper {
+            width: 140px;
+            height: 140px;
+        }
+
+        .rank-2 .winner-avatar-wrapper,
+        .rank-3 .winner-avatar-wrapper {
+            width: 120px;
+            height: 120px;
+        }
+
+        .winner-username {
+            font-size: 14px;
+        }
+
+        .rank-1 .winner-username {
+            font-size: 16px;
+        }
+
+        .performer-avatar-wrapper {
+            width: 110px;
+            height: 110px;
+        }
+
+        .performer-username {
+            font-size: 12px;
+        }
+
+        .section-divider {
+            font-size: 18px;
+        }
+
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .leaderboard-table td img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .crown-emoji {
+            font-size: 35px;
+            top: -30px;
+        }
+
+
+        body {
+            height: 2000px;
+            /* just for scrolling demo */
+            font-family: Arial, sans-serif;
+        }
+
+
+        #backToTop {
+            position: fixed;
+            right: 10px;
+            bottom: 40px;
+            width: 50px;
+            height: 50px;
+            display: none;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.5s ease, background 0.3s ease;
+            z-index: 999;
+        }
+
+        #backToTop:hover {
+            background-color: #555;
+        }
+
+        @media (max-width: 480px) {
+            .leaderboard-title {
+                font-size: 1.8rem;
+            }
+
+            .winners-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .winner-card.rank-1,
+            .winner-card.rank-2,
+            .winner-card.rank-3 {
+                order: unset;
+                margin-bottom: 20px;
+            }
+
+            .top-performers-grid {
+                gap: 25px;
+            }
+        }
+    </style>
+    <style>
+        #whereami {
+            background-color: wheat;
+            padding: 10px;
+            width: 10pc;
+            border: none;
+            border-radius: 20pc;
+        }
+
+        #whereami:hover {
+            background-color: yellowgreen;
+            transform: scale(0.3s);
+        }
+
+
+
+
+        .position-number {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff0080, #00ffff);
+            color: white;
+            font-weight: 900;
+            font-size: 22px;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            /* <-- changed from 50% to 8px for square corners */
+            box-shadow: 0 0 15px rgba(255, 0, 128,
+                    0.5);
+            z-index: 10;
+            border: 2px solid white;
+        }
+
+      
+     
+    </style>
+</head>
+
+<body>
+    <div class="bg-gradient">
+        <span></span>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="#">
+                <span class="gradient-text">HotOrNot</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link">Discover</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link">Matches</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active">Leaderboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link ">Trending</a>
+                    </li>
+                    <li class="nav-item m---------------------------s-3">
+                        <button class="btn btn-neon btn-sm rounded-pill px-4">Join Now</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container text-center mb-4 mt-5">
+        <div class="input-group" style="max-width: 400px; margin: auto;">
+            <input id="searchInput" type="text" class="form-control rounded-start-pill px-3 py-2"
+                placeholder="Search Karna Padega..">
+            <button class="btn btn-neon rounded-end-pill px-4" onclick="searchUser()">Search</button>
+        </div>
+    </div>
+    <button onclick="searchUser1()" th:value="${whereami}" id="whereami"><i class="bi bi-arrow-down">Me</i></button>
+
+
+
+
+    <!--skip this part------------------------------------------------------------------------------------------------------->
+
+
+    <div class="leaderboard-hero">
+        <span class="leaderboard-badge">
+            🏆 Top Rated Members
+        </span>
+        <h1 class="leaderboard-title">
+            Our <span class="gradient-text">Top Stars</span>
+        </h1>
+        <p class="leaderboard-subtitle">
+            Discover the most popular and highly rated members in our community
+        </p>
+    </div>
+
+    <div class="top-winners-section">
+        <div class="winners-wrapper">
+            <div th:each="user, iterStat : ${users}" th:if="${iterStat.index < 3}" class="winner-card"
+                th:classappend="${iterStat.index == 0 ? ' position-1' : iterStat.index == 1 ? ' position-2'  : ' position-3' }">
+                <div class="performer-avatar-wrapper">
+                    <div class="position-number" th:text="${iterStat.index + 1}"></div>
+                    <div class="performer-avatar-blob">
+                        <img src="../static/UserProfile.jpg" alt="">
+                    </div>
+                </div>
+                <div class="winner-username" th:text="${user.username}"></div>
+            </div>
+        </div>
+    </div>
+    <div class="section-divider">Top 7 People</div>
+    <div class="top-performers-grid">
+        <div th:each="user, iterStat : ${users}" th:if="${iterStat.index >= 3 && iterStat.index < 10}"
+            class="performer-card" th:classappend="${(iterStat.index - 3) % 7 == 0 ? ' color-variant-1' :
+                         (iterStat.index - 3) % 7 == 1 ? ' color-variant-2' :
+                         (iterStat.index - 3) % 7 == 2 ? ' color-variant-3' :
+                         (iterStat.index - 3) % 7 == 3 ? ' color-variant-4' :
+                         (iterStat.index - 3) % 7 == 4 ? ' color-variant-5' :
+                         (iterStat.index - 3) % 7 == 5 ? ' color-variant-6' : ' color-variant-7'}">
+            <div class="performer-avatar-wrapper">
+                <div class="performer-avatar-blob">
+                    <img th:src="@{'/users/' + ${user.userId} + '/photo'}" alt="User Photo">
+                </div>
+            </div>
+            <div class="performer-username" th:text="${user.username}"></div>
+        </div>
+    </div>
+    <div class="section-divider">Other Competitors</div>
+    <div class="remaining-section">
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Member</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user, iterStat : ${users}" th:if="${iterStat.index >= 10}">
+                    <td th:text="${iterStat.index + 1}"></td>
+                    <td>
+                        <div class="d-flex flex-column align-items-center">
+                            <img th:src="@{'/users/' + ${user.userId} + '/photo'}" alt="User Photo" />
+                            <span class="username mt-2" th:text="${user.username}"></span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <button id="backToTop" onclick="scrollToTop()">↑</button>
+
+
+    </button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+<script>
+
+    function searchUser1() {
+        const whereami = document.getElementById('whereami').value.trim().toLowerCase();
+        if (!whereami) return;
+        const usernames = document.querySelectorAll(".username, .performer-username, .winner-username");
+        let found = false;
+        usernames.forEach(el => {
+            const usernameText = el.textContent.trim().toLowerCase();
+            el.classList.remove("highlighted");
+            if (usernameText === whereami) {
+                found = true;
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+                el.classList.add("highlighted");
+            }
+            setTimeout(() => el.classList.remove("highlighted"), 5000);
+        });
+        if (!found) {
+            alert("Couldn't find user: " + whereami);
+        }
+    }
+    function searchUser() {
+        const input = document.getElementById("searchInput").value.trim().toLowerCase();
+        if (!input) return;
+        const usernames = document.querySelectorAll(".username, .performer-username, .winner-username");
+        let found = false;
+        usernames.forEach(el => {
+            const usernameText = el.textContent.trim().toLowerCase();
+            el.classList.remove("highlighted");
+            if (usernameText === input) {
+                found = true;
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+                el.classList.add("highlighted");
+            }
+            setTimeout(() => el.classList.remove("highlighted"), 5000);
+        });
+        
+    }
+</script>
+<script>
+    const btn = document.getElementById("backToTop");
+
+    window.addEventListener("scroll", () => {
+        const scrollY = window.scrollY;
+
+        if (scrollY > 100) {
+            btn.style.display = "block";
+            btn.style.opacity = "1";
+        } else {
+            btn.style.opacity = "0";
+            setTimeout(() => btn.style.display = "none", 400);
+        }
+    });
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+</script>
+ 
+
+
+</html>

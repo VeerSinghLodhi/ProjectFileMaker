@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard - HON</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/hotornot.css}">
+  <style>
+
+
+    .main-content {
+        padding: 2rem;
+        min-height: calc(100vh - 76px);
+    }
+
+    /* Search Section */
+    .search-container {
+        max-width: 500px;
+        margin: 0 auto 2rem;
+    }
+
+    .search-input-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .search-input {
+        flex: 1;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 0.875rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        border-color: #F73B20;
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(247, 59, 32, 0.1);
+    }
+
+    .btn-search {
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        border: none;
+        padding: 0.875rem 1.75rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(247, 59, 32, 0.3);
+    }
+
+    /* Leaderboard Hero */
+    .leaderboard-hero {
+        text-align: center;
+        padding: 2rem 1rem 1.5rem;
+    }
+
+    .leaderboard-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, rgba(247, 59, 32, 0.1), rgba(255, 82, 56, 0.1));
+        border: 2px solid #F73B20;
+        color: #F73B20;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+    }
+
+    .leaderboard-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+        letter-spacing: -1px;
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .leaderboard-subtitle {
+        color: #6b7280;
+        font-size: 1rem;
+    }
+
+    /* Top Winners Section */
+    .top-winners-section {
+        padding: 2rem 1rem;
+    }
+
+    .winners-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 2rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .winner-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        position: relative;
+    }
+
+    .winner-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .winner-card.position-1 {
+        order: 2;
+    }
+
+    .winner-card.position-2 {
+        order: 1;
+    }
+
+    .winner-card.position-3 {
+        order: 3;
+    }
+
+    .position-number {
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-weight: 900;
+        font-size: 1.3rem;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+    }
+
+    .position-1 .position-number {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+    }
+
+    .position-2 .position-number {
+        background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+    }
+
+    .position-3 .position-number {
+        background: linear-gradient(135deg, #CD7F32, #B87333);
+    }
+
+    .performer-avatar-wrapper {
+        position: relative;
+        margin-bottom: 15px;
+    }
+
+    .position-1 .performer-avatar-wrapper {
+        width: 180px;
+        height: 180px;
+    }
+
+    .position-2 .performer-avatar-wrapper,
+    .position-3 .performer-avatar-wrapper {
+        width: 150px;
+        height: 150px;
+    }
+
+    .performer-avatar-blob {
+        width: 100%;
+        height: 100%;
+        border-radius: 45% 55% 52% 48% / 48% 50% 50% 52%;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        animation: blobPulse 4s ease-in-out infinite;
+        position: relative;
+    }
+
+    @keyframes blobPulse {
+        0%, 100% {
+            border-radius: 45% 55% 52% 48% / 48% 50% 50% 52%;
+            transform: scale(1);
+        }
+        50% {
+            border-radius: 52% 48% 45% 55% / 55% 45% 55% 45%;
+            transform: scale(1.05);
+        }
+    }
+
+    .position-1 .performer-avatar-blob {
+        box-shadow: 0 0 40px rgba(247, 59, 32, 0.8),
+                    0 0 80px rgba(255, 82, 56, 0.5),
+                    inset 0 0 30px rgba(247, 59, 32, 0.3);
+        border: 4px solid transparent;
+        background: linear-gradient(#fafafa, #fafafa) padding-box,
+                    linear-gradient(135deg, #F73B20, #ff5238, #F73B20) border-box;
+    }
+
+    .position-2 .performer-avatar-blob {
+        box-shadow: 0 0 35px rgba(192, 192, 192, 0.8),
+                    0 0 70px rgba(192, 192, 192, 0.5),
+                    inset 0 0 25px rgba(192, 192, 192, 0.3);
+        border: 3px solid transparent;
+        background: linear-gradient(#fafafa, #fafafa) padding-box,
+                    linear-gradient(135deg, #C0C0C0, #A8A8A8, #C0C0C0) border-box;
+    }
+
+    .position-3 .performer-avatar-blob {
+        box-shadow: 0 0 30px rgba(205, 127, 50, 0.8),
+                    0 0 60px rgba(205, 127, 50, 0.5),
+                    inset 0 0 20px rgba(205, 127, 50, 0.3);
+        border: 3px solid transparent;
+        background: linear-gradient(#fafafa, #fafafa) padding-box,
+                    linear-gradient(135deg, #CD7F32, #B87333, #CD7F32) border-box;
+    }
+
+    .performer-avatar-blob img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .winner-username {
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 10px;
+        transition: all 0.3s;
+    }
+
+    .position-1 .winner-username {
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 1.25rem;
+    }
+
+    .position-2 .winner-username {
+        color: #6b7280;
+    }
+
+    .position-3 .winner-username {
+        color: #6b7280;
+    }
+
+    /* Section Divider */
+    .section-divider {
+        background: white;
+        text-align: center;
+        padding: 1rem;
+        margin: 3rem auto 2rem;
+        max-width: 600px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #1a1a1a;
+        border-radius: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border: 2px solid #F73B20;
+    }
+
+    /* Top Performers Grid */
+    .top-performers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+        padding: 0 1rem;
+    }
+
+    .performer-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        position: relative;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .performer-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 8px 25px rgba(247, 59, 32, 0.2);
+    }
+
+    .performer-card .performer-avatar-wrapper {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 15px;
+    }
+
+    .performer-card .performer-avatar-blob {
+        border-radius: 42% 58% 55% 45% / 50% 45% 55% 50%;
+        box-shadow: 0 0 25px rgba(247, 59, 32, 0.5);
+        animation: performerBlobPulse 5s infinite;
+        border: 3px solid transparent;
+    }
+
+    @keyframes performerBlobPulse {
+        0%, 100% {
+            border-radius: 42% 58% 55% 45% / 50% 45% 55% 50%;
+        }
+        50% {
+            border-radius: 55% 45% 42% 58% / 45% 55% 45% 55%;
+        }
+    }
+
+    .performer-card:hover .performer-avatar-blob {
+        box-shadow: 0 0 40px rgba(247, 59, 32, 0.8);
+        transform: scale(1.1);
+    }
+
+    .color-variant-1 .performer-avatar-blob {
+        background: linear-gradient(#fafafa, #fafafa) padding-box,
+                    linear-gradient(135deg, #F73B20, #ff5238) border-box;
+    }
+
+    .color-variant-2 .performer-avatar-blob {
+        background: linear-gradient(#fafafa, #fafafa) padding-box,
+                    linear-gradient(135deg, #ff5238, #ff6b5a) border-box;
+    }
+
+    .color-variant-3 .performer-avatar-blob {
+        background: linear-gradient(#fafafa, #fafafa) padding-box,
+                    linear-gradient(135deg, #ff6b5a, #ff7d6c) border-box;
+    }
+
+    .color-variant-4 .performer-avatar-blob {
+        background: linear-gradient(#fafafa, #fafafa) padding-box,
+                    linear-gradient(135deg, #ff8f7e, #ffa190) border-box;
+    }
+
+    .color-variant-5 .performer-avatar-blob {
+        background: linear-gradient(#fafafa, #fafafa) padding-box,
+                    linear-gradient(135deg, #F73B20, #ff4d2e) border-box;
+    }
+
+    .color-variant-6 .performer-avatar-blob {
+        background: linear-gradient(#fafafa, #fafafa) padding-box,
+                    linear-gradient(135deg, #ff5f3c, #ff7148) border-box;
+    }
+
+    .color-variant-7 .performer-avatar-blob {
+        background: linear-gradient(#fafafa, #fafafa) padding-box,
+                    linear-gradient(135deg, #F73B20, #ff5238) border-box;
+    }
+
+    .performer-username {
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-align: center;
+        color: #1a1a1a;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 8px;
+    }
+
+    .performer-card:hover .performer-username {
+        color: #F73B20;
+    }
+
+    /* Remaining Section */
+    .remaining-section {
+        padding: 0 1rem;
+        margin-bottom: 3rem;
+    }
+
+    .leaderboard-table {
+        width: 100%;
+        background: white;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .leaderboard-table thead {
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+    }
+
+    .leaderboard-table th {
+        padding: 1.25rem;
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 700;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .leaderboard-table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.3s;
+    }
+
+    .leaderboard-table tbody tr:hover {
+        background: rgba(247, 59, 32, 0.05);
+    }
+
+    .leaderboard-table td {
+        padding: 1.25rem;
+        text-align: center;
+        vertical-align: middle;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .leaderboard-table td:first-child {
+        color: #F73B20;
+        font-size: 1.125rem;
+        font-weight: 900;
+    }
+
+    .leaderboard-table td img {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #F73B20;
+        box-shadow: 0 0 20px rgba(247, 59, 32, 0.3);
+        transition: all 0.3s;
+    }
+
+    .leaderboard-table tbody tr:hover td img {
+        box-shadow: 0 0 30px rgba(247, 59, 32, 0.6);
+        transform: scale(1.1);
+    }
+
+    .username {
+        display: block;
+        margin-top: 0.5rem;
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    /* Back to Top Button */
+    #backToTop {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 50px;
+        height: 50px;
+        display: none;
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        cursor: pointer;
+        opacity: 0;
+        transition: all 0.3s ease;
+        z-index: 999;
+        box-shadow: 0 4px 15px rgba(247, 59, 32, 0.4);
+    }
+
+    #backToTop:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 25px rgba(247, 59, 32, 0.6);
+    }
+
+    /* Highlighted */
+    .highlighted {
+        background: rgba(247, 59, 32, 0.2) !important;
+        border-radius: 0.5rem;
+        padding: 0.25rem 0.5rem !important;
+        animation: highlightPulse 1.5s infinite alternate;
+    }
+
+    @keyframes highlightPulse {
+        0% {
+            box-shadow: 0 0 5px rgba(247, 59, 32, 0.5);
+        }
+        100% {
+            box-shadow: 0 0 20px rgba(247, 59, 32, 0.8);
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .winners-wrapper {
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .winner-card.position-1,
+        .winner-card.position-2,
+        .winner-card.position-3 {
+            order: initial;
+        }
+
+        .position-1 .performer-avatar-wrapper,
+        .position-2 .performer-avatar-wrapper,
+        .position-3 .performer-avatar-wrapper {
+            width: 140px;
+            height: 140px;
+        }
+
+        .top-performers-grid {
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .performer-card .performer-avatar-wrapper {
+            width: 100px;
+            height: 100px;
+        }
+
+        .leaderboard-table td {
+            padding: 1rem;
+        }
+
+        .leaderboard-table td img {
+            width: 50px;
+            height: 50px;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* Add these media query adjustments */
+@media (max-width: 767.98px) {
+    .main-content {
+        padding: 1rem;
+    }
+
+    /* Search Section Mobile Fix */
+    .search-container {
+        max-width: 100%;
+        margin: 0 auto 1.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .search-input-group {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-search {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Leaderboard Hero Mobile */
+    .leaderboard-title {
+        font-size: 1.75rem;
+    }
+
+    .leaderboard-subtitle {
+        font-size: 0.9rem;
+    }
+
+    /* Back to Top Button Mobile Fix */
+    #backToTop {
+        right: 15px;
+        bottom: 80px; /* Adjust this if you have bottom navigation */
+        width: 45px;
+        height: 45px;
+        font-size: 1.25rem;
+    }
+
+    /* Section Divider Mobile */
+    .section-divider {
+        font-size: 1.1rem;
+        padding: 0.75rem;
+        letter-spacing: 1px;
+    }
+
+    /* Winners Mobile */
+    .winners-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .winner-card.position-1,
+    .winner-card.position-2,
+    .winner-card.position-3 {
+        order: initial;
+    }
+
+    .position-1 .performer-avatar-wrapper,
+    .position-2 .performer-avatar-wrapper,
+    .position-3 .performer-avatar-wrapper {
+        width: 140px;
+        height: 140px;
+    }
+
+    .winner-username {
+        font-size: 0.95rem;
+    }
+
+    .position-1 .winner-username {
+        font-size: 1.1rem;
+    }
+
+    /* Top Performers Grid Mobile */
+    .top-performers-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        padding: 0 0.5rem;
+    }
+
+    .performer-card {
+        padding: 1rem;
+    }
+
+    .performer-card .performer-avatar-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+
+    .performer-username {
+        font-size: 0.85rem;
+    }
+
+    /* Table Mobile */
+    .remaining-section {
+        padding: 0 0.5rem;
+    }
+
+    .leaderboard-table th {
+        padding: 1rem 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .leaderboard-table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .leaderboard-table td:first-child {
+        font-size: 1rem;
+    }
+
+    .leaderboard-table td img {
+        width: 50px;
+        height: 50px;
+        border: 2px solid #F73B20;
+    }
+
+    .username {
+        font-size: 0.85rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 575.98px) {
+    .main-content {
+        padding: 0.75rem;
+    }
+
+    .search-container {
+        padding: 0 0.25rem;
+    }
+
+    #backToTop {
+        right: 10px;
+        bottom: 75px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+
+    .leaderboard-title {
+        font-size: 1.5rem;
+    }
+
+    .top-performers-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+  </style>
+</head>
+<body>
+<div class="bg-gradient">
+  <div class="gradient-orb orb-1"></div>
+  <div class="gradient-orb orb-2"></div>
+  <div class="gradient-orb orb-3"></div>
+</div>
+
+<div class="bg-gradient">
+  <span></span>
+</div>
+
+<!-- Desktop Navigation -->
+<th:block th:replace="~{NavFragmentFolder/navbar-desktop :: desktopNav}"></th:block>
+
+<!-- Mobile Bottom Navigation -->
+<div th:insert="~{NavFragmentFolder/navbar-mobile :: mobileNav}"></div>
+
+
+<div class="container-fluid">
+      <main class="main-content">
+        <!-- Search Section -->
+        <div class="search-container">
+          <div class="search-input-group">
+            <input id="searchInput" type="text" class="search-input" placeholder="Search by username...">
+            <button class="btn-search" onclick="searchUser()">
+              <i class="fas fa-search me-2"></i>Search
+            </button>
+          </div>
+        </div>
+
+        <input type="hidden" th:value="${whereami}" id="whereami" />
+
+        <!-- Leaderboard Hero -->
+        <div class="leaderboard-hero">
+          <span class="leaderboard-badge">
+            🏆 Top Rated Members
+          </span>
+          <h1 class="leaderboard-title">
+            Our <span class="gradient-text">Top Stars</span>
+          </h1>
+          <p class="leaderboard-subtitle">
+            Discover the most popular and highly rated members in our community
+          </p>
+        </div>
+
+        <!-- Top 3 Winners -->
+        <div class="top-winners-section">
+          <div class="winners-wrapper">
+            <div th:each="user, iterStat : ${users}" th:if="${iterStat.index < 3}" class="winner-card"
+                 th:classappend="${iterStat.index == 0 ? ' position-1' : iterStat.index == 1 ? ' position-2' : ' position-3'}">
+              <div class="performer-avatar-wrapper">
+                <div class="position-number" th:text="${iterStat.index + 1}"></div>
+                <a th:href="@{'/user/dashboard/' + ${user.userId}}" class="text-decoration-none">
+                  <div class="performer-avatar-blob">
+                    <img th:if="${user.profilePhoto != null}" th:src="@{'/user/' + ${user.userId} + '/photo'}" alt="User Photo">
+                    <img th:if="${user.profilePhoto == null}" src="/noprofilepic.png" alt="User Photo">
+                  </div>
+                </a>
+              </div>
+              <div class="winner-username" th:text="${user.username}"></div>
+              <div class="winner-username" th:text="${user.points}"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Divider -->
+        <div class="section-divider">Top 7 People</div>
+
+        <!-- Top 7 Performers -->
+        <div class="top-performers-grid">
+          <div th:each="user, iterStat : ${users}" th:if="${iterStat.index >= 3 && iterStat.index < 10}"
+               class="performer-card"
+               th:classappend="${(iterStat.index - 3) % 7 == 0 ? ' color-variant-1' :
+                               (iterStat.index - 3) % 7 == 1 ? ' color-variant-2' :
+                               (iterStat.index - 3) % 7 == 2 ? ' color-variant-3' :
+                               (iterStat.index - 3) % 7 == 3 ? ' color-variant-4' :
+                               (iterStat.index - 3) % 7 == 4 ? ' color-variant-5' :
+                               (iterStat.index - 3) % 7 == 5 ? ' color-variant-6' : ' color-variant-7'}">
+            <a th:href="@{'/user/dashboard/' + ${user.userId}}" class="text-decoration-none">
+              <div class="performer-avatar-wrapper">
+                <div class="performer-avatar-blob">
+                  <img th:if="${user.profilePhoto != null}" th:src="@{'/user/' + ${user.userId} + '/photo'}" alt="User Photo">
+                  <img th:if="${user.profilePhoto == null}" src="/noprofilepic.png" alt="User Photo">
+                </div>
+              </div>
+            </a>
+            <div class="performer-username" th:text="${user.username}"></div>
+            <div class="performer-username" th:text="${user.points}"></div>
+          </div>
+        </div>
+
+        <!-- Section Divider -->
+        <div class="section-divider">Other Competitors</div>
+
+        <!-- Remaining Users Table -->
+        <div class="remaining-section">
+          <table class="leaderboard-table">
+            <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Member</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user, iterStat : ${users}" th:if="${iterStat.index >= 10}">
+              <td th:text="${iterStat.index + 1}"></td>
+              <td>
+                <a th:href="@{'/user/dashboard/' + ${user.userId}}" class="text-decoration-none">
+                  <div class="d-flex flex-column align-items-center">
+                    <img th:if="${user.profilePhoto != null}" th:src="@{'/user/' + ${user.userId} + '/photo'}" alt="User Photo">
+                    <img th:if="${user.profilePhoto == null}" src="/noprofilepic.png" alt="User Photo">
+                    <span class="username mt-2" th:text="${user.username}"></span>
+                  </div>
+                </a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Back to Top Button -->
+        <button id="backToTop" onclick="scrollToTop()">
+          <i class="fas fa-arrow-up"></i>
+        </button>
+      </main>
+</div>
+
+<script th:src="@{/js/hotornot.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function searchUser1() {
+    const whereami = document.getElementById('whereami').value.trim().toLowerCase();
+    if (!whereami) return;
+    const usernames = document.querySelectorAll(".username, .performer-username, .winner-username");
+    let found = false;
+    usernames.forEach(el => {
+      const usernameText = el.textContent.trim().toLowerCase();
+      el.classList.remove("highlighted");
+      if (usernameText === whereami) {
+        found = true;
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("highlighted");
+      }
+      setTimeout(() => el.classList.remove("highlighted"), 5000);
+    });
+  }
+
+  function searchUser() {
+    const input = document.getElementById("searchInput").value.trim().toLowerCase();
+    if (!input) {
+      return;
+    }
+    const usernames = document.querySelectorAll(".username, .performer-username, .winner-username");
+    let found = false;
+    usernames.forEach(el => {
+      const usernameText = el.textContent.trim().toLowerCase();
+      el.classList.remove("highlighted");
+      if (usernameText === input) {
+        found = true;
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("highlighted");
+      }
+      setTimeout(() => el.classList.remove("highlighted"), 5000);
+    });
+   /* if (!found) {
+      searchUser1();
+    } */
+  }
+
+  const btn = document.getElementById("backToTop");
+
+  window.addEventListener("scroll", () => {
+    const scrollY = window.scrollY;
+
+    if (scrollY > 100) {
+      btn.style.display = "block";
+      btn.style.opacity = "1";
+    } else {
+      btn.style.opacity = "0";
+      setTimeout(() => btn.style.display = "none", 400);
+    }
+  });
+
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // Allow search on Enter key
+  document.getElementById('searchInput').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+      searchUser();
+    }
+  });
+</script>
+
+<!--<script>-->
+<!--  // Adjust back-to-top button position if mobile navigation exists-->
+<!--function adjustBackToTopPosition() {-->
+<!--    const btn = document.getElementById("backToTop");-->
+<!--    const mobileNav = document.querySelector('.mobile-nav'); // Adjust selector based on your mobile nav class-->
+
+<!--    if (window.innerWidth <= 767.98 && mobileNav) {-->
+<!--        const navHeight = mobileNav.offsetHeight;-->
+<!--        btn.style.bottom = (navHeight + 15) + 'px';-->
+<!--    } else {-->
+<!--        btn.style.bottom = '20px';-->
+<!--    }-->
+<!--}-->
+
+<!--// Call on load and resize-->
+<!--window.addEventListener('load', adjustBackToTopPosition);-->
+<!--window.addEventListener('resize', adjustBackToTopPosition);-->
+<!--</script>-->
+
+</body>
+</html>
+
