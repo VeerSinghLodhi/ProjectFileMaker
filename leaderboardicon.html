@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Sidebar</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #e5e5e5;
+        }
+
+        .sidebar .nav-link {
+            color: #555;
+            font-weight: 500;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+
+        .sidebar .nav-link i {
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar p-3">
+    <ul class="nav flex-column">
+
+        <!-- Dashboard -->
+        <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${currentUri == '/user/dashboard'} ? 'active' : ''"
+               th:href="@{/user/dashboard}">
+                <i class="bi bi-speedometer2 me-2"></i>
+                Dashboard
+            </a>
+        </li>
+
+        <!-- Profile -->
+        <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${currentUri == '/user/update-profile'} ? 'active' : ''"
+               th:href="@{/user/update-profile}">
+                <i class="bi bi-person me-2"></i>
+                My Profile
+            </a>
+        </li>
+
+        <!-- Change Password -->
+        <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${currentUri == '/user/update-password'} ? 'active' : ''"
+               th:href="@{/user/update-password}">
+                <i class="bi bi-key me-2"></i>
+                Change Password
+            </a>
+        </li>
+
+        <!-- Posts -->
+        <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${#strings.startsWith(currentUri, '/user/post')} ? 'active' : ''"
+               th:href="@{/user/post}">
+                <i class="bi bi-file-earmark-post me-2"></i>
+                My Posts
+            </a>
+        </li>
+
+        <!-- Rating -->
+        <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${currentUri == '/user/user-rating'} ? 'active' : ''"
+               th:href="@{/user/user-rating}">
+                <i class="bi bi-star me-2"></i>
+                My Rating
+            </a>
+        </li>
+
+        <!-- Leaderboard -->
+        <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${currentUri == '/user/leaderboard'} ? 'active' : ''"
+               th:href="@{/user/leaderboard}">
+                <i class="bi bi-trophy me-2"></i>
+                Leaderboard
+            </a>
+        </li>
+
+        <!-- Referral -->
+        <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${currentUri == '/user/referral'} ? 'active' : ''"
+               th:href="@{/user/referral}">
+                <i class="bi bi-people me-2"></i>
+                Referral
+            </a>
+        </li>
+
+    </ul>
+</div>
+
+</body>
+</html>
+    
