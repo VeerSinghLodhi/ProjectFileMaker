@@ -1,0 +1,3224 @@
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="_csrf" th:content="${_csrf.token}">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}">
+  <title>Hot or Not - Competition</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/hotornot.css}">
+  <style>
+   /* * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    body {
+        font-family: 'Caveat', cursive;
+        background: #fafafa;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        position: relative;
+    }
+ */
+    .hero-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .gradient-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(100px);
+        opacity: 0.08;
+        animation: float 20s ease-in-out infinite;
+    }
+
+    .orb-1 {
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, #F73B20, transparent);
+        top: -10%;
+        right: -10%;
+        animation-duration: 25s;
+    }
+
+    .orb-2 {
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, #ff5238, transparent);
+        bottom: -15%;
+        left: -10%;
+        animation-duration: 20s;
+        animation-delay: 2s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(50px, -80px) scale(1.1); }
+        66% { transform: translate(-50px, 50px) scale(0.9); }
+    }
+
+    .tab-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        padding: 15px 20px;
+        box-shadow: 0 4px 20px rgba(247, 59, 32, 0.1);
+        border-bottom: 1px solid rgba(247, 59, 32, 0.15);
+    }
+
+    .tab-nav {
+        display: flex;
+        gap: 15px;
+        background: rgba(247, 59, 32, 0.05);
+        border-radius: 50px;
+        padding: 8px;
+        border: 1px solid rgba(247, 59, 32, 0.1);
+    }
+
+    .tab-btn {
+        padding: 12px 35px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        font-family: 'Caveat', cursive;
+        color: rgba(26, 26, 26, 0.6);
+        background: transparent;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .tab-btn.active {
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        box-shadow: 0 4px 20px rgba(247, 59, 32, 0.3);
+    }
+
+    .tab-btn:hover:not(.active) {
+        color: #F73B20;
+        background: rgba(247, 59, 32, 0.1);
+    }
+     .overlay2 {
+            position: fixed;
+            top: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            z-index: 9999;
+            width: 100%;
+            max-width: 400px;
+            padding: 0 15px;
+        }
+
+        .overlay2.show {
+            display: block;
+        }
+
+        .successMessage {
+            background-color: rgb(61, 181, 61);
+            color: white;
+            font-size: 1.1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 1.5rem;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 100%;
+        }
+
+        .text {
+            color: rgb(255, 255, 255);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .text img {
+            height: 28px;
+            width: 28px;
+            flex-shrink: 0;
+        }
+
+    .tab-content {
+        display: none;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .voting-section {
+        height: 100%;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+        background: #ffffff;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .competition-card {
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        height: 100%;
+        width: 100%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .split-container {
+        width: 50%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        position: relative;
+    }
+
+    .competitor-side {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(247, 59, 32, 0.1);
+    }
+
+    .competitor-side:hover {
+        transform: scale(1.01);
+        border-color: rgba(247, 59, 32, 0.3);
+    }
+
+    .competitor-side.selected {
+        z-index: 10;
+        border-color: #F73B20;
+    }
+    /* ===== IMAGE WRAPPER WITH BLUR BACKGROUND ===== */
+.image-wrapper {
+position: relative;
+width: 100%;
+height: 100%;
+overflow: hidden;
+background-size: cover;
+background-position: center;
+}
+
+/* blurred background */
+.image-wrapper::before {
+content: "";
+position: absolute;
+inset: 0;
+background-image: inherit;
+background-size: cover;
+background-position: center;
+filter: blur(30px);
+transform: scale(1.2);
+z-index: 1;
+}
+
+/* main image */
+.competitor-image {
+position: relative;
+z-index: 2;
+width: 100%;
+height: 100%;
+object-fit: contain;
+object-position: center;
+background: transparent; /* black removed */
+}
+
+    /* .competitor-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center center;
+        background: #000;
+    } */
+
+    .competitor-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0);
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+
+    .competitor-side:not(.selected) .competitor-overlay {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .selection-border {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 0px solid #F73B20;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        z-index: 5;
+    }
+
+    .competitor-side.selected .selection-border {
+        border-width: 6px;
+        box-shadow: inset 0 0 40px rgba(247, 59, 32, 0.3);
+    }
+
+    .selection-indicator {
+        position: absolute;
+        top: 12% !important;
+        left: 16%;
+        transform: translateX(-50%) scale(0);
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        box-shadow: 0 10px 30px rgba(247, 59, 32, 0.5);
+        z-index: 20;
+        border: 3px solid white;
+    }
+
+    .competitor-side.selected .selection-indicator {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+
+    .selection-indicator i {
+        color: white;
+        font-size: 3rem;
+    }
+
+    .user-info-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 15px 12px 20px;
+        background: linear-gradient(to top, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.8), transparent);
+        z-index: 15;
+    }
+
+    .user-info-content {
+        background: rgba(247, 59, 32, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(247, 59, 32, 0.2);
+        border-radius: 15px;
+        padding: 12px;
+    }
+
+    .username {
+        color: #1a1a1a;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+        text-align: center;
+    }
+
+    .user-stats {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        color: rgba(26, 26, 26, 0.7);
+        font-size: 1rem;
+    }
+
+    .stat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .stat i {
+        color: #F73B20;
+    }
+
+    .vs-badge-container {
+        position: absolute;
+        top: 50% !important;
+        left: 54% !important;
+        transform: translate(-50%, -50%);
+        z-index: 30;
+        pointer-events: none;
+    }
+
+    .vs-badge {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #F73B20;
+        box-shadow: 0 10px 40px rgba(247, 59, 32, 0.4);
+        animation: pulse 2s infinite;
+        border: 4px solid #F73B20;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+    }
+
+    .apply-section {
+        font-family: 'Poppins', sans-serif;
+        background: #fafafa;
+        height: 100%;
+        padding: 40px 20px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .apply-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .apply-header {
+        text-align: center;
+        margin-bottom: 40px;
+        animation: fadeInDown 0.8s ease;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .apply-header h1 {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #1a1a1a;
+        margin-bottom: 10px;
+    }
+
+    .apply-header .fire {
+        color: #F73B20;
+        font-size: 3rem;
+        display: inline-block;
+        animation: fireFlicker 1.5s infinite;
+    }
+
+    @keyframes fireFlicker {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .apply-header p {
+        font-size: 1.1rem;
+        color: rgba(26, 26, 26, 0.6);
+        font-weight: 500;
+    }
+
+    .contest-frame {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 4px 20px rgba(247, 59, 32, 0.1);
+        animation: fadeInUp 0.8s ease;
+        border: 1px solid rgba(247, 59, 32, 0.15);
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+.contestant {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.contestant-card {
+    width: 250px;
+    height: 350px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+    background: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.contestant {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;  /* ✅ Top se start karo */
+    position: relative;
+    min-height: 450px;  /* ✅ Same height for both sides */
+}
+
+/* Contestant Card - Equal Size */
+.contestant-card {
+    width: 280px;
+    height: 380px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;  /* ✅ Button ke liye space */
+}
+
+.mystery-card {
+    background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mystery-box {
+    text-align: center;
+    color: #000000;
+    padding: 20px;  /* ✅ Consistent padding */
+}
+
+/* VS Container - Center Alignment */
+.vs-container {
+    display: flex;
+    align-items: flex-start;  /* ✅ Top se align karo */
+    justify-content: space-around;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+  .noCompetition {
+            min-height: 100vh;
+            scroll-snap-align: center;
+            scroll-snap-stop: always;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            z-index : 9;
+        }
+
+        .noCompetitionIcon {
+            font-size: 60px;
+            height : 70px;
+            margin-bottom: 15px;
+            z-index : 10;
+        }
+
+        .noCompetition h2 {
+            font-size: 26px;
+            margin-bottom: 10px;
+            color: #333;
+             z-index : 10;
+        }
+
+@media (max-width: 768px) {
+    .contestant {
+        min-height: auto;  /* Mobile par auto height */
+    }
+
+    .contestant-card {
+        width: 220px;
+        height: 300px;
+        margin-bottom: 15px;
+    }
+
+    .vs-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .contestant-card {
+        width: 180px;
+        height: 260px;
+    }
+
+    .upload-btn {
+        font-size: 0.95rem;
+        padding: 12px 25px;
+    }
+}
+/* -----------------------------dfjidjf------------------------- */
+
+.contestant-card:hover {
+    transform: scale(1.05);
+}
+
+.contestant-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.placeholder {
+    color: #999;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.mystery-card {
+    background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mystery-box {
+    text-align: center;
+    color: #F73B20;
+}
+
+.mystery-box i {
+    font-size: 6rem;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+}
+
+.mystery-box p {
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-family: 'Poppins', sans-serif;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+
+.upload-btn i {
+    font-size: 1.2rem;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+    opacity: 1;
+    font-family: 'Poppins', sans-serif;
+}
+
+.submit-btn:enabled {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.submit-btn:enabled:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(247, 59, 32, 0.5);
+}
+
+/* .submit-btn i {
+    margin-right: 10px;
+} */
+
+/* Update existing vs-container */
+.vs-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .vs-container {
+        flex-direction: column;
+    }
+
+    .apply-vs-badge {
+        transform: rotate(90deg);
+        margin: 20px 0;
+    }
+
+    .contestant-card {
+        width: 200px;
+        height: 280px;
+    }
+
+    .mystery-box i {
+        font-size: 4rem;
+    }
+
+    .mystery-box p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .contestant-card {
+        width: 180px;
+        height: 250px;
+    }
+
+    .upload-btn {
+        font-size: 0.9rem;
+        padding: 10px 20px;
+    }
+}
+
+    .vs-container {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 30px;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .contestant {
+        position: relative;
+        transition: all 0.4s ease;
+    }
+
+    .contestant:hover {
+        transform: scale(1.05);
+    }
+
+    .contestant-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(247, 59, 32, 0.15);
+        transition: all 0.4s ease;
+        border: 2px solid rgba(247, 59, 32, 0.1);
+    }
+
+    .contestant:hover .contestant-card {
+        box-shadow: 0 12px 40px rgba(247, 59, 32, 0.25);
+        border-color: rgba(247, 59, 32, 0.3);
+    }
+
+    .contestant img {
+        width: 100%;
+        height: 320px;
+        object-fit: contain;
+        object-position: center center;
+        display: block;
+        transition: transform 0.4s ease;
+        background: #f5f5f5;
+    }
+
+    .contestant:hover img {
+        transform: scale(1.05);
+    }
+
+    .apply-vs-badge {
+        width: 70px;
+        height: 70px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: #F73B20;
+        box-shadow: 0 0 40px rgba(247, 59, 32, 0.3);
+        animation: pulsered 2s infinite;
+        border: 4px solid #F73B20;
+    }
+
+    @keyframes pulsered {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 40px rgba(247, 59, 32, 0.3);
+        }
+        50% {
+            transform: scale(1.15);
+            box-shadow: 0 0 60px rgba(247, 59, 32, 0.5);
+        }
+    }
+
+    .apply-btn {
+        display: block;
+        width: 100%;
+        max-width: 320px;
+        margin: 0 auto;
+        padding: 18px 40px;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: white;
+        background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(247, 59, 32, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .apply-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(247, 59, 32, 0.5);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow-y: auto;
+        backdrop-filter: blur(5px);
+    }
+
+    .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .modal-content {
+        background: white;
+        padding: 45px;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 520px;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        animation: slideIn 0.4s ease;
+        border: 2px solid rgba(247, 59, 32, 0.15);
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: #f5f5f5;
+        border: 2px solid rgba(247, 59, 32, 0.2);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.6rem;
+        color: #F73B20;
+        transition: all 0.3s ease;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .close-btn:hover {
+        background: #F73B20;
+        color: white;
+        border-color: #F73B20;
+        transform: rotate(90deg);
+    }
+
+    .modal-content h2 {
+        color: #1a1a1a;
+        text-align: center;
+        margin-bottom: 35px;
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        color: #1a1a1a;
+        font-size: 1.05rem;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .file-upload {
+        border: 3px dashed rgba(247, 59, 32, 0.3);
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #fafafa;
+    }
+
+    .file-upload:hover {
+        border-color: #F73B20;
+        background: rgba(247, 59, 32, 0.05);
+        transform: translateY(-2px);
+    }
+
+    .file-upload input {
+        display: none;
+    }
+
+    .file-upload-text {
+        color: rgba(26, 26, 26, 0.6);
+        font-size: 1.05rem;
+        font-weight: 600;
+    }
+
+    .crop-container {
+        background: #f5f5f5;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid rgba(247, 59, 32, 0.2);
+        cursor: move;
+    }
+
+    #cropCanvas {
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+    }
+
+    .crop-controls {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(247, 59, 32, 0.05);
+        border-radius: 12px;
+    }
+
+    #zoomSlider {
+        flex: 1;
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(247, 59, 32, 0.2);
+        outline: none;
+        -webkit-appearance: none;
+    }
+
+    #zoomSlider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #F73B20;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(247, 59, 32, 0.3);
+    }
+
+    #zoomSlider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #F73B20;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 8px rgba(247, 59, 32, 0.3);
+    }
+
+    .control-btn {
+        background: white;
+        border: 2px solid rgba(247, 59, 32, 0.2);
+        color: #F73B20;
+        padding: 10px 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .control-btn:hover {
+        background: #F73B20;
+        color: white;
+        border-color: #F73B20;
+        transform: translateY(-2px);
+    }
+
+    .crop-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+    }
+
+    .secondary-btn {
+        flex: 1;
+        padding: 14px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #F73B20;
+        background: white;
+        border: 2px solid #F73B20;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .secondary-btn:hover {
+        background: rgba(247, 59, 32, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .crop-actions .submit-btn {
+        flex: 2;
+        margin-top: 0;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(247, 59, 32, 0.5);
+    }
+
+    .result-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .result-popup.show {
+        display: flex;
+    }
+
+    .result-content {
+        background: white;
+        padding: 50px;
+        border-radius: 30px;
+        text-align: center;
+        max-width: 400px;
+        border: 3px solid rgba(247, 59, 32, 0.3);
+        box-shadow: 0 20px 60px rgba(247, 59, 32, 0.3);
+        animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        font-family: 'Caveat', cursive;
+    }
+
+    @keyframes popIn {
+        from { transform: scale(0.7) rotate(-5deg); opacity: 0; }
+        to { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .result-icon {
+        font-size: 5rem;
+        margin-bottom: 20px;
+        animation: bounce 1s ease infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .result-title {
+        font-size: 2.5rem;
+        color: #F73B20;
+        font-weight: 900;
+        margin-bottom: 15px;
+    }
+
+    .result-message {
+        font-size: 1.4rem;
+        color: rgba(26, 26, 26, 0.7);
+        margin-bottom: 30px;
+    }
+
+    .result-message strong {
+        color: #F73B20;
+        font-size: 1.6rem;
+    }
+
+    .next-btn {
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        border: none;
+        padding: 18px 50px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(247, 59, 32, 0.3);
+        font-family: 'Caveat', cursive;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .next-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(247, 59, 32, 0.5);
+    }
+
+      .msg-box {
+        padding: 12px 20px;
+        margin: 12px auto;
+        max-width: 400px;
+        text-align: center;
+        border-radius: 6px;
+        font-weight: 600;
+        z-index: 9999;
+    }
+
+    .msg-box.success {
+        background: #ecfdf5;
+        color: #065f46;
+    }
+
+    .msg-box.error {
+        background: #fef2f2;
+        color: #991b1b;
+    }
+
+
+    @media (max-width: 768px) {
+          .overlay2 {
+                max-width: 350px;
+            }
+
+            .successMessage {
+                font-size: 1rem;
+                padding: 0.9rem 1.2rem;
+            }
+
+            .text {
+                font-size: 1rem;
+            }
+
+            .text img {
+                height: 26px;
+                width: 26px;
+            }
+
+        .split-container {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr 1fr;
+            width : 80% !important;
+        }
+
+        .competitor-side {
+            min-height: 50vh;
+        }
+
+        .competitor-image {
+            object-position: center center;
+        }
+
+        .vs-badge {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            border: 3px solid #F73B20;
+        }
+
+        .username {
+            font-size: 1.2rem;
+        }
+
+        .user-info-container {
+            padding: 12px 8px 15px;
+        }
+
+        .user-stats {
+            font-size: 0.9rem;
+            gap: 10px;
+        }
+
+        .tab-container {
+            padding: 12px 15px;
+        }
+
+        .tab-nav {
+            gap: 10px;
+            padding: 6px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            gap: 5px;
+        }
+
+        .apply-section {
+            padding: 30px 15px;
+        }
+
+        .vs-container {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .apply-vs-badge {
+            margin: 0 auto;
+            width: 70px;
+            height: 70px;
+            font-size: 1.8rem;
+        }
+
+        .apply-header h1 {
+            font-size: 2rem;
+        }
+
+        .apply-header p {
+            font-size: 1rem;
+        }
+
+        .apply-header .fire {
+            font-size: 2.5rem;
+        }
+
+        .contestant img {
+            height: 280px;
+            object-position: center center;
+        }
+
+        .contest-frame {
+            padding: 30px 20px;
+        }
+
+        .apply-btn {
+            font-size: 1.2rem;
+            padding: 15px 35px;
+            max-width: 100%;
+        }
+
+        .modal-content {
+            padding: 30px 20px;
+            margin: 10px;
+        }
+
+        .modal-content h2 {
+            font-size: 1.7rem;
+            margin-bottom: 25px;
+        }
+
+        .crop-container {
+            height: 300px;
+        }
+
+        .crop-controls {
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .control-btn {
+            font-size: 1rem;
+            padding: 8px 12px;
+        }
+
+        .result-content {
+            padding: 40px 30px;
+            max-width: 90%;
+            margin: 20px;
+        }
+
+        .result-icon {
+            font-size: 4rem;
+        }
+
+        .result-title {
+            font-size: 2rem;
+        }
+
+        .result-message {
+            font-size: 1.2rem;
+        }
+
+        .result-message strong {
+            font-size: 1.4rem;
+        }
+
+        .next-btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+        }
+
+        .selection-indicator {
+            width: 60px;
+            height: 60px;
+            top: 80px;
+        }
+
+        .selection-indicator i {
+            font-size: 2.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .tab-btn {
+            padding: 8px 15px;
+            font-size: 1rem;
+        }
+
+        .apply-header h1 {
+            font-size: 1.7rem;
+        }
+
+      .apply-header .fire {
+            font-size: 2rem;
+        }
+
+        .contestant img {
+            height: 220px;
+            object-position: center 20%;
+        }
+
+        .apply-btn {
+            font-size: 1.1rem;
+            padding: 14px 30px;
+        }
+
+        .crop-container {
+            height: 250px;
+        }
+
+        .selection-indicator {
+            width: 50px;
+            height: 50px;
+            top: 60px;
+        }
+
+        .selection-indicator i {
+            font-size: 2rem;
+        }
+
+        .modal-content h2 {
+            font-size: 1.5rem;
+        }
+
+        .file-upload {
+            padding: 30px 20px;
+        }
+
+        .crop-actions {
+            flex-direction: column;
+        }
+
+        .crop-actions .submit-btn {
+            flex: 1;
+        }
+    }
+       @media (max-width: 400px) {
+            .overlay2 {
+                max-width: 280px;
+            }
+
+            .successMessage {
+                font-size: 0.9rem;
+                padding: 0.75rem 0.9rem;
+            }
+
+            .text {
+                font-size: 0.9rem;
+            }
+
+            .text img {
+                height: 22px;
+                width: 22px;
+            }
+        }
+
+        /* ===== SUBMIT BUTTON FULL WIDTH FIX ===== */
+/*.submit-btn {
+    width: 100% !important;  
+    max-width: none !important;  
+    padding: 18px;
+    background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 30px;
+    opacity: 0.5;
+    pointer-events: none;
+    font-family: 'Poppins', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 6px 20px rgba(247, 59, 32, 0.3);
+}
+
+
+.submit-btn i {
+    margin-right: 10px;
+    font-size: 1.3rem;
+}
+*/
+
+/* Contestant Card Sizing */
+.contestant-card {
+    width: 280px;  /* ✅ Slightly bigger */
+    height: 380px;  /* ✅ Taller cards */
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Mystery Box Improvements */
+.mystery-box i {
+    font-size: 7rem;  /* ✅ Bigger question mark */
+    margin-bottom: 25px;
+    animation: pulse 2s infinite;
+}
+
+.mystery-box p {
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-family: 'Poppins', sans-serif;
+}
+/* VS Badge Enhancement */
+.apply-vs-badge {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #F73B20;
+    box-shadow: 0 0 40px rgba(247, 59, 32, 0.4);
+    animation: pulsered 2s infinite;
+    border: 5px solid #F73B20;
+    flex-shrink: 0;
+}
+
+.upload-btn {
+    margin-top: 0px;
+    padding: 14px 35px;
+    background: linear-gradient(135deg, #F73B20, #ff5238);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 4px 15px rgba(247, 59, 32, 0.3);
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(247, 59, 32, 0.5);
+}
+@media (max-width: 768px) {
+    .contestant-card {
+        width: 220px;
+        height: 300px;
+    }
+
+    .mystery-box i {
+        font-size: 5rem;
+    }
+
+    .mystery-box p {
+        font-size: 1.1rem;
+        letter-spacing: 2px;
+    }
+
+    .submit-btn {
+        font-size: 1.1rem;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contestant-card {
+        width: 180px;
+        height: 260px;
+    }
+
+    .mystery-box i {
+        font-size: 4rem;
+    }
+
+    .mystery-box p {
+        font-size: 0.9rem;
+    }
+
+    .upload-btn {
+        font-size: 0.95rem;
+        padding: 12px 25px;
+    }
+
+    .submit-btn {
+        font-size: 1rem;
+        padding: 14px;
+    }
+}
+
+        /* ===== STATUS PANEL STYLES ===== */
+.status-icon-wrapper {
+    position: relative;
+}
+
+.status-icon-btn {
+    width: 50px;
+    height: 50px;
+    background: rgba(247, 59, 32, 0.1);
+    border: 2px solid rgba(247, 59, 32, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.status-icon-btn:hover {
+    background: rgba(247, 59, 32, 0.2);
+    border-color: #F73B20;
+    transform: scale(1.1);
+}
+
+.status-icon-btn i {
+    font-size: 1.5rem;
+    color: #F73B20;
+}
+
+.status-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: linear-gradient(135deg, #F73B20, #ff5238);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(247, 59, 32, 0.4);
+}
+
+.status-panel {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 420px;
+    max-height: 80vh;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(247, 59, 32, 0.15);
+    overflow: hidden;
+    transform: translateY(-20px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 200;
+    font-family: 'Poppins', sans-serif;
+}
+
+.status-panel.active {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.status-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #F73B20, #ff5238);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-header h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.total-votes-count {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.status-content {
+    overflow-y: auto;
+    max-height: calc(80vh - 70px);
+    padding: 15px;
+}
+
+.status-section {
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.section-title.pending-section {
+    color: #f57c00;
+}
+
+.section-title.active-section {
+    color: #2e7d32;
+}
+
+.vote-item {
+    background: #fafafa;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.vote-item:hover {
+    background: #f5f5f5;
+    transform: translateX(5px);
+}
+
+.vote-item.pending {
+    border-left-color: #ffa500;
+    background: #fff3e0;
+}
+
+.vote-item.active {
+    border-left-color: #00cc00;
+    background: #e8f5e9;
+}
+
+.vote-item-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.vote-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 2px solid rgba(247, 59, 32, 0.2);
+}
+
+.vote-info {
+    flex: 1;
+}
+
+.vote-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+}
+
+.vote-meta {
+    font-size: 0.85rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vote-stats {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.vote-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.vote-stat i {
+    color: #F73B20;
+}
+
+.empty-status {
+    text-align: center;
+    padding: 30px 20px;
+    color: #999;
+}
+
+.empty-status i {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #ddd;
+}
+
+.empty-status p {
+    font-size: 0.95rem;
+}
+
+/* Mobile responsive for status panel */
+@media (max-width: 768px) {
+    .status-panel {
+        width: calc(100vw - 40px);
+        right: 20px;
+    }
+
+    .vote-item-header {
+        flex-direction: row;
+    }
+
+    .vote-image {
+        width: 60px;
+        height: 60px;
+    }
+}
+.tab-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    z-index: 100;
+    display: flex;
+    justify-content: center;  /* ✅ Center me rakha */
+    align-items: center;
+    padding: 15px 20px;
+    box-shadow: 0 4px 20px rgba(247, 59, 32, 0.1);
+    border-bottom: 1px solid rgba(247, 59, 32, 0.15);
+    position: relative; /* ✅ Important for absolute positioning */
+}
+
+.status-icon-wrapper {
+    position: absolute; /* ✅ Changed from relative */
+    right: 20px; /* ✅ Right side me fixed */
+    top: 50%;
+    transform: translateY(-50%); /* ✅ Vertically center */
+}
+@media (max-width: 768px) {
+    .tab-container {
+        padding: 12px 15px;
+        justify-content: center; /* Center me hi rakho */
+    }
+
+    .status-icon-wrapper {
+        right: 15px; /* Mobile me right side se thoda andar */
+    }
+
+    .status-icon-btn {
+        width: 45px;
+        height: 45px;
+    }
+
+    .status-icon-btn i {
+        font-size: 1.3rem;
+    }
+
+    .status-badge {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+        top: -6px;
+        right: -6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tab-btn {
+        padding: 8px 15px;
+        font-size: 1rem;
+    }
+}
+
+        /* Result Modal Styles */
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .result-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .result-modal-content {
+            background: white;
+            border-radius: 30px;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s ease;
+            overflow: hidden;
+            margin: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .result-modal-header {
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .result-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.8rem;
+            color: white;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .result-close-btn:hover {
+            background: white;
+            color: #F73B20;
+            transform: rotate(90deg);
+        }
+
+        .result-modal-header h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .result-modal-header .trophy-icon {
+            font-size: 2.5rem;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .result-modal-header p {
+            margin: 0;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .result-modal-body {
+            padding: 40px 30px;
+        }
+
+        .result-comparison {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .result-player {
+            flex: 1;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .result-player:hover {
+            transform: scale(1.05);
+        }
+
+        .result-player.winner {
+            position: relative;
+        }
+
+        .winner-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            animation: pulse 2s infinite;
+            white-space: nowrap;
+            z-index : 9;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+        }
+
+        .result-avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .result-avatar {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #f0f0f0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .result-player.winner .result-avatar {
+            border-color: #FFD700;
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .result-player.loser .result-avatar {
+            border-color: #e0e0e0;
+            filter: grayscale(20%);
+            opacity: 0.9;
+        }
+
+        .result-username {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            word-break: break-word;
+        }
+
+        .result-votes {
+            background: rgba(247, 59, 32, 0.1);
+            padding: 15px 25px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #F73B20;
+        }
+
+        .result-player.winner .result-votes {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
+            color: #ff8c00;
+        }
+
+        .result-votes i {
+            font-size: 1.4rem;
+        }
+
+        .result-vs-divider {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #F73B20;
+            border: 5px solid rgba(247, 59, 32, 0.2);
+            box-shadow: 0 8px 25px rgba(247, 59, 32, 0.2);
+            flex-shrink: 0;
+        }
+
+        .result-stats-section {
+            background: #fafafa;
+            padding: 25px;
+            border-radius: 20px;
+            margin-top: 20px;
+        }
+
+        .result-stats-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .result-stats-grid {
+            display: grid;
+            grid-template-columns:repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .result-stat-item {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid rgba(247, 59, 32, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .result-stat-item:hover {
+            border-color: rgba(247, 59, 32, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(247, 59, 32, 0.1);
+        }
+
+        .result-stat-icon {
+            font-size: 2rem;
+            color: #F73B20;
+            margin-bottom: 10px;
+        }
+
+        .result-stat-value {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+
+        .result-stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        /* Demo Button Styles */
+        .demo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .view-result-btn {
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            color: white;
+            border: none;
+            padding: 8px 7px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(247, 59, 32, 0.4);
+            font-family: 'Poppins', sans-serif;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .view-result-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(247, 59, 32, 0.6);
+        }
+
+
+        /* ========== RESPONSIVE DESIGN ========== */
+
+        /* Large Tablets */
+        @media screen and (max-width: 992px) {
+            .result-modal-content {
+                max-width: 700px;
+            }
+
+            .result-avatar {
+                width: 150px;
+                height: 150px;
+            }
+
+            .result-vs-divider {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Tablets & Small Laptops */
+        @media screen and (max-width: 768px) {
+
+             .vs-badge-container {
+                position: absolute;
+                top: 55% !important;
+                left: 56% !important;
+                transform: translate(-50%, -50%);
+                z-index: 30;
+                pointer-events: none;
+            }
+
+            .result-modal {
+                padding: 15px;
+            }
+
+            .result-modal-content {
+                border-radius: 20px;
+                max-width: 100%;
+            }
+
+            .result-modal-header {
+                padding: 20px 15px;
+            }
+
+            .result-modal-header h2 {
+                font-size: 1.5rem;
+                gap: 10px;
+            }
+
+            .result-modal-header .trophy-icon {
+                font-size: 2rem;
+            }
+
+            .result-close-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+                top: 10px;
+                right: 10px;
+            }
+
+            .result-modal-body {
+                padding: 25px 15px;
+            }
+
+            /* IMPORTANT: Switch to vertical layout */
+            .result-comparison {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .result-vs-divider {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+                border-width: 4px;
+            }
+
+            .result-avatar {
+                width: 130px;
+                height: 130px;
+                border-width: 4px;
+            }
+
+            .result-username {
+                font-size: 1.3rem;
+                margin-bottom: 12px;
+            }
+
+            .result-votes {
+                font-size: 1rem;
+                padding: 12px 20px;
+            }
+
+            .winner-badge {
+                font-size: 0.85rem;
+                padding: 6px 15px;
+                z-index : 9;
+            }
+
+            .result-stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .result-stat-item {
+                padding: 15px;
+            }
+        }
+
+        /* Mobile Phones */
+        @media screen and (max-width: 576px) {
+            .result-modal {
+                padding: 10px;
+            }
+
+            .result-modal-content {
+                border-radius: 15px;
+            }
+
+            .result-modal-header {
+                padding: 15px 10px;
+            }
+
+            .result-modal-header h2 {
+                font-size: 1.2rem;
+                gap: 8px;
+            }
+
+            .result-modal-header .trophy-icon {
+                font-size: 1.6rem;
+            }
+
+            .result-modal-header p {
+                font-size: 0.85rem;
+            }
+
+            .result-close-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 1.3rem;
+                top: 8px;
+                right: 8px;
+            }
+
+            .result-modal-body {
+                padding: 20px 12px;
+            }
+
+            .result-comparison {
+                gap: 18px;
+            }
+
+            .result-vs-divider {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+                border-width: 3px;
+            }
+
+            .result-avatar {
+                width: 110px;
+                height: 110px;
+                border-width: 3px;
+            }
+
+            .result-username {
+                font-size: 1.1rem;
+                margin-bottom: 10px;
+            }
+
+            .result-votes {
+                font-size: 0.9rem;
+                padding: 10px 16px;
+            }
+
+            .result-votes i {
+                font-size: 1rem;
+            }
+
+            .winner-badge {
+                font-size: 0.75rem;
+                padding: 5px 12px;
+                top: -12px;
+            }
+
+            .result-stats-section {
+                padding: 18px 12px;
+                border-radius: 15px;
+            }
+
+            .result-stats-title {
+                font-size: 1rem;
+                margin-bottom: 15px;
+            }
+
+            .result-stat-item {
+                padding: 12px;
+            }
+
+            .result-stat-icon {
+                font-size: 1.5rem;
+                margin-bottom: 8px;
+            }
+
+            .result-stat-value {
+                font-size: 1.4rem;
+            }
+
+            .result-stat-label {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Small Mobile Phones */
+        @media screen and (max-width: 400px) {
+            .result-modal {
+                padding: 8px;
+            }
+
+            .result-modal-header h2 {
+                font-size: 1.1rem;
+            }
+
+            .result-modal-header .trophy-icon {
+                font-size: 1.4rem;
+            }
+
+            .result-avatar {
+                width: 100px;
+                height: 100px;
+            }
+
+            .result-username {
+                font-size: 1rem;
+            }
+
+            .result-votes {
+                font-size: 0.85rem;
+                padding: 8px 14px;
+            }
+
+            .result-vs-divider {
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
+            }
+
+            .result-stat-value {
+                font-size: 1.3rem;
+            }
+
+            .result-stat-icon {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Extra Small Devices */
+        @media screen and (max-width: 360px) {
+            .result-modal-header {
+                padding: 12px 8px;
+            }
+
+            .result-modal-body {
+                padding: 15px 10px;
+            }
+
+            .result-avatar {
+                width: 90px;
+                height: 90px;
+            }
+
+            .result-username {
+                font-size: 0.95rem;
+            }
+
+            .winner-badge {
+                font-size: 0.7rem;
+                padding: 4px 10px;
+            }
+        }
+  </style>
+</head>
+<html>
+
+<div class="bg-gradient">
+  <span></span>
+</div>
+
+<!-- Desktop Navigation -->
+<th:block th:replace="~{NavFragmentFolder/navbar-desktop :: desktopNav}"></th:block>
+
+<!-- Mobile Bottom Navigation -->
+<div th:insert="~{NavFragmentFolder/navbar-mobile :: mobileNav}"></div>
+
+
+
+
+<div th:if="${successMsg}" class="alert alert-success" style="z-index:1000;">
+  <div class="overlay2 show" id="Overlaysuccess1">
+    <div class="successMessage" id="success">
+      <p class="text" >
+        Your picture Sended for contest
+      </p>
+    </div>
+  </div>
+</div>
+<script th:if="${successMsg}">
+  let ele1 =document.getElementById('Overlaysuccess1');
+  setTimeout( () => {
+  ele.classList.remove('show');
+  },2000)
+</script>
+
+<!--Error Message-->
+<div th:if="${errorMsg}" class="alert alert-warning" style="z-index:1000;">
+  <div class="overlay2 show" id="Overlayerror2">
+    <div class="successMessage" id="Error" style="background-color: #a33928;">
+      <p class="text" id="text1">
+        Your have already applied for Contest
+      </p>
+    </div>
+  </div>
+</div>
+<script th:if="${errorMsg}">
+  let ele2 =document.getElementById('Overlayerror2');
+  setTimeout( () => {
+   ele.classList.remove('show');
+  },2000)
+</script>
+
+<!--No Picture -->
+
+<div th:if="${NoPicture}" class="alert alert-warning" style="z-index:1000;">
+  <div class="overlay2 show" id="Overlayerror3">
+    <div class="successMessage" id="Error1" style="background-color: #a33928;">
+      <p class="text" id="text2">
+        Please Select Picture First .
+      </p>
+    </div>
+  </div>
+</div>
+<script th:if="${errorMsg}">
+  let ele =document.getElementById('Overlayerror3');
+setTimeout( () => {
+ ele.classList.remove('show');
+},2000)
+</script>
+
+<div class="overlay2" id="Overlay2">
+  <div class="successMessage" id="SuccessMessage">
+    <p class="text" id="text">
+    </p>
+  </div>
+</div>
+
+<div class="hero-bg">
+  <div class="gradient-orb orb-1"></div>
+  <div class="gradient-orb orb-2"></div>
+</div>
+
+<div class="tab-container">
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('voting')">
+      <i class="bi bi-fire"></i> Vote
+    </button>
+    <button class="tab-btn" onclick="switchTab('apply')">
+      <i class="bi bi-camera-fill"></i> Apply
+    </button>
+  </div>
+
+  <!-- STATUS ICON & PANEL -->
+  <div class="status-icon-wrapper">
+
+<!--    <button type="button" class="info-icon-btn" id="showInstructionsBtn" aria-label="Show instructions">-->
+<!--      <i class="bi bi-question-circle-fill"></i>-->
+<!--    </button>-->
+
+    <div class="status-icon-btn" onclick="toggleStatus()">
+      <i class="bi bi-clipboard-check-fill"></i>
+    </div>
+
+    <div class="status-panel" id="statusPanel">
+      <div class="status-header">
+        <h3><i class="bi bi-clipboard-check"></i> My Status</h3>
+      </div>
+
+      <div class="status-content">
+        <!-- Pending Votes Section -->
+        <div class="status-section" th:if="${Status != null and Status.status == 'Pending'}">
+          <div class="section-title pending-section" th:text="${Status.status}">
+            <i class="bi bi-clock-history"></i>
+            <span th:text="'Pending'"></span>)
+          </div>
+
+          <div class="vote-item pending" >
+            <div class="vote-item-header">
+              <img th:src="${user_master.profilePhoto != null ? '/user/profile-pic' : '/noprofilepic.png'}" alt="Vote" class="vote-image">
+              <div class="vote-info">
+                <div class="vote-title" th:text="${user_master.username}"></div>
+                <div class="vote-meta">
+                  <i class="bi bi-calendar3"></i>
+                  <span th:text="${#temporals.format(Status.Date, 'dd-MM-yyyy HH:mm')}"></span>
+                </div>
+              </div>
+            </div>
+            <div class="vote-stats">
+              <div class="vote-stat">
+                <i class="bi bi-hourglass-split"></i>
+                <span>Under Review</span>
+              </div>
+              <div class="vote-stat">
+                <i class="bi bi-clock"></i>
+                <span>Waiting for opponent</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Votes Section -->
+        <div class="status-section" th:if="${Status != null and Status.status == 'Active'}">
+          <div class="section-title active-section">
+            <i class="bi bi-check-circle-fill"></i>
+            Active
+          </div>
+
+          <div class="vote-item active" >
+            <div class="vote-item-header">
+              <img th:src="${user_master.profilePhoto != null ? '/user/profile-pic' : '/noprofilepic.png'}" alt="Vote" class="vote-image">
+              <div class="vote-info">
+                <div class="vote-title" th:text="${user_master.username}"></div>
+                <div class="vote-meta">
+                  <i class="bi bi-calendar3"></i>
+                  <span th:text="${#temporals.format(Status.Date, 'dd-MM-yyyy HH:mm')}"></span>
+                </div>
+              </div>
+            </div>
+            <div class="vote-stats">
+              <div class="vote-stat">
+                <i class="bi bi-fire"></i>
+                <span>Live Now!</span>
+              </div>
+              <div class="vote-stat" th:if="${Status.vote != null}">
+                <i class="bi bi-people-fill"></i>
+                <span th:text="${Status.vote} + ' votes'"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Empty State -->
+        <div class="empty-status" th:if="${Status == null}">
+          <i class="bi bi-inbox"></i>
+          <p>You not Applied Yet !</p>
+        </div>
+
+      <div class="status-section" th:if="${statusCompleteList != null}">
+
+        <div class="section-title active-section">
+          <i class="bi bi-check-circle-fill"></i>
+          Completed (<span th:text="${statusCompleteList.size}"></span>)
+        </div>
+
+        <div class="vote-item active" th:each="statusList : ${statusCompleteList}">
+          <div class="vote-item-header" >
+            <img th:src="${user_master.profilePhoto != null ? '/user/profile-pic' : '/noprofilepic.png'}" alt="Vote" class="vote-image">
+            <div class="vote-info">
+              <div class="vote-title" th:text="${user_master.username}"></div>
+              <div class="vote-meta">
+                <i class="bi bi-calendar3"></i>
+                <span th:text="${#temporals.format(statusList.userid1.Date, 'dd-MM-yyyy HH:mm')}"></span>
+              </div>
+            </div>
+          </div>
+          <div class="vote-stats">
+            <div class="vote-stat">
+              <i class="bi bi-fire"></i>
+              <span>Completed Competition</span>
+            </div>
+            <div class="vote-stat ">
+                <button class="view-result-btn" th:onclick="'openResultModal('+${statusList.id}+')'">
+                  View Result
+                </button>
+              </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Complete Model-->
+<div class="result-modal" id="resultModal">
+  <div class="result-modal-content">
+    <div class="result-modal-header">
+      <button class="result-close-btn" onclick="closeResultModal()">×</button>
+      <h2>
+        <i class="bi bi-trophy-fill trophy-icon"></i>
+        <span id="heading">Competition Result</span>
+      </h2>
+      <p id="competitionDate"></p>
+    </div>
+
+    <div class="result-modal-body">
+      <!-- Player Comparison -->
+      <div class="result-comparison">
+        <!-- Winner -->
+        <div class="result-player winner" id="player1">
+          <div class="winner-badge">
+            <i class="bi bi-trophy-fill"></i> Winner
+          </div>
+          <div class="result-avatar-container">
+            <img src="" alt="Winner" class="result-avatar" id="player1Avatar">
+          </div>
+          <div class="result-username" id="player1Name">Sarah Johnson</div>
+          <div class="result-votes">
+            <i class="bi bi-fire"></i>
+            <span id="player1Votes">1,250</span> votes
+          </div>
+        </div>
+
+        <!-- VS Divider -->
+        <div class="result-vs-divider">VS</div>
+
+        <!-- Loser -->
+        <div class="result-player loser" id="player2">
+          <div class="result-avatar-container">
+            <img src="" alt="Opponent" class="result-avatar" id="player2Avatar">
+          </div>
+          <div class="result-username" id="player2Name">Michael Chen</div>
+          <div class="result-votes">
+            <i class="bi bi-fire"></i>
+            <span id="player2Votes">890</span> votes
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics Section -->
+      <div class="result-stats-section">
+        <div class="result-stats-title">
+          <i class="bi bi-graph-up-arrow"></i>
+          Competition Statistics
+        </div>
+        <div class="result-stats-grid">
+          <div class="result-stat-item">
+            <div class="result-stat-icon">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="result-stat-value" id="totalVotes">2,140</div>
+            <div class="result-stat-label">Total Votes</div>
+          </div>
+          <div class="result-stat-item">
+            <div class="result-stat-icon">
+              <i class="bi bi-percent"></i>
+            </div>
+            <div class="result-stat-value" id="winPercentage">58.4%</div>
+            <div class="result-stat-label">Win Rate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="tab-content active" id="voting">
+  <div class="voting-section">
+    <div th:if="${UsersList.isEmpty()}" class="noCompetition">
+      <div>
+        <img src="/temphonlogo2.png" class="noCompetitionIcon" alt="No Competition">
+      </div>
+      <h2>No Competition Yet</h2>
+    </div>
+    <div class="competition-card" th:each="users, iterStat : ${UsersList}" th:attr="data-card=${iterStat.index + 1}">
+      <input type="hidden" id="VotedBy" th:value="${user_master.userId}">
+      <input type="hidden" id="VotedTo" th:value="${users.id}">
+      <div class="split-container">
+        <div class="competitor-side" id="comp1-left" onclick="selectCompetitor('left', 1)" th:attr="data-id=${users.userid1.id}">
+          <div class="image-wrapper">
+            <img th:src="@{/getImage/{id}(id=${users.userid1.id})}" id="image1" alt="Competitor" class="competitor-image">
+          </div>
+          <div class="competitor-overlay"></div>
+          <div class="selection-border"></div>
+          <div class="selection-indicator">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div class="user-info-container">
+            <div class="user-info-content">
+              <div class="username"  th:text="${users.userid1.user.username}">Sarah</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="competitor-side" id="comp1-right" onclick="selectCompetitor('right', 1)" th:attr="data-id=${users.userid2.id}">
+          <div class="image-wrapper">
+            <img th:src="@{/getImage/{id}(id=${users.userid2.id})}" id="image2" alt="Competitor" class="competitor-image">
+          </div>
+
+          <div class="competitor-overlay"></div>
+          <div class="selection-border"></div>
+          <div class="selection-indicator">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div class="user-info-container">
+            <div class="user-info-content">
+              <div class="username" th:text="${users.userid2.user.username}">Michael</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vs-badge-container">
+          <div class="vs-badge">VS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-content" id="apply">
+  <div class="apply-section">
+    <div class="apply-container">
+      <div class="apply-header">
+        <h1>Join The Competition <span class="fire">🔥</span></h1>
+        <p>Think you've got what it takes? Apply now!</p>
+      </div>
+
+      <div class="contest-frame">
+        <div class="vs-container">
+          <!-- Your Photo Upload Side -->
+          <div class="contestant">
+            <div class="contestant-card" id="uploadedImageContainer">
+              <div class="placeholder">
+                <img th:src="${user_master.profilePhoto != null ? '/user/profile-pic' : '/noprofilepic.png'}" id="profilePic" alt="User Picture">
+              </div>
+            </div>
+            <button class="upload-btn" onclick="document.getElementById('photoInput').click()">
+              <i class="bi bi-camera-fill"></i>Change
+            </button>
+          </div>
+
+          <!-- VS Badge -->
+          <div class="apply-vs-badge">VS</div>
+
+          <!-- Mystery Opponent Side -->
+          <div class="contestant">
+            <div class="contestant-card mystery-card">
+              <div class="mystery-box">
+                <i class="bi bi-question-circle-fill"></i>
+                <p>Mystery Opponent</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button class="submit-btn" id="submitApplicationBtn">
+          <i class="bi bi-check-circle-fill"></i> Apply
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<form th:action="@{/user/submitForm}" method="post" enctype="multipart/form-data" class="form-group" id="voteForm">
+    <input type="file" id="photoInput" name="file" accept="image/*"
+           onchange="previewImage(event)" />
+</form>
+
+  <div class="result-popup" id="resultPopup">
+    <div class="result-content">
+      <div class="result-icon">🔥</div>
+      <div class="result-title">Nice Choice!</div>
+      <div class="result-message">
+        You voted for <strong id="winnerName"></strong>
+      </div>
+      <button class="next-btn" onclick="nextCompetition()">
+        Next Match <i class="bi bi-arrow-right"></i>
+      </button>
+    </div>
+  </div> -
+
+<!-- ===== INSTRUCTIONS POPUP ===== -->
+<div id="instructionsPopup" class="popup-backdrop">
+  <div class="popup">
+    <h2>📖 How to Play - Voting & Photo Battle</h2>
+
+    <p>
+      Welcome to the ultimate voting competition! Vote for your favorite contestant or challenge your friends in a photo battle. Here's how it works:
+    </p>
+
+    <h3>📸 Photo Battle Game</h3>
+
+    <p>
+      A competitive image showdown where Player 1 uploads a photo and starts the competition!
+    </p>
+
+    <ol>
+      <li>
+        <strong>Set the Theme:</strong> Both players agree on a specific category like "Best Nature Shot", "Funniest Selfie", "Best Street Food", or "Throwback Childhood Photo".
+      </li>
+      <li>
+        <strong>Player 1 Uploads:</strong> Player 1 chooses or takes a photo matching the theme and uploads it first. This sets the standard for the round.
+      </li>
+      <li>
+        <strong>Player 2 Responds:</strong> Player 2 must find or take a better photo within the same theme and upload it to compete.
+      </li>
+      <li>
+        <strong>The Voting:</strong> Decide the winner using one of these methods:
+        <ul>
+          <li><strong>Public Poll:</strong> Upload both photos to Instagram/WhatsApp Story with a poll sticker. Let followers vote!</li>
+          <li><strong>Neutral Judge:</strong> Send both images to a mutual friend who picks the winner without knowing whose is whose.</li>
+          <li><strong>Point System:</strong> Both players rate each other's photo out of 10. Higher score wins!</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Winning:</strong> Play Best of 5 rounds. The person who wins the most rounds is the ultimate champion! 🏆
+      </li>
+    </ol>
+
+    <h3>🎮 Popular Voting Games</h3>
+
+    <ol>
+      <li>
+        <strong>The Voting Game:</strong> Features 200 questions that uncover "hilarious truths" about players. Vote on which person fits a specific question better.
+      </li>
+      <li>
+        <strong>Who's Most Likely To (Couples Edition):</strong> Presents scenarios where both players vote for who is more likely to perform a certain action.
+      </li>
+      <li>
+        <strong>If You Were... (Mattel):</strong> An adult party game that uses "finger voting" to answer ridiculous questions about fellow players.
+      </li>
+      <li>
+        <strong>Truth or Dare (Couples Edition):</strong> Focuses on personal revelations and interactive challenges between two people.
+      </li>
+    </ol>
+
+    <h3>💻 Digital Voting Options</h3>
+
+    <ul>
+      <li><strong>Quick Draw & Guess:</strong> Online game similar to Pictionary where you draw images and the other person guesses.</li>
+      <li><strong>Custom Poll Makers:</strong> Use tools like Canva Poll Maker to create custom image-based polls.</li>
+      <li><strong>Social Media Challenges:</strong> Instagram and TikTok "This or That" filters for visual voting.</li>
+    </ul>
+
+    <h3>🔥 Game Instructions (This Platform)</h3>
+
+    <ol>
+      <li><strong>Swipe:</strong> Scroll through different matchups vertically</li>
+      <li><strong>Vote:</strong> Tap on the contestant you think is better</li>
+      <li><strong>Apply:</strong> Submit your own photo to join the competition</li>
+      <li><strong>Track Status:</strong> Click the status icon to see your votes and applications</li>
+    </ol>
+
+    <button class="popup-close-btn" id="closeInstructionsPopup">Got It! Let's Vote 🔥</button>
+  </div>
+</div>
+
+<script th:src="@{/js/hotornot.js}"></script>
+
+<!--Complete Script-->
+<script>
+  // Demo data
+function openResultModal(competitionId) {
+  console.log("Competition clicked:", competitionId);
+
+  // Fetch competition result details from backend
+  fetch(`/user/competition/result/${competitionId}`)
+    .then(response => response.json())
+    .then(data => {
+      // Populate modal fields dynamically
+      document.getElementById("competitionDate").innerText = data.date;
+
+      document.getElementById("player1Name").innerText = data.winnerName;
+      document.getElementById("player1Votes").innerText = data.winnerVotes;
+      document.getElementById("player1Avatar").src = data.winnerImage;
+
+      document.getElementById("player2Name").innerText = data.loserName;
+      document.getElementById("player2Votes").innerText = data.loserVotes;
+      document.getElementById("player2Avatar").src = data.loserImage;
+
+      document.getElementById("totalVotes").innerText = data.totalVotes;
+      document.getElementById("winPercentage").innerText = data.winPercentage;
+
+     if(data.winnerVotes === data.loserVotes){
+     console.log('Inside If');
+       document.querySelector('.winner-badge').style.display='none';
+       document.querySelector('.result-avatar').style.borderColor='#f0f0f0';
+       document.querySelector('.result-avatar').style.boxShadow='none';
+       document.querySelector('#heading').innerText = 'Draw Competition';
+     }
+     else
+     {
+       document.querySelector('.winner-badge').style.display='block';
+       document.querySelector('.result-avatar').style.borderColor='#FFD700';
+       document.querySelector('.result-avatar').style.boxShadow='0 8px 30px rgba(255, 215, 0, 0.5)';
+       document.querySelector('#heading').innerText = 'Competition Result';
+
+     }
+      // Finally open the modal
+      document.getElementById("resultModal").classList.add("active");
+      document.body.style.overflow = "hidden";
+    })
+    .catch(error => {
+      console.error("Error fetching competition result:", error);
+      alert("Unable to load competition result. Please try again.");
+    });
+}
+
+function closeResultModal() {
+  document.getElementById("resultModal").classList.remove("active");
+  document.body.style.overflow = "auto";
+}
+
+
+  // Close modal when clicking outside
+  document.getElementById('resultModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+          closeResultModal();
+      }
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+          closeResultModal();
+      }
+  });
+</script>
+
+  <script>
+    let currentCard = 1;
+    const totalCards = 3;
+    const votes = {};
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.getElementById(tabName).classList.add('active');
+        event.target.closest('.tab-btn').classList.add('active');
+    }
+
+  const photoInput = document.getElementById('photoInput');
+  const uploadedImageContainer = document.getElementById('uploadedImageContainer');
+  const submitApplicationBtn = document.getElementById('submitApplicationBtn');
+  let selectedImage = null;
+
+  if (photoInput) {
+      photoInput.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+
+          if (file) {
+              const reader = new FileReader();
+
+              reader.onload = function(event) {
+                  selectedImage = event.target.result;
+                  uploadedImageContainer.innerHTML = `<img src="${selectedImage}" alt="Your Photo">`;
+                  submitApplicationBtn.disabled = false;
+
+                  // Update existing form functionality
+                  document.getElementById('submitBtn').disabled = false;
+              };
+
+              reader.readAsDataURL(file);
+          }
+      });
+  }
+
+  // Existing submit button handler update
+       submitApplicationBtn.addEventListener('click', function(e) {
+              document.getElementById('voteForm').submit();
+});
+
+    function closeModal() {
+        document.getElementById('fileInput').value = '';
+        document.getElementById('preview').style.display = 'none';
+        document.getElementById('fileUploadBox').classList.remove('has-image');
+        document.getElementById('submitBtn').disabled = true;
+    }
+
+  function previewImage(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const preview = document.getElementById('preview');
+      const uploadBox = document.getElementById('fileUploadBox');
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      uploadBox.classList.add('has-image');
+      document.getElementById('submitBtn').disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+  }
+ </script>
+
+  <script>
+  <!--Save Vote -->
+  function selectCompetitor(side, cardNum) {
+  console.log('Isme Error');
+      const clicked = event.currentTarget;
+      const card = clicked.closest('.competition-card');
+
+      console.log('Card IS ' + card);
+      console.log(card.dataset.voted);
+
+      // Hidden inputs for user and competition
+      const votedBy = card.querySelector('#VotedBy').value;
+      const competitionId = card.querySelector('#VotedTo').value;
+
+      // Competitor elements
+      const leftSide = card.querySelector('#comp1-left');
+      const rightSide = card.querySelector('#comp1-right');
+
+      let selectedUserId;
+
+      // Remove previous selection
+      if(card.dataset.voted !== 'true'){
+          leftSide.classList.remove('selected');
+         rightSide.classList.remove('selected');
+        if (side === 'left') {
+          leftSide.classList.add('selected');
+          selectedUserId = leftSide.dataset.id;
+      } else {
+          rightSide.classList.add('selected');
+          selectedUserId = rightSide.dataset.id;
+      }
+}
+      console.log('Voted By:', votedBy);
+      console.log('Competition ID:', competitionId);
+      console.log('Voted To User ID:', selectedUserId);
+
+      // CSRF token
+      const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+      const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+      // Send form data
+      const formData = new URLSearchParams();
+      formData.append('VotedBy', votedBy);
+      formData.append('VotedTo', selectedUserId);
+      formData.append('competitionId', competitionId);
+
+          fetch('/user/vote', {
+          method: 'POST',
+          headers: {
+              [csrfHeader]: csrfToken
+          },
+          body: formData
+      })
+      .then(response => {
+      console.log('Response m Error');
+          if (!response.ok) {
+              return response.json().then(err => {
+              console.log(err);
+                  throw err;
+           });
+          }
+          return response.json();
+      })
+      .then(data => {
+          console.log('Vote submitted successfully', data);
+          card.dataset.voted='true';
+    })
+      .catch(err => {
+          console.error('err');
+          console.log(err);
+          const message=document.getElementById('Overlay2');
+          const messageDiv=document.getElementById('SuccessMessage');
+          const text=document.getElementById('text');
+          if(message)
+        {
+          messageDiv.style.backgroundColor='rgb(199, 83, 83)';
+          messageDiv.style.color='white';
+          text.innerHTML='You Already Voted';
+            message.classList.add("show");
+          setTimeout( () => {
+            message.classList.remove("show");
+          },2000);
+        }
+      });
+  }
+
+  // Status Panel Toggle
+  function toggleStatus() {
+      const panel = document.getElementById('statusPanel');
+      panel.classList.toggle('active');
+  }
+
+  // Close panel when clicking outside
+  document.addEventListener('click', function(e) {
+      const panel = document.getElementById('statusPanel');
+      const btn = document.querySelector('.status-icon-btn');
+
+      if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) {
+          panel.classList.remove('active');
+      }
+  });
+  </script>
+
+<!--Background Color Script-->
+<script>
+  function applyImageBackgrounds() {
+    document.querySelectorAll(".image-wrapper").forEach(wrapper => {
+        const img = wrapper.querySelector("img");
+        if (img && img.src) wrapper.style.backgroundImage = `url(${img.src})`;
+    });
+}
+document.addEventListener('DOMContentLoaded', applyImageBackgrounds);
+</script>
+</body>
+</html>
