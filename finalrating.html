@@ -1,0 +1,3610 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Photos - HotOrNot</title>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+      <link rel="stylesheet" th:href="@{/css/hotornot.css}">
+    <style>
+        /* ============================================
+           GLOBAL RESETS
+           ============================================ */
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* ============================================
+           MAIN CONTAINER - MOBILE FIRST
+           ============================================ */
+        .main-container {
+            height: 100vh;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Mobile: Account for top and bottom nav */
+        @media (max-width: 991px) {
+            .main-container {
+                height: calc(100vh - 110px); /* 55px top nav + 55px bottom nav */
+                margin-top: 55px;
+                margin-bottom: 55px;
+                padding: 0;
+            }
+        }
+
+        /* ============================================
+           RATING CARD - PERFECT FULL SCREEN
+           ============================================ */
+        .rating-card {
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            position: relative;
+        }
+
+        /* ============================================
+           IMAGE WRAPPER
+           ============================================ */
+        .image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(247, 59, 32, 0.08), rgba(247, 59, 32, 0.05));
+            box-shadow: none;
+        }
+
+        .phuljhari-border {
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            border-radius: 0; /* Changed from 36px to match mobile */
+            background: linear-gradient(135deg, #F73B20, #ff5238, #FFD700, #00ff88, #F73B20);
+            z-index: 1;
+            opacity: 0;
+            filter: blur(8px);
+            animation: sparkle 1.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .phuljhari-border.active {
+            opacity: 1;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0.8;
+                filter: blur(8px) brightness(1);
+            }
+            50% {
+                opacity: 1;
+                filter: blur(12px) brightness(1.3);
+            }
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: relative;
+            z-index: 2;
+            border-radius: 0;
+        }
+
+        /* ============================================
+           OVERLAY CONTENT
+           ============================================ */
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px 20px 20px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3), transparent);
+            z-index: 3;
+            border-radius: 0;
+        }
+
+        .overlay-content {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .username {
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 1.2rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .caption {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .hashtags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .hashtag {
+            background: rgba(247, 59, 32, 0.3);
+            border: 1px solid rgba(247, 59, 32, 0.5);
+            color: #FFD700;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* ============================================
+           TIMER CONTAINER
+           ============================================ */
+        .timer-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            z-index: 11;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid rgba(247, 59, 32, 0.3);
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.3);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    #F73B20 0%,
+                    #ff5238 20%,
+                    #ff6b4a 40%,
+                    #FFD32A 60%,
+                    #00ff88 80%,
+                    #F73B20 100%);
+            transition: width 1s linear;
+            box-shadow: 0 0 20px rgba(247, 59, 32, 0.8);
+            position: relative;
+            border-radius: 20px;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 0;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 40%, transparent 70%);
+            transform: translate(50%, -50%);
+            filter: blur(3px);
+            animation: pulse-glow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                opacity: 0.6;
+                transform: translate(50%, -50%) scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(50%, -50%) scale(1.3);
+            }
+        }
+
+        /* ============================================
+           THERMOMETER
+           ============================================ */
+        .thermometer-container {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 40%;
+            max-height: 300px;
+            z-index: 10;
+        }
+
+        .thermometer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: rgba(247, 59, 32, 0.1);
+            border: 3px solid #F73B20;
+            border-radius: 30px;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(247, 59, 32, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .scroll-rate {
+            overflow-y: scroll;
+            scrollbar-width: none;
+        }
+
+        .scroll-rate::-webkit-scrollbar {
+            display: none;
+        }
+
+        .thermometer.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .thermometer-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #F73B20, #ff5238, #ff6b4a, #FFD32A, #00ff88);
+            transition: height 0.3s ease;
+            border-radius: 0 0 30px 30px;
+        }
+
+        .thermometer-bulb {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(247, 59, 32, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .thermometer-bulb-inner {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .scale-markers {
+            position: absolute;
+            left: 8px;
+            top: 10px;
+            bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #1a1a1a;
+            font-weight: 700;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+            z-index: 300;
+        }
+
+        /* ============================================
+           RATING BADGE & LOCKED OVERLAY
+           ============================================ */
+        .rating-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 800;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.6);
+            z-index: 11;
+            display: none;
+        }
+
+        .rating-badge.show {
+            display: block;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(247, 59, 32, 0.3);
+            backdrop-filter: blur(5px);
+            border-radius: 0;
+            z-index: 4;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .locked-overlay.show {
+            display: flex;
+        }
+
+        .locked-icon {
+            font-size: 4rem;
+            color: #F73B20;
+            text-shadow: 0 0 30px rgba(247, 59, 32, 0.8);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        /* ============================================
+           MUSIC INFO
+           ============================================ */
+        .music-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .music-info i {
+            font-size: 1rem;
+            animation: musicPulse 1s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        .music-info marquee {
+            flex: 1;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        @keyframes musicPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* ============================================
+           MOBILE RESPONSIVE (≤991px)
+           ============================================ */
+        @media (max-width: 991px) {
+            .rating-card {
+                height: calc(100vh - 110px);
+                min-height: calc(100vh - 110px);
+                padding: 0;
+                margin: 0;
+            }
+
+            .image-wrapper {
+                height: 100%;
+                max-height: 100%;
+                border-radius: 0;
+            }
+
+            .image-wrapper img {
+                border-radius: 0;
+                object-fit: cover;
+            }
+
+            .phuljhari-border {
+                border-radius: 0;
+            }
+
+            .image-overlay {
+                padding: 20px 15px 15px;
+                bottom: 0;
+                border-radius: 0;
+            }
+
+            .locked-overlay {
+                border-radius: 0;
+            }
+
+            .timer-container {
+                top: 15px;
+                width: 90%;
+                z-index: 11;
+            }
+
+            .three-dots-menu {
+                top: 15px;
+                right: 15px;
+                z-index: 21;
+            }
+
+            .music-toggle-btn {
+                top: 15px;
+                right: 60px;
+                z-index: 16;
+            }
+
+            .thermometer-container {
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 50px;
+                height: 45%;
+                max-height: 280px;
+            }
+
+            .rating-badge {
+                top: 15px;
+                left: 15px;
+                z-index: 11;
+            }
+        }
+
+        /* Small mobile phones (≤576px) */
+        @media (max-width: 576px) {
+            .rating-card {
+                height: calc(100vh - 110px);
+                min-height: calc(100vh - 110px);
+            }
+
+            .image-wrapper {
+                height: 100%;
+                max-height: 100%;
+            }
+
+            .thermometer-container {
+                width: 48px;
+                height: 42%;
+                right: 12px;
+            }
+
+            .timer-container {
+                top: 12px;
+                width: 88%;
+            }
+
+            .progress-container {
+                height: 10px;
+            }
+
+            .image-overlay {
+                padding: 18px 12px 12px;
+            }
+
+            .overlay-content {
+                padding: 15px;
+            }
+
+            .username {
+                font-size: 1rem;
+            }
+
+            .caption {
+                font-size: 0.88rem;
+            }
+
+            .music-toggle-btn {
+                width: 38px;
+                height: 38px;
+                top: 12px;
+                right: 55px;
+            }
+
+            .music-toggle-btn .volume-icon {
+                font-size: 1rem;
+            }
+
+            .avatar {
+                width: 48px;
+                height: 48px;
+            }
+
+            .rating-badge {
+                font-size: 1.1rem;
+                padding: 8px 16px;
+            }
+        }
+
+        /* Extra small phones (≤480px) */
+        @media (max-width: 480px) {
+            .rating-card {
+                height: calc(100vh - 105px);
+                min-height: calc(100vh - 105px);
+            }
+
+            .timer-container {
+                width: 85%;
+                top: 10px;
+            }
+
+            .thermometer-container {
+                width: 45px;
+                height: 40%;
+                right: 10px;
+            }
+
+            .avatar {
+                width: 45px;
+                height: 45px;
+            }
+
+            .hashtag {
+                font-size: 0.8rem;
+                padding: 3px 10px;
+            }
+        }
+
+        /* Very small phones (≤400px) */
+        @media (max-width: 400px) {
+            .rating-card {
+                height: calc(100vh - 100px);
+                min-height: calc(100vh - 100px);
+            }
+
+            .timer-container {
+                width: 82%;
+                top: 8px;
+            }
+
+            .progress-container {
+                height: 8px;
+            }
+
+            .avatar {
+                width: 42px;
+                height: 42px;
+            }
+
+            .username {
+                font-size: 0.95rem;
+            }
+
+            .caption {
+                font-size: 0.82rem;
+            }
+
+            .overlay-content {
+                padding: 12px;
+            }
+
+            .thermometer-container {
+                width: 42px;
+                height: 38%;
+            }
+
+            .scale-markers {
+                font-size: 9px;
+                left: 6px;
+            }
+        }
+
+        /* Extra extra small phones (≤360px) */
+        @media (max-width: 360px) {
+            .rating-card {
+                height: calc(100vh - 95px);
+                min-height: calc(100vh - 95px);
+            }
+
+            .timer-container {
+                width: 80%;
+                top: 8px;
+            }
+
+            .thermometer-container {
+                width: 40px;
+                height: 35%;
+            }
+
+            .avatar {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* ============================================
+           DESKTOP STYLES (≥992px)
+           ============================================ */
+        @media (min-width: 992px) {
+            .main-container {
+                width: 450px;
+                margin: 0 auto;
+                border-left: 1px solid #ddd;
+                border-right: 1px solid #ddd;
+                height: 100vh;
+                overflow-y: scroll;
+                scroll-snap-type: y mandatory;
+                padding: 0;
+            }
+
+            .rating-card {
+                scroll-snap-align: start;
+                scroll-snap-stop: always;
+                min-height: 100vh;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px 0;
+                width: 100%;
+            }
+
+            .image-wrapper {
+                height: 90vh;
+                max-height: 90vh;
+                border-radius: 20px;
+            }
+
+            .image-wrapper img {
+                border-radius: 20px;
+                object-fit: cover;
+            }
+
+            .phuljhari-border {
+                border-radius: 26px;
+            }
+
+            .image-overlay {
+                border-radius: 0 0 20px 20px;
+            }
+
+            .locked-overlay {
+                border-radius: 20px;
+            }
+
+            .thermometer-container {
+                width: 55px;
+                height: 42%;
+                right: 18px;
+            }
+
+            .timer-container {
+                top: 18px;
+            }
+
+            .music-toggle-btn {
+                top: 18px;
+                right: 65px;
+            }
+        }
+
+        /* Tablets (768px - 991px) */
+        @media (min-width: 768px) and (max-width: 991px) {
+            .main-container {
+                width: 100%;
+                margin: 0;
+                border: none;
+                height: calc(100vh - 110px);
+                margin-top: 55px;
+                margin-bottom: 55px;
+            }
+
+            .rating-card {
+                min-height: calc(100vh - 110px);
+                height: calc(100vh - 110px);
+            }
+
+            .image-wrapper {
+                height: 100%;
+                max-height: 100%;
+                border-radius: 0;
+            }
+
+            .image-wrapper img {
+                border-radius: 0;
+            }
+
+            .phuljhari-border {
+                border-radius: 0;
+            }
+        }
+
+        /* Landscape mode adjustments for mobile */
+        @media (max-width: 991px) and (orientation: landscape) {
+            .main-container {
+                height: calc(100vh - 100px);
+                margin-top: 50px;
+                margin-bottom: 50px;
+            }
+
+            .rating-card {
+                min-height: calc(100vh - 100px);
+                height: calc(100vh - 100px);
+            }
+
+            .image-wrapper {
+                height: 100%;
+                max-height: 100%;
+            }
+
+            .thermometer-container {
+                height: 55%;
+            }
+
+            .image-overlay {
+                padding: 15px 12px 10px;
+            }
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .main-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .main-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* ============================================
+           NO POSTS SCREEN FIX
+           ============================================ */
+        @media (max-width: 991px) {
+            .no-posts-container {
+                min-height: calc(100vh - 110px);
+                height: calc(100vh - 110px);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding: 30px 20px;
+            }
+        }
+
+        /* ============================================
+           SMOOTH SCROLLING IMPROVEMENTS
+           ============================================ */
+        @media (max-width: 991px) {
+            .main-container {
+                scroll-padding-top: 0;
+                scroll-padding-bottom: 0;
+            }
+
+            .rating-card {
+                scroll-margin-top: 0;
+                scroll-margin-bottom: 0;
+            }
+        }
+
+
+          /* Report Modal Overlay */
+        .report-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 99999;
+        }
+
+        .report-modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Report Modal - HotOrNot Theme */
+        .report-modal {
+            width: 90%;
+            max-width: 480px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 250, 245, 0.98));
+            backdrop-filter: blur(20px);
+            padding: 35px 30px;
+            border-radius: 30px;
+            border: 3px solid rgba(247, 59, 32, 0.3);
+            box-shadow: 0 20px 60px rgba(247, 59, 32, 0.4);
+            animation: modalPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        @keyframes modalPop {
+            0% {
+                transform: scale(0.7) rotate(-5deg);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.05) rotate(2deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .modal-subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        /* Reason Options - HotOrNot Style */
+        .reason-option {
+            display: block;
+            padding: 0;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .reason-option input[type="radio"] {
+            display: none;
+        }
+
+        .reason-option label {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            background: rgba(247, 59, 32, 0.05);
+            border: 2px solid rgba(247, 59, 32, 0.15);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #1a1a1a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reason-option label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(135deg, rgba(247, 59, 32, 0.1), rgba(247, 59, 32, 0.05));
+            transition: width 0.3s ease;
+            z-index: 0;
+        }
+
+        .reason-option input[type="radio"]:checked+label {
+            background: linear-gradient(135deg, rgba(247, 59, 32, 0.15), rgba(247, 59, 32, 0.08));
+            border-color: #F73B20;
+            color: #F73B20;
+            transform: translateX(5px);
+        }
+
+        .reason-option input[type="radio"]:checked+label::before {
+            width: 100%;
+        }
+
+        .reason-option label:hover {
+            border-color: #F73B20;
+            transform: translateX(3px);
+            box-shadow: 0 4px 15px rgba(247, 59, 32, 0.2);
+        }
+
+        .reason-option label::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(247, 59, 32, 0.3);
+            border-radius: 50%;
+            margin-right: 12px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .reason-option input[type="radio"]:checked+label::after {
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            border-color: #F73B20;
+            box-shadow: 0 0 0 4px rgba(247, 59, 32, 0.2);
+        }
+
+        /* Extra Comments Textarea */
+        .extra-comments {
+            width: 100%;
+            min-height: 100px;
+            background: rgba(247, 59, 32, 0.05);
+            border: 2px solid rgba(247, 59, 32, 0.15);
+            border-radius: 16px;
+            padding: 14px;
+            color: #1a1a1a;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+            font-family: 'Caveat', 'system-ui';
+        }
+
+        .extra-comments:focus {
+            outline: none;
+            border-color: #F73B20;
+            background: rgba(247, 59, 32, 0.08);
+            box-shadow: 0 0 0 4px rgba(247, 59, 32, 0.1);
+        }
+
+        .extra-comments::placeholder {
+            color: #999;
+        }
+
+        /* Submit Button - HotOrNot Style */
+        .submit-report-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 16px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(247, 59, 32, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-report-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .submit-report-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .submit-report-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(247, 59, 32, 0.5);
+        }
+
+        .submit-report-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Close Button */
+        .close-report {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 36px;
+            height: 36px;
+            background: rgba(247, 59, 32, 0.1);
+            border: 2px solid rgba(247, 59, 32, 0.2);
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            color: #F73B20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .close-report:hover {
+            background: #F73B20;
+            color: white;
+            transform: rotate(90deg) scale(1.1);
+            box-shadow: 0 4px 15px rgba(247, 59, 32, 0.4);
+        }
+
+        /* Validation Error Message */
+        .validation-error {
+            color: #F73B20;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: rgba(247, 59, 32, 0.1);
+            border: 2px solid rgba(247, 59, 32, 0.3);
+            border-radius: 12px;
+            display: none;
+            animation: shake 0.5s;
+        }
+
+        .validation-error.show {
+            display: block;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .yes-btn,
+        .no-btn,
+        .ok-btn {
+            padding: 12px 28px;      /* good balanced size */
+            border: none;
+            border-radius: 10px;     /* modern rounded look */
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            margin-right: 8px;
+            flex: 1;
+        }
+
+        .yes-btn {
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            color: white;
+            box-shadow: 0 6px 20px rgba(247, 59, 32, 0.4);
+        }
+
+        .yes-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(247, 59, 32, 0.6);
+        }
+
+
+        .no-btn {
+            background: rgba(247, 59, 32, 0.1);
+            color: #F73B20;
+            border: 2px solid rgba(247, 59, 32, 0.3);
+        }
+
+        .no-btn:hover {
+            background: rgba(247, 59, 32, 0.2);
+            transform: translateY(-2px);
+        }
+
+
+        .ok-btn {
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            color: white;
+            box-shadow: 0 6px 20px rgba(247, 59, 32, 0.4);
+        }
+
+        .ok-btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #d53119, #ff3a1e);
+            box-shadow: 0 8px 25px rgba(247, 59, 32, 0.6);
+        }
+
+
+        /* Scrollbar for modal */
+        .report-modal::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .report-modal::-webkit-scrollbar-track {
+            background: rgba(247, 59, 32, 0.05);
+            border-radius: 10px;
+        }
+
+        .report-modal::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            border-radius: 10px;
+        }
+
+        .report-modal::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #ff5238, #F73B20);
+        }
+
+        /* for popup */
+
+        .confirm-overlay,
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .confirm-box,
+        .success-box {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            text-align: center;
+            width: 320px;
+            animation: popupAnim 0.3s ease;
+        }
+
+        .confirm-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+
+
+
+        @keyframes popupAnim {
+            from {
+                transform: scale(0.7);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+                .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease;
+        }
+
+        .popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 250, 245, 0.98));
+            padding: 40px 60px;
+            border-radius: 25px;
+            text-align: center;
+            color: #1a1a1a;
+            box-shadow: 0 10px 50px rgba(247, 59, 32, 0.4);
+            border: 3px solid rgba(247, 59, 32, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: popupScale 0.6s ease-out;
+        }
+
+        @keyframes popupScale {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .badge-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 0 40px rgba(247, 59, 32, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        .badge-text {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .shine {
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+            transform: skewX(-25deg);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -75%;
+            }
+
+            100% {
+                left: 125%;
+            }
+        }
+
+        .points-earned {
+            font-size: 1.2em;
+            margin-top: 15px;
+            color: #F73B20;
+            font-weight: 700;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 32px;
+            color: rgba(26, 26, 26, 0.5);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 1001;
+        }
+
+        .close-btn:hover {
+            color: #F73B20;
+            transform: rotate(90deg);
+        }
+
+
+
+        /* Birthday Popup - White Theme */
+        .Birthdayoverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            z-index: 9999;
+        }
+
+        .birthdaypopup {
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 50%, #ff8560 100%);
+            border-radius: 30px;
+            max-width: 600px;
+            width: 80%;
+            padding: 50px 30px 40px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(247, 59, 32, 0.5);
+            animation: popIn 0.5s ease-out;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .birthdayclose-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 100;
+        }
+
+        .birthdayclose-btn:hover {
+            background: #f0f0f0;
+            transform: scale(1.1);
+        }
+
+        .birthdayclose-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .gift-icon {
+            font-size: 70px;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .party-emoji {
+            position: absolute;
+            font-size: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        .party-left {
+            top: 60px;
+            left: 60px;
+        }
+
+        .party-right {
+            top: 60px;
+            right: 60px;
+            animation-direction: reverse;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .sparkle {
+            position: absolute;
+            color: #ffd700;
+            font-size: 30px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .sparkle-1 {
+            top: 40px;
+            left: 80px;
+        }
+
+        .sparkle-2 {
+            top: 80px;
+            right: 100px;
+            animation-delay: 0.5s;
+        }
+
+        .sparkle-3 {
+            bottom: 100px;
+            left: 100px;
+            animation-delay: 1s;
+        }
+
+        .bonus-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            width: 350px;
+            max-width: 100%;
+            margin: 0 auto 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .bonus-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        .bonus-title {
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .bonus-points {
+            color: #ffd700;
+            font-size: 38px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .bonus-duration {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .cta-btn {
+            background: white;
+            color: #F73B20;
+            border: none;
+            padding: 18px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .cta-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+
+                /* 3-dots menu - HotOrNot Theme */
+        .three-dots-menu {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+        }
+
+        .dots-icon {
+            font-size: 28px;
+            color: #F73B20;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.3);
+        }
+
+        .dots-icon:hover {
+            color: #ff5238;
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 25px rgba(247, 59, 32, 0.5);
+        }
+
+        /* Dropdown */
+        .dots-dropdown {
+            position: absolute;
+            right: 0;
+            top: 50px;
+            width: 160px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(247, 59, 32, 0.2);
+            border-radius: 16px;
+            padding: 8px 0;
+            display: none;
+            box-shadow: 0 10px 40px rgba(247, 59, 32, 0.25);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, rgba(247, 59, 32, 0.1), rgba(247, 59, 32, 0.05));
+            color: #F73B20;
+            padding-left: 20px;
+        }
+
+
+                .no-posts-container {
+            min-height: 100vh;
+            scroll-snap-align: center;
+            scroll-snap-stop: always;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .no-posts-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .no-posts-container h2 {
+            font-size: 26px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .no-posts-icon img {
+            width: 120px;
+            /* adjust size */
+            height: auto;
+            opacity: 0.8;
+            /* soft look */
+            margin-bottom: 15px;
+        }
+
+
+         /*Age Error */
+   .GuessError {
+      height: 100%;
+      width: 100%;
+      position: fixed;
+      left: 0;
+      top: 0;
+      background-color: rgba(0,0,0,0.4);
+      display : block;
+      z-index: 9999;
+    }
+
+
+    /* Error container */
+    .error-container {
+      background: linear-gradient(145deg, #c75c5c, #c03838);
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 360px;
+      width: 100%;
+      box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
+      animation: popIn 0.4s ease-out;
+      text-align: center;
+      color: #fff;
+    }
+
+    /* Close button */
+    .guessclose-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+         z-index: 999;
+    }
+    .guessclose-btn:hover {
+      background: #f0f0f0;
+    }
+    .guessclose-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: #e74343;
+    }
+
+    /* Error icon */
+    .error-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Error title */
+    .error-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Error message */
+    .error-message {
+      font-size: 1.1rem;
+      line-height: 1.5;
+    }
+
+    /* Animations */
+    @keyframes popIn {
+      from { transform: translate(-50%, -60%) scale(0.8); opacity: 0; }
+      to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+  /* Age Popup CSS*/
+   .age-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            z-index: 9910;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .age-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .agepopup-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(247, 59, 32, 0.3);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 320px;
+            width: 90%;
+            box-shadow: 0 10px 50px rgba(247, 59, 32, 0.4);
+            position: relative;
+            animation: slideUp 0.4s ease;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #F73B20;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: #ff5238;
+            transform: rotate(90deg);
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+
+        .message-box {
+            background: rgba(247, 59, 32, 0.1);
+            border: 2px solid rgba(247, 59, 32, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message-box.hidden {
+            display: none;
+        }
+
+        .message-text {
+            color: #F73B20;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #2d2d2d;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(247, 59, 32, 0.3);
+            border-radius: 15px;
+            font-size: 20px;
+            text-align: center;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.8);
+            color: #2d2d2d;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #F73B20;
+            box-shadow: 0 0 0 3px rgba(247, 59, 32, 0.1);
+            background: white;
+        }
+
+
+
+        .icon-circle {
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 5px 15px rgba(247, 59, 32, 0.4);
+        }
+
+        .icon-circle svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+
+        h1 {
+            color: #2d2d2d;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .logo-hot {
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 50%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-not {
+            color: #ff5238;
+        }
+
+        .subtitle {
+            color: #636e72;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .score-box {
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 50%, #ff5238 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.3);
+        }
+
+        .score-label {
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-value {
+            color: white;
+            font-size: 36px;
+            font-weight: 900;
+        }
+
+        .guess-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 50%, #ff5238 100%);
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(247, 59, 32, 0.4);
+        }
+
+        .guess-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(247, 59, 32, 0.6);
+        }
+
+         .guess-btn:disabled
+        {
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 50%, #ff5238 100%);
+            opacity:0.7;
+            cursor:not-allowed;
+        }
+
+        .guess-btn:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            margin-top: 20px;
+            text-align: center;
+            color: #636e72;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .stats span {
+            color: #F73B20;
+            font-weight: 700;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .message-box.animate {
+            animation: pulse 0.5s ease;
+        }
+
+    </style>
+    
+    <style>
+        /* Top Navigation Bar */
+.top-nav-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    border-bottom: 2px solid rgba(247, 59, 32, 0.15);
+    box-shadow: 0 4px 20px rgba(247, 59, 32, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1500;
+}
+
+.top-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.top-logo:hover {
+    transform: scale(1.05);
+}
+
+.top-logo .logo-hot {
+    color: #F73B20;
+}
+
+.top-logo .logo-not {
+    color: #F73B20;
+}
+
+/* Menu Toggle Button */
+.menu-toggle-btn {
+    width: 45px;
+    height: 45px;
+    border: none;
+    background: rgba(247, 59, 32, 0.1);
+    border: 2px solid rgba(247, 59, 32, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.menu-toggle-btn i {
+    font-size: 1.8rem;
+    color: #F73B20;
+}
+
+.menu-toggle-btn:hover {
+    background: linear-gradient(135deg, #F73B20, #ff5238);
+    border-color: #F73B20;
+}
+
+.menu-toggle-btn:hover i {
+    color: white;
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Sidebar Panel */
+.sidebar-panel {
+    position: fixed;
+    top: 0;
+    right: -350px;
+    width: 320px;
+    height: 100vh;
+    background: white;
+    border-left: 3px solid rgba(247, 59, 32, 0.3);
+    box-shadow: -4px 0 30px rgba(247, 59, 32, 0.2);
+    transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 2500;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.sidebar-panel.active {
+    right: 0;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(247, 59, 32, 0.15);
+}
+
+.sidebar-header h4 {
+    color: #F73B20;
+    font-weight: 800;
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+/* Close Sidebar Button */
+.close-sidebar-btn {
+    background: rgba(247, 59, 32, 0.1);
+    border: 2px solid rgba(247, 59, 32, 0.2);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.close-sidebar-btn i {
+    font-size: 1.3rem;
+    color: #F73B20;
+}
+
+.close-sidebar-btn:hover {
+    background: #F73B20;
+    border-color: #F73B20;
+    transform: rotate(90deg);
+}
+
+.close-sidebar-btn:hover i {
+    color: white;
+}
+
+/* Sidebar Links */
+.sidebar-links {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 18px;
+    background: rgba(247, 59, 32, 0.08);
+    color: #F73B20;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.sidebar-item i {
+    font-size: 1.4rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar-item:hover {
+    background: linear-gradient(135deg, #F73B20, #ff5238);
+    color: white;
+    border-color: #F73B20;
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(247, 59, 32, 0.3);
+}
+
+.sidebar-item:active {
+    transform: translateX(5px) scale(0.98);
+}
+
+/* Adjust main content for top nav */
+.main-container {
+    margin-top: 60px;
+}
+
+/* Scrollbar for sidebar */
+.sidebar-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-panel::-webkit-scrollbar-track {
+    background: rgba(247, 59, 32, 0.05);
+}
+
+.sidebar-panel::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #F73B20, #ff5238);
+    border-radius: 10px;
+}
+
+.sidebar-panel::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #ff5238, #F73B20);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .top-nav-bar {
+        height: 55px;
+        padding: 0 15px;
+    }
+
+    .top-logo {
+        font-size: 1.3rem;
+    }
+
+    .menu-toggle-btn {
+        width: 42px;
+        height: 42px;
+    }
+
+    .menu-toggle-btn i {
+        font-size: 1.6rem;
+    }
+
+    .sidebar-panel {
+        width: 280px;
+        padding: 20px;
+    }
+
+    .sidebar-header h4 {
+        font-size: 1.3rem;
+    }
+
+    .sidebar-item {
+        padding: 14px 16px;
+        font-size: 1rem;
+    }
+
+    .sidebar-item i {
+        font-size: 1.3rem;
+    }
+
+    .main-container {
+        margin-top: 55px;
+    }
+}
+
+@media (max-width: 480px) {
+    .top-nav-bar {
+        height: 50px;
+        padding: 0 12px;
+    }
+
+    .top-logo {
+        font-size: 1.2rem;
+    }
+
+    .menu-toggle-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .menu-toggle-btn i {
+        font-size: 1.5rem;
+    }
+
+    .sidebar-panel {
+        width: 260px;
+        padding: 18px;
+    }
+
+    .sidebar-item {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+    }
+
+    .main-container {
+        margin-top: 50px;
+    }
+}
+
+/* Desktop styles */
+@media (min-width: 992px) {
+    .top-nav-bar {
+        display: none;
+    }
+
+    .main-container {
+        margin-top: 0;
+    }
+}
+    </style>
+
+    <style>
+        /* Desktop Menu Button in Navbar */
+.desktop-menu-btn {
+    width: 45px;
+    height: 45px;
+    border: none;
+    background: rgba(247, 59, 32, 0.1);
+    border: 2px solid rgba(247, 59, 32, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.desktop-menu-btn i {
+    font-size: 1.8rem;
+    color: #F73B20;
+}
+
+.desktop-menu-btn:hover {
+    background: linear-gradient(135deg, #F73B20, #ff5238);
+    border-color: #F73B20;
+    transform: scale(1.05);
+}
+
+.desktop-menu-btn:hover i {
+    color: white;
+}
+
+/* Hide mobile top nav on desktop */
+@media (min-width: 992px) {
+    .top-nav-bar {
+        display: none !important;
+    }
+
+    .main-container {
+        margin-top: 0;
+    }
+}
+
+/* Show mobile top nav on mobile */
+@media (max-width: 991px) {
+    .desktop-menu-btn {
+        display: none;
+    }
+
+    .top-nav-bar {
+        display: flex !important;
+    }
+
+    .main-container {
+        margin-top: 55px;
+    }
+}
+    </style>
+
+    <style>
+        /* Music Toggle Button */
+.music-toggle-btn {
+    position: absolute;
+    top: 20px;
+    right: 70px;
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 15;
+}
+
+.music-toggle-btn:hover {
+    background: rgba(247, 59, 32, 0.3);
+    border-color: #F73B20;
+    transform: scale(1.1);
+}
+
+.music-toggle-btn .volume-icon {
+    font-size: 1.3rem;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.music-toggle-btn.muted {
+    background: rgba(247, 59, 32, 0.4);
+    border-color: #F73B20;
+}
+
+.music-toggle-btn.muted .volume-icon {
+    color: #F73B20;
+}
+
+/* Animation for mute button */
+@keyframes volumePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+.music-toggle-btn:active {
+    animation: volumePulse 0.3s ease;
+}
+
+/* Mobile responsive */
+@media (max-width: 576px) {
+    .music-toggle-btn {
+        width: 40px;
+        height: 40px;
+        right: 60px;
+        top: 18px;
+    }
+
+    .music-toggle-btn .volume-icon {
+        font-size: 1.1rem;
+    }
+}
+    </style>
+</head>
+
+<body class="mobile-optimized">
+<div class="bg-gradient">
+    <span></span>
+</div>
+
+<!-- Top Navigation Bar -->
+<div class="top-nav-bar">
+    <a href="#" class="top-logo">
+        <span class="logo-hot">Hot</span><span class="logo-not">Or</span><span class="logo-hot">Not</span>
+    </a>
+
+    <button class="menu-toggle-btn" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+</div>
+
+<!-- Sidebar Panel -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="sidebar-panel" id="sidebarPanel">
+    <div class="sidebar-header">
+        <h4>Menu</h4>
+        <button class="close-sidebar-btn" onclick="closeSidebar()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-links">
+        <a href="/user/whisper" class="sidebar-item">
+            <i class="bi bi-chat-dots-fill"></i>
+            <span>Whisper</span>
+        </a>
+
+        <a href="/user/games" class="sidebar-item">
+            <i class="bi bi-controller"></i>
+            <span>Games</span>
+        </a>
+
+        <a href="/user/Face-off" class="sidebar-item">
+            <i class="bi bi-people-fill"></i>
+            <span>Face-Off</span>
+        </a>
+
+        <a href="/user/circles" class="sidebar-item">
+            <i class="bi bi-circle-fill"></i>
+            <span>Circles</span>
+        </a>
+
+        <a href="#" class="sidebar-item">
+            <i class="bi bi-bell-fill"></i>
+            <span>Notifications</span>
+        </a>
+    </div>
+</div>
+
+
+<!-- Desktop Navigation -->
+<th:block th:replace="~{NavFragmentFolder/only-rating-navbar-desktop :: desktopNav}"></th:block>
+
+<!-- Mobile Bottom Navigation -->
+<div th:insert="~{NavFragmentFolder/navbar-mobile :: mobileNav}"></div>
+
+
+<div class="main-container">
+    <!-- If no posts available -->
+    <div th:if="${#lists.isEmpty(posts)}" class="no-posts-container">
+        <div class="no-posts-icon">
+            <img src="/temphonlogo2.png" alt="No Posts">
+        </div>
+        <h2>No Pictures to Rate</h2>
+        <p>Come back later! New posts will appear here soon.</p>
+        <a href="/user/rating" class="no-posts-btn">Refresh</a>
+    </div>
+    <!-- Updated HTML for Rating Card with Unique Modal IDs -->
+    <div th:each="post : ${posts}" class="rating-card" th:attr="data-id=${post.postId}">
+        <div class="image-wrapper">
+            <div class="phuljhari-border"></div>
+            <img th:src="@{/userphoto/{id}(id=${post.postId})}" alt="Profile">
+
+            <!-- 3-Dots Menu with unique data attribute -->
+            <div class="three-dots-menu" th:attr="data-post-id=${post.postId}">
+                <i class="bi bi-three-dots-vertical dots-icon"></i>
+                <div class="dots-dropdown">
+                    <div class="dropdown-item report-btn"
+                         th:attr="data-target-modal=${'reportModal-' + post.postId}">
+                        🚫 Report
+                    </div>
+                    <div class="dropdown-item block-btn">⛔ Block User</div>
+                    <div th:if="${post.user.dateOfBirth != null}">
+                        <a><div class="dropdown-item  age-btn">🎮 Guess age</div></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Duplicate Report Alert -->
+            <div th:if="${param.duplicateReport}" class="alert alert-warning" style="z-index:100000;">
+                You have already reported this post.
+            </div>
+
+            <!-- Timer Section -->
+            <div class="timer-container">
+                <div class="timer-text">10s</div>
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="rating-badge">5</div>
+            <div class="locked-overlay">
+                <div class="locked-icon">🔒</div>
+            </div>
+
+            <div class="thermometer-container">
+                <div class="thermometer scroll-rate">
+                    <div class="scale-markers">
+                        <div>10</div>
+                        <div>8</div>
+                        <div>6</div>
+                        <div>4</div>
+                        <div>2</div>
+                    </div>
+                    <div class="thermometer-fill"></div>
+                    <div class="thermometer-bulb">
+                        <div class="thermometer-bulb-inner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <form class="postRatingForm">
+                <input type="hidden" id="userFrom" name="userFrom" th:value="${user_master.userId}">
+                <input type="hidden" id="userTo" name="userTo" th:value="${post.user.userId}">
+                <input type="hidden" name="postId" th:value="${post.postId}">
+            </form>
+
+            <div class="image-overlay">
+                <div class="overlay-content">
+                    <a th:href="@{'/user/dashboard/'+ ${post.user.userId}}" class="text-decoration-none">
+                        <div class="user-info">
+                            <div class="avatar">
+                                <img th:if="${post.user.profilePhoto != null}"
+                                     th:src="${'/crushpic/' + post.user.userId}" alt="avatar">
+                                <img th:if="${post.user.profilePhoto == null}" src="/noprofilepic.png" alt="avatar">
+                            </div>
+                            <div class="username" th:text="${post.user.username}">sarah_jones</div>
+                        </div>
+                    </a>
+                    <!-- Add this after the username div inside overlay-content -->
+                    <button class="music-toggle-btn" style="display: none;">
+                        <i class="bi bi-volume-up-fill volume-icon"></i>
+                    </button>
+
+                    <!-- Add this after the username div inside overlay-content -->
+                    <div th:if="${post.musicName != null}" class="music-info">
+                        <i class="bi bi-music-note-beamed"></i>
+                        <marquee behavior="scroll" direction="left" scrollamount="3">
+                            <span th:text="${post.musicName + ' - ' + post.musicArtistName}">Song Name - Artist</span>
+                        </marquee>
+                    </div>
+
+                    <!-- Add audio element (hidden) -->
+                    <audio th:if="${post.musicUrl != null}"
+                           class="post-audio"
+                           th:src="${post.musicUrl}"
+                           th:data-post-id="${post.postId}">
+                    </audio>
+
+                    <div class="caption" th:text="${post.caption}">Living my best life ✨</div>
+                    <div class="hashtags">
+                        <span class="hashtag" th:text="${post.hashtag}">#lifestyle</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UNIQUE REPORT MODAL FOR EACH POST -->
+        <div class="report-modal-overlay" th:id="${'reportModal-' + post.postId}">
+            <div class="report-modal">
+                <button class="close-report"
+                        th:attr="data-modal-id=${'reportModal-' + post.postId}">&times;</button>
+
+                <form class="reportForm" th:action="@{/user/reportPost}" method="post">
+                    <h2 class="modal-title">Report Post</h2>
+                    <p class="modal-subtitle">Help us keep our community safe</p>
+
+                    <input type="hidden" name="postId" th:value="${post.postId}">
+
+                    <div class="reason-option">
+                        <input type="radio" name="reason" value="Harassment" th:id="${'harassment-' + post.postId}">
+                        <label th:for="${'harassment-' + post.postId}">🚫 Harassment / Bullying</label>
+                    </div>
+
+                    <div class="reason-option">
+                        <input type="radio" name="reason" value="Spam" th:id="${'spam-' + post.postId}">
+                        <label th:for="${'spam-' + post.postId}">📧 Spam or misleading content</label>
+                    </div>
+
+                    <div class="reason-option">
+                        <input type="radio" name="reason" value="Hate Speech" th:id="${'hate-' + post.postId}">
+                        <label th:for="${'hate-' + post.postId}">💬 Hate speech</label>
+                    </div>
+
+                    <div class="reason-option">
+                        <input type="radio" name="reason" value="Explicit Content"
+                               th:id="${'explicit-' + post.postId}">
+                        <label th:for="${'explicit-' + post.postId}">🔞 Explicit or sexual content</label>
+                    </div>
+
+                    <div class="reason-option">
+                        <input type="radio" name="reason" value="Violence" th:id="${'violence-' + post.postId}">
+                        <label th:for="${'violence-' + post.postId}">⚠️ Violence or dangerous acts</label>
+                    </div>
+
+                    <div class="reason-option">
+                        <input type="radio" name="reason" value="other" th:id="${'other-' + post.postId}">
+                        <label th:for="${'other-' + post.postId}">📝 Other</label>
+                    </div>
+
+                    <textarea class="extra-comments" name="comment"
+                              placeholder="Additional comments (optional)..."></textarea>
+
+                    <div class="validation-error">
+                        ⚠️ Please select a reason for reporting
+                    </div>
+
+                    <button type="submit" class="submit-report-btn">
+                        Submit Report
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="popup-overlay" id="popupOverlay">
+    <div class="popup">
+        <button class="close-btn" onclick="closePopup()">&times;</button>
+
+        <div class="badge-wrapper">
+            <div class="badge">
+                <div class="shine"></div>
+                <div class="badge-text">+<span id="badgePoints">50</span></div>
+            </div>
+        </div>
+
+        <div class="points-earned" style="font-size:13px;"><span id="pointsText">You earned 50 points!</span></div>
+    </div>
+</div>
+
+<div class="Birthdayoverlay" id="birthdayPopup">
+    <div class="birthdaypopup">
+        <button class="birthdayclose-btn" id="BirthdayClose">×</button>
+
+        <div class="party-emoji party-left">🎉</div>
+        <div class="party-emoji party-right">🎉</div>
+
+        <div class="sparkle sparkle-1">✨</div>
+        <div class="sparkle sparkle-2">✨</div>
+        <div class="sparkle sparkle-3">✨</div>
+
+        <div class="gift-icon">🎁</div>
+
+        <h1>🎂 Happy Birthday! 🎂</h1>
+
+        <p class="subtitle">Wishing you an amazing day filled with joy!</p>
+
+        <div class="bonus-card">
+            <div class="bonus-icon">🎁</div>
+            <div class="bonus-title">Birthday Bonus!</div>
+            <div class="bonus-points">2x POINTS</div>
+            <div class="bonus-duration">for the next 24 hours!</div>
+        </div>
+
+    </div>
+</div>
+
+<div class="popup-overlay" id="popupOverlay1">
+    <div class="popup">
+        <button class="close-btn" onclick="closePopup()">&times;</button>
+
+        <div class="badge-wrapper">
+            <div class="badge">
+                <div class="shine"></div>
+                <div class="badge-text1" id="badgeText1"><span id="badgePoints1"></span></div>
+            </div>
+        </div>
+
+        <div class="points-earned" style="font-size:13px;"><span id="pointsText1"></span></div>
+    </div>
+</div>
+
+<!--agepopup-->
+<div th:if="${duplicateGuess}" class="alert alert-warning"  style="z-index:100000;">
+    <div class="GuessError " id="Overlay2">
+        <div class="error-container">
+            <button class="guessclose-btn" onclick="closeWarning()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6l12 12" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="error-icon">⚠️</div>
+            <div class="error-title">You cannot Guess Again</div>
+        </div>
+    </div>
+</div>
+
+<div th:if="${ageGuessCheck15}" id="AgeSubmit15"></div>
+<div th:if="${ageGuessCheck10}" id="AgeSubmit10"></div>
+<div th:if="${ageGuessCheck0}" id="AgeSubmit0"></div>
+<!-- Age popup -->
+<div class="age-overlay" id="ageOverlay">
+    <div class="agepopup-content">
+        <button class="close-btn" onclick="closePopup1()">×</button>
+
+        <div class="game-header">
+            <div class="icon-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <line x1="12" y1="2" x2="12" y2="5"></line>
+                    <line x1="12" y1="19" x2="12" y2="22"></line>
+                    <line x1="4.93" y1="4.93" x2="7.05" y2="7.05"></line>
+                    <line x1="16.95" y1="16.95" x2="19.07" y2="19.07"></line>
+                    <line x1="2" y1="12" x2="5" y2="12"></line>
+                    <line x1="19" y1="12" x2="22" y2="12"></line>
+                    <line x1="4.93" y1="19.07" x2="7.05" y2="16.95"></line>
+                    <line x1="16.95" y1="7.05" x2="19.07" y2="4.93"></line>
+                </svg>
+            </div>
+            <h1><span class="logo-hot">Guess my</span> <span class="logo-not">Age</span></h1>
+        </div>
+
+        <form th:action="@{/user/guessAge}" id="ageForm" method="post">
+
+            <input type="hidden" id="ageUserFrom" name="userFrom" >
+            <input type="hidden" id="ageUserTo" name="userTo" >
+
+            <div class="message-box hidden" id="messageBox">
+                <p class="message-text" id="messageText"></p>
+            </div>
+
+            <div class="input-group">
+                <input type="number" id="guessInput" name="guessAge" min="1" max="100" placeholder="Guess a Age...">
+            </div>
+
+            <button class="guess-btn" id="guessBtn" disabled>✨Submit </button>
+        </form>
+    </div>
+</div>
+
+<!-- Keep Confirmation & Success Popups Outside Loop (Single Instance) -->
+<!-- CONFIRMATION POPUP -->
+<div class="confirm-overlay" id="confirmPopup">
+    <div class="confirm-box">
+        <p id="ageConfirmMessage" style="color:black;">Are you sure you want to submit this report?</p>
+        <div class="confirm-buttons">
+            <button id="confirmYes" class="yes-btn">Yes</button>
+            <button id="confirmNo" class="no-btn">No</button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- SUCCESS POPUP -->
+<div th:if="${reportSuccess}" id="showSuccessFlag"></div>
+<div class="success-overlay" id="successPopup">
+    <div class="success-box">
+        <p style="color:black;">Report submitted successfully!</p>
+        <button id="successOk" class="ok-btn">OK</button>
+    </div>
+</div>
+
+
+<script th:src="@{/js/hotornot.js}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+<!--Sidebar Link JS-->
+<script>
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebarPanel');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+
+    // Prevent body scroll when sidebar is open
+    if (sidebar.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+}
+
+function closeSidebar() {
+    const sidebar = document.getElementById('sidebarPanel');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Close sidebar on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeSidebar();
+    }
+});
+</script>
+
+<!--Referral Point 50 BY-->
+<script th:inline="javascript">
+    const popupPoints = /*[[${popupPoints}]]*/ null;
+
+    function showPopup(points) {
+        document.getElementById('badgePoints').textContent = '50';
+        document.getElementById('pointsText').textContent = points;
+        document.getElementById('pointsText').style.fontSize = '13px';
+
+        const overlay = document.getElementById('popupOverlay');
+        overlay.classList.add('show');
+
+        setTimeout(() => overlay.classList.remove('show'), 3000);
+    }
+
+    function closePopup() {
+        document.getElementById('popupOverlay').classList.remove('show');
+    }
+
+    if (popupPoints) {
+        showPopup(popupPoints);
+    }
+</script>
+
+<!--Referral Point 150 Through-->
+<script th:inline="javascript">
+    const referralMessage = /*[[${referralMessage}]]*/ null;
+    const referralPoint = /*[[${referralPoint}]]*/ null;
+
+    function showPopup(message, point) {
+        document.getElementById('badgePoints').textContent = point;
+        document.getElementById('pointsText').textContent = message;
+        document.getElementById('pointsText').style.fontSize = '13px';
+
+        const overlay = document.getElementById('popupOverlay');
+        overlay.classList.add('show');
+
+        setTimeout(() => overlay.classList.remove('show'), 3000);
+    }
+
+    if (referralMessage) {
+        showPopup(referralMessage, referralPoint);
+    }
+</script>
+
+<!--Mystery Boosts Popup-->
+<script th:inline="javascript">
+    const mysteryMessage = /*[[${mysteryMessage}]]*/ null;
+    const mysteryPoint = /*[[${mysteryPoint}]]*/ null;
+
+    function showPopup(message, point) {
+        document.getElementById('badgePoints').textContent = point;
+        document.getElementById('pointsText').textContent = message;
+        document.getElementById('pointsText').style.fontSize = '13px';
+
+        const overlay = document.getElementById('popupOverlay');
+        overlay.classList.add('show');
+
+        setTimeout(() => overlay.classList.remove('show'), 3000);
+    }
+
+    if (mysteryMessage) {
+        showPopup(mysteryMessage, mysteryPoint);
+    }
+</script>
+
+<!--Music Java Script-->
+<script>
+
+    let currentAudio = null; // Track currently playing audio
+
+    // Function to play audio for current card
+    function playCardAudio(card) {
+        const audio = card.querySelector('.post-audio');
+
+        if (audio) {
+            // Stop previous audio if exists
+            if (currentAudio && currentAudio !== audio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+
+            // Play new audio
+            audio.volume = 0.6; // 60% volume
+            audio.play().catch(err => console.log('Audio play failed:', err));
+            currentAudio = audio;
+        } else {
+            // If no audio, stop previous one
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+        }
+    }
+
+    // Function to stop all audio
+    function stopAllAudio() {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio = null;
+        }
+    }
+
+
+
+    // Global mute state
+let isGlobalMuted = false;
+
+// Music Mute/Unmute Functionality with Global State (Only for posts with music)
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize music toggle buttons for all cards
+    document.querySelectorAll('.rating-card').forEach(card => {
+        const audio = card.querySelector('.post-audio');
+        const musicToggleBtn = card.querySelector('.music-toggle-btn');
+
+        // Show button only if post has music
+        if (audio && musicToggleBtn) {
+            musicToggleBtn.style.display = 'flex';
+
+            // Apply global mute state to this audio
+            audio.muted = isGlobalMuted;
+
+            // Update button appearance based on global state
+            updateButtonAppearance(musicToggleBtn, isGlobalMuted);
+
+            // Toggle mute/unmute on click
+            musicToggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Toggle global mute state
+                isGlobalMuted = !isGlobalMuted;
+
+                // Apply ONLY to audio elements that exist (posts with music)
+                document.querySelectorAll('.post-audio').forEach(aud => {
+                    aud.muted = isGlobalMuted;
+                });
+
+                // Update ONLY the toggle buttons that are visible (posts with music)
+                document.querySelectorAll('.music-toggle-btn').forEach(btn => {
+                    if (btn.style.display === 'flex') {
+                        updateButtonAppearance(btn, isGlobalMuted);
+                    }
+                });
+            });
+        }
+    });
+});
+
+// Helper function to update button appearance
+function updateButtonAppearance(button, isMuted) {
+    const volumeIcon = button.querySelector('.volume-icon');
+
+    if (isMuted) {
+        // Muted state
+        volumeIcon.classList.remove('bi-volume-up-fill');
+        volumeIcon.classList.add('bi-volume-mute-fill');
+        button.classList.add('muted');
+    } else {
+        // Unmuted state
+        volumeIcon.classList.remove('bi-volume-mute-fill');
+        volumeIcon.classList.add('bi-volume-up-fill');
+        button.classList.remove('muted');
+    }
+}
+
+// Update the playCardAudio function to respect global mute state (Only for posts with music)
+function playCardAudio(card) {
+    const audio = card.querySelector('.post-audio');
+
+    if (audio) {
+        // Stop previous audio if exists
+        if (currentAudio && currentAudio !== audio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        }
+
+        // Apply global mute state
+        audio.muted = isGlobalMuted;
+
+        // Play new audio
+        audio.volume = 0.6; // 60% volume
+        audio.play().catch(err => console.log('Audio play failed:', err));
+        currentAudio = audio;
+    } else {
+        // If no audio (post without music), stop previous one if it was playing
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio = null;
+        }
+    }
+}
+
+
+</script>
+
+<script>
+    const ratedCards = new Set();
+
+    function closePopup() {
+        document.getElementById('popupOverlay').classList.remove('show');
+    }
+
+       // Update your existing IntersectionObserver
+        window.addEventListener("load", () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const card = entry.target;
+                    const cardId = card.dataset.id;
+
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
+                        // Play audio for this card
+                        playCardAudio(card);
+
+                        if (!card.dataset.timerStarted && !ratedCards.has(cardId)) {
+                            card.dataset.timerStarted = "true";
+                            startRatingTimer(card);
+                        }
+                    } else {
+                        // Stop audio when card leaves view
+                        const audio = card.querySelector('.post-audio');
+                        if (audio === currentAudio) {
+                            stopAllAudio();
+                        }
+                    }
+                });
+            }, { threshold: [0.7] });
+
+            document.querySelectorAll(".rating-card").forEach(card => observer.observe(card));
+        });
+
+
+
+    // ===============================================================
+    // ⭐ MAIN RATING TIMER + LOGIC (SCROLL LOGIC ADDED HERE)
+    // ===============================================================
+    function startRatingTimer(card) {
+        const cardId = card.dataset.id;
+
+        const thermometer = card.querySelector(".thermometer");
+        const thermoContainer = card.querySelector(".thermometer-container");
+        const thermometerFill = card.querySelector(".thermometer-fill");
+        const bulbInner = card.querySelector(".thermometer-bulb-inner");
+        const ratingBadge = card.querySelector(".rating-badge");
+        const lockedOverlay = card.querySelector(".locked-overlay");
+        const progressBar = card.querySelector(".progress-bar");
+        const timerContainer = card.querySelector(".timer-container");
+        const phuljhariBorder = card.querySelector(".phuljhari-border");
+
+        if (!thermometer) return;
+
+        let rating = 5;              // DEFAULT = 5 OUT OF 10
+        let timeRemaining = 10;
+        let locked = false;
+
+        updateThermometer(rating);
+        phuljhariBorder.classList.add('active');
+
+        // -----------------------------
+        // ⭐ 10 SECOND TIMER
+        // -----------------------------
+        const timerInterval = setInterval(() => {
+            if (isReportModalOpen) return;
+
+            timeRemaining--;
+
+            phuljhariBorder.style.opacity = timeRemaining / 10;
+            progressBar.style.width = (timeRemaining / 10) * 100 + "%";
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                progressBar.style.width = "0%";
+                lockAndSubmit();
+            }
+        }, 1000);
+
+
+        // ===============================================================
+        // ⭐ SCROLL WHEEL CONTROL (DESKTOP)
+        // ===============================================================
+        thermoContainer.addEventListener("wheel", (e) => {
+            if (locked || ratedCards.has(cardId)) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            rating += (e.deltaY < 0) ? 1 : -1;
+            rating = Math.max(1, Math.min(10, rating));
+
+            updateThermometer(rating);
+        }, { passive: false });
+
+
+        // ===============================================================
+        // ⭐ TOUCH SLIDE CONTROL (MOBILE)
+        // ===============================================================
+        let startY = null;
+
+        thermoContainer.addEventListener("touchstart", (e) => {
+            startY = e.touches[0].clientY;
+        }, { passive: false });
+
+        thermoContainer.addEventListener("touchmove", (e) => {
+            if (locked || ratedCards.has(cardId)) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const currentY = e.touches[0].clientY;
+            const diff = startY - currentY;
+
+            if (Math.abs(diff) > 18) {
+                rating += diff > 0 ? 1 : -1;
+                rating = Math.max(1, Math.min(10, rating));
+                updateThermometer(rating);
+                startY = currentY;
+            }
+        }, { passive: false });
+
+
+        // ===============================================================
+        // ⭐ THERMOMETER CLICK SUPPORT (KEPT SAME)
+        // ===============================================================
+        thermometer.addEventListener("click", (e) => {
+            if (locked || ratedCards.has(cardId)) return;
+
+            const rect = thermometer.getBoundingClientRect();
+            const y = e.clientY - rect.top;
+            const usableHeight = rect.height - 40;
+
+            let calcRating = Math.round(((usableHeight - y) / usableHeight) * 10);
+            calcRating = Math.max(1, Math.min(10, calcRating));
+
+            rating = calcRating;
+            updateThermometer(rating);
+        });
+
+
+        // ===============================================================
+        // ⭐ UPDATE THERMOMETER UI
+        // ===============================================================
+        function updateThermometer(rate) {
+            const percentage = (rate / 10) * 100;
+            thermometerFill.style.height = percentage + "%";
+            ratingBadge.textContent = rate;
+
+            // colors
+            if (rate <= 3) {
+                bulbInner.style.background = "linear-gradient(135deg, #FA8231, #F97F51)";
+            } else if (rate <= 7) {
+                bulbInner.style.background = "linear-gradient(135deg, #FF8C42, #FFD32A)";
+            } else {
+                bulbInner.style.background = "linear-gradient(135deg, #00ff88, #26de81)";
+            }
+        }
+
+
+        // ===============================================================
+        // ⭐ LOCK + SUBMIT RATING
+        // ===============================================================
+        function lockAndSubmit() {
+            if (ratedCards.has(cardId)) return;
+
+            locked = true;
+            ratedCards.add(cardId);
+
+            thermometer.classList.add("disabled");
+            timerContainer.style.display = "none";
+            ratingBadge.classList.add("show");
+
+            setTimeout(() => lockedOverlay.classList.add("show"), 500);
+
+            const form = card.querySelector(".postRatingForm");
+            const formData = new FormData(form);
+            formData.append("rating", rating);
+
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute("content");
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute("content");
+
+            fetch('/saveRating', {
+                method: 'POST',
+                headers: { [csrfHeader]: csrfToken },
+                body: formData
+            })
+                .then(res => res.text())
+                .then(data => console.log("Rating submitted:", data));
+        }
+    }
+</script>
+
+<!--Report Part (M)-->
+<script>
+    let isReportModalOpen = false;  // 🔥 Global for all scripts
+</script>
+
+<!-- Updated JavaScript for Unique Modals -->
+<script>
+    let currentForm = null; // Track which form is being submitted
+
+    // Open/Close Dropdown Menu
+    document.querySelectorAll(".dots-icon").forEach(dot => {
+        dot.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const dropdown = e.target.closest('.three-dots-menu').querySelector(".dots-dropdown");
+
+            // Close all other dropdowns
+            document.querySelectorAll(".dots-dropdown").forEach(d => {
+                if (d !== dropdown) d.style.display = "none";
+            });
+
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest('.three-dots-menu')) {
+            document.querySelectorAll(".dots-dropdown").forEach(d => d.style.display = "none");
+        }
+    });
+
+    // Open Report Modal (Unique for Each Post)
+    document.querySelectorAll(".report-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            isReportModalOpen = true;
+
+            const modalId = btn.getAttribute("data-target-modal");
+            const modal = document.getElementById(modalId);
+
+            if (modal) {
+                modal.classList.add("show");
+
+                // Reset form and hide error for this specific modal
+                const form = modal.querySelector(".reportForm");
+                const validationError = modal.querySelector(".validation-error");
+
+                form.reset();
+                validationError.classList.remove("show");
+            }
+
+            // Close all dropdowns
+            document.querySelectorAll(".dots-dropdown").forEach(d => d.style.display = "none");
+
+            if (currentAudio) {
+            currentAudio.pause();
+            }
+
+        });
+    });
+
+    // Close Report Modal Buttons
+    document.querySelectorAll(".close-report").forEach(closeBtn => {
+        closeBtn.addEventListener("click", () => {
+            const modalId = closeBtn.getAttribute("data-modal-id");
+            const modal = document.getElementById(modalId);
+
+            if (modal) {
+                isReportModalOpen = false;
+                modal.classList.remove("show");
+            }
+
+            isReportModalOpen = false;
+        if (currentAudio) {
+            currentAudio.play().catch(err => console.log('Resume failed:', err));
+        }
+        });
+    });
+
+    // Stop audio when navigating away
+    window.addEventListener('beforeunload', () => {
+        stopAllAudio();
+    });
+
+    // Close modal when clicking outside
+    document.querySelectorAll(".report-modal-overlay").forEach(overlay => {
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) {
+                isReportModalOpen = false;
+                overlay.classList.remove("show");
+            }
+        });
+    });
+
+    // Form Validation & Submission (Handle All Forms)
+    document.querySelectorAll(".reportForm").forEach(form => {
+        const submitBtn = form.querySelector(".submit-report-btn");
+        const validationError = form.querySelector(".validation-error");
+
+        submitBtn.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                const selectedReason = form.querySelector('input[name="reason"]:checked');
+
+                if (!selectedReason) {
+                    validationError.classList.add("show");
+                    const modal = form.closest(".report-modal");
+                    modal.style.animation = "none";
+                    setTimeout(() => modal.style.animation = "shake 0.5s", 10);
+                    return;
+                }
+
+                validationError.classList.remove("show");
+
+                currentForm = form;
+
+                // 🔥 CLOSE the report modal before showing confirmation
+                const overlay = form.closest(".report-modal-overlay");
+                overlay.classList.remove("show");
+
+                // Show confirmation popup
+                document.getElementById("confirmPopup").style.display = "flex";
+            });
+
+
+        // Hide validation error when user selects a reason
+        form.querySelectorAll('input[name="reason"]').forEach(radio => {
+            radio.addEventListener("change", () => {
+                validationError.classList.remove("show");
+            });
+        });
+    });
+
+    // Confirmation YES - Submit the current form
+    document.getElementById("confirmYes").addEventListener("click", function () {
+        document.getElementById("confirmPopup").style.display = "none";
+
+        if (currentForm) {
+            currentForm.submit();
+        }
+    });
+
+    // Confirmation NO - Close popup
+    document.getElementById("confirmNo").addEventListener("click", function () {
+        document.getElementById("confirmPopup").style.display = "none";
+        currentForm = null;
+    });
+
+    // Success popup OK button
+    document.getElementById("successOk").addEventListener("click", function () {
+        document.getElementById("successPopup").style.display = "none";
+       // window.location.href = "/user/rating";
+    });
+
+    // Show success popup if report was submitted
+    if (document.getElementById("showSuccessFlag")) {
+        isReportModalOpen = false;
+        // Close all report modals
+        document.querySelectorAll(".report-modal-overlay").forEach(modal => {
+            modal.classList.remove("show");
+        });
+        document.getElementById("successPopup").style.display = "flex";
+    }
+</script>
+
+<script th:if="${isBirthday}">
+
+    function openBirthdayPopup() {
+        document.getElementById('birthdayPopup').style.display = 'flex';
+    }
+    openBirthdayPopup();
+    let closebtn = document.getElementById('BirthdayClose');
+    closebtn.addEventListener('click', () => {
+        document.getElementById('birthdayPopup').style.display = 'none';
+    });
+
+</script>
+
+<script>
+
+    function createConfetti() {
+        const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A8E6CF', '#FF8B94'];
+        const overlay = document.getElementById('birthdayPopup');
+
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDuration = (3 + Math.random() * 2) + 's';
+            confetti.style.animationDelay = Math.random() * 3 + 's';
+            overlay.appendChild(confetti);
+        }
+    }
+    createConfetti();
+    // Close birthday Once and it will not show Again
+
+</script>
+
+<script>
+    //age Popup
+   document.querySelectorAll(".age-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            isReportModalOpen = true;  // ⛔ Pause rating
+
+            if (currentAudio) {
+            currentAudio.pause();
+            }
+
+           document.getElementById('ageOverlay').classList.add('active');
+            document.querySelectorAll(".dots-dropdown").forEach(d => d.style.display = "none");
+            console.log('Open this');
+        });
+    });
+    function closeWarning() {
+         document.getElementById("Overlay2").style.display='none';
+       }
+   function closePopup1() {
+   isReportModalOpen = false;
+            document.getElementById('ageOverlay').classList.remove('active');
+            // ADD THIS:
+    if (currentAudio) {
+        currentAudio.play().catch(err => console.log('Resume failed:', err));
+    }
+        }
+   //age Submit
+
+   const input=document.getElementById('guessInput');
+   input.onkeyup = function(){
+     let len=input.value.length;
+
+      if(len > 2)
+      {
+        let val=input.value.toString();
+        val=val.substring(0,2);
+        let newval=Number(val);
+        input.value=newval;
+      }
+
+      if(len > 0)
+      document.getElementById('guessBtn').disabled=false;
+      else
+      document.getElementById('guessBtn').disabled=true;
+   }
+
+    document.getElementById('guessBtn').addEventListener("click", function (event){
+
+        event.preventDefault();
+
+
+       const confirmPopup = document.getElementById("confirmPopup");
+       const confirmYes = document.getElementById("confirmYes");
+       const confirmNo = document.getElementById("confirmNo");
+       let message = document.getElementById('ageConfirmMessage');
+       confirmPopup.style.display = "flex";
+       isReportModalOpen = true;
+       message.innerText='Are you sure ? Wrong Guess will deduct your 3 points ';
+       isReportModalOpen = true;
+        document.getElementById('ageOverlay').classList.remove('active');
+
+
+      const ageForm=document.getElementById('ageForm');
+      const userFrom=document.getElementById('userFrom').value;
+      const userTo=document.getElementById('userTo').value;
+      console.log(userFrom);
+      console.log(userTo);
+      document.getElementById('ageUserFrom').value=userFrom;
+      document.getElementById('ageUserTo').value=userTo;
+
+    /* Confirm Cancle */
+      confirmNo.addEventListener('click',() =>{
+            confirmPopup.style.display = "none";
+            isReportModalOpen = false;
+      });
+    /*   Confrim Submit */
+      confirmYes.addEventListener('click',() =>{
+        ageForm.submit();
+        isReportModalOpen = false;
+      });
+   });
+   const pointsSign = document.getElementById('badgeText1');
+   const points = document.getElementById('badgePoints1');
+   const pointsText = document.getElementById('pointsText1');
+   if (document.getElementById("AgeSubmit15")) {
+
+           pointsSign.innerHTML='+';
+           points.innerHTML='15';
+           pointsSign.style.fontSize='20px';
+           points.style.fontSize='24px';
+           pointsSign.appendChild(points);
+           pointsText.innerHTML='Congratulation Guess is Correct';
+          pointsText.style.fontSize='14px';
+
+           const overlay = document.getElementById('popupOverlay1');
+           overlay.classList.add('show');
+
+           setTimeout(() => overlay.classList.remove('show'), 3000);
+   }
+   if (document.getElementById("AgeSubmit10")) {
+
+       pointsSign.innerHTML='+';
+           points.innerHTML='10';
+         pointsSign.style.fontSize='20px';
+           points.style.fontSize='24px';
+           pointsSign.appendChild(points);
+           pointsText.innerHTML='Almost Guess is nearby';
+     pointsText.style.fontSize='14px';
+
+    const overlay = document.getElementById('popupOverlay1');
+           overlay.classList.add('show');
+
+     setTimeout(() => overlay.classList.remove('show'), 3000);
+   }
+   if (document.getElementById("AgeSubmit0")) {
+
+           pointsSign.innerHTML='-';
+           points.innerHTML='3';
+         pointsSign.style.fontSize='20px';
+           points.style.fontSize='24px';
+           pointsSign.appendChild(points);
+           pointsText.innerHTML='OOPS ! Guess is Too Far';
+            pointsText.style.fontSize='14px';
+
+    const overlay = document.getElementById('popupOverlay1');
+           overlay.classList.add('show');
+
+    setTimeout(() => overlay.classList.remove('show'), 3000);
+   }
+</script>
+
+<!--Perfect Scroll JS-->
+<script>
+    // Perfect Mobile Scroll Behavior
+document.addEventListener('DOMContentLoaded', function() {
+    // Prevent overscroll on iOS
+    document.body.addEventListener('touchmove', function(e) {
+        if (e.target.closest('.main-container')) {
+            return;
+        }
+        e.preventDefault();
+    }, { passive: false });
+
+    // Fix viewport height on mobile (for iOS Safari)
+    function setVH() {
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+
+    setVH();
+    window.addEventListener('resize', setVH);
+    window.addEventListener('orientationchange', setVH);
+});
+</script>
+
+</body>
+</html>
