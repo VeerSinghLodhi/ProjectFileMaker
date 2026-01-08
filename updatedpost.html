@@ -1,0 +1,2350 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rate Photos - HotOrNot</title>
+  <meta name="_csrf" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+
+ <link rel="stylesheet" th:href="@{/css/hotornot.css}">
+
+  <style>
+    /* Main Container */
+    .main-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 1rem;
+        position: relative;
+    }
+
+    @media (max-width: 767px) {
+        .main-container {
+            padding-top: 10px;
+        }
+    }
+
+    /* Animations */
+    @keyframes sparkle {
+
+        0%,
+        100% {
+            opacity: 0.8;
+            filter: blur(8px) brightness(1);
+        }
+
+        50% {
+            opacity: 1;
+            filter: blur(12px) brightness(1.3);
+        }
+    }
+
+    @keyframes pulse-glow {
+
+        0%,
+        100% {
+            opacity: 0.6;
+            transform: translate(50%, -50%) scale(1);
+        }
+
+        50% {
+            opacity: 1;
+            transform: translate(50%, -50%) scale(1.3);
+        }
+    }
+
+    @keyframes popIn {
+        0% {
+            transform: scale(0);
+        }
+
+        50% {
+            transform: scale(1.2);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        33% {
+            transform: translate(50px, -80px) scale(1.1);
+        }
+
+        66% {
+            transform: translate(-50px, 50px) scale(0.9);
+        }
+    }
+
+    /* Popup Overlay - HON Theme */
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.4s ease;
+    }
+
+    .popup-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .popup {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 248, 240, 0.98));
+        backdrop-filter: blur(20px);
+        padding: 40px 60px;
+        border-radius: 30px;
+        text-align: center;
+        color: #3D3D3D;
+        box-shadow: 0 20px 60px rgba(250, 130, 49, 0.4);
+        border: 3px solid rgba(250, 130, 49, 0.3);
+        position: relative;
+        overflow: hidden;
+        animation: popupScale 0.6s ease-out;
+    }
+
+    @keyframes popupScale {
+        0% {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .badge-wrapper {
+        position: relative;
+        margin-bottom: 15px;
+    }
+
+    .badge {
+        background: linear-gradient(135deg, #FA8231, #F97F51, #FF6B9D);
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        position: relative;
+        box-shadow: 0 0 40px rgba(250, 130, 49, 0.6);
+        animation: pulse 1.5s infinite;
+    }
+
+    .badge-text {
+        font-size: 2.5em;
+        font-weight: 800;
+        color: #fff;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .shine {
+        position: absolute;
+        top: 0;
+        left: -75%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(120deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+        transform: skewX(-25deg);
+        animation: shine 2s infinite;
+    }
+
+    @keyframes shine {
+        0% {
+            left: -75%;
+        }
+
+        100% {
+            left: 125%;
+        }
+    }
+
+    .points-earned {
+        font-size: 1.2em;
+        margin-top: 15px;
+        color: #FA8231;
+        font-weight: 700;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.08);
+        }
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 32px;
+        color: rgba(61, 61, 61, 0.5);
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1001;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .close-btn:hover {
+        color: #FA8231;
+        background: rgba(250, 130, 49, 0.1);
+        transform: rotate(90deg);
+    }
+
+    @media (max-width: 576px) {
+        .popup {
+            padding: 30px 40px;
+        }
+
+        .badge {
+            width: 100px;
+            height: 100px;
+        }
+
+        .badge-text {
+            font-size: 2em;
+        }
+    }
+
+    /* Content Section */
+    .content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem 1rem 5rem 1rem;
+    }
+
+    .container {
+        max-width: 48rem;
+        margin: 0 auto;
+    }
+
+    /* Card - HON Theme */
+    .card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 30px;
+        box-shadow: 0 10px 40px rgba(250, 130, 49, 0.15);
+        border: 2px solid rgba(250, 130, 49, 0.2);
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #FA8231, #F97F51, #FF6B9D);
+        border-radius: 30px 30px 0 0;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #FA8231, #F97F51, #FF6B9D);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.5px;
+    }
+
+    /* Upload Area - HON Theme */
+    .upload-area {
+        border: 3px dashed rgba(250, 130, 49, 0.4);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        background: linear-gradient(135deg, rgba(250, 130, 49, 0.05), rgba(255, 107, 157, 0.05));
+    }
+
+    .upload-area:hover {
+        border-color: #FA8231;
+        background: linear-gradient(135deg, rgba(250, 130, 49, 0.1), rgba(255, 107, 157, 0.1));
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(250, 130, 49, 0.2);
+    }
+
+    .upload-icon {
+        background: linear-gradient(135deg, rgba(250, 130, 49, 0.15), rgba(255, 107, 157, 0.15));
+        width: 5rem;
+        height: 5rem;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        border: 2px solid rgba(250, 130, 49, 0.3);
+    }
+
+    .upload-icon svg {
+        width: 2.5rem;
+        height: 2.5rem;
+        color: #FA8231;
+    }
+
+    .upload-text {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #3D3D3D;
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-subtext {
+        font-size: 0.875rem;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .preview-container {
+        position: relative;
+    }
+
+    .preview-image {
+        max-height: 24rem;
+        max-width: 100%;
+        border-radius: 15px;
+        display: block;
+        margin: 0 auto;
+        box-shadow: 0 8px 25px rgba(250, 130, 49, 0.2);
+    }
+
+    .remove-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 2.5rem;
+        height: 2.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .remove-btn:hover {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        transform: scale(1.1);
+    }
+
+    /* Form Elements */
+    .form-group {
+        margin-top: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #3D3D3D;
+        margin-bottom: 0.5rem;
+    }
+
+    textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid rgba(250, 130, 49, 0.25);
+        border-radius: 15px;
+        font-family: inherit;
+        font-size: 1rem;
+        resize: none;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    textarea:focus {
+        outline: none;
+        border-color: #FA8231;
+        box-shadow: 0 0 0 4px rgba(250, 130, 49, 0.1);
+        background: #ffffff;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #FA8231 0%, #F97F51 50%, #FF6B9D 100%);
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 50px;
+        font-size: 1.125rem;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 1.5rem;
+        box-shadow: 0 8px 25px rgba(250, 130, 49, 0.4);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #d53119, #ff3a1e, #ff5a85);
+        box-shadow: 0 12px 35px rgba(250, 130, 49, 0.6);
+        transform: translateY(-3px);
+    }
+
+    .submit-btn:active:not(:disabled) {
+        transform: translateY(-1px);
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Placeholder Screen */
+    .placeholder-screen {
+        text-align: center;
+        padding: 3rem 0;
+    }
+
+    .placeholder-icon {
+        width: 4rem;
+        height: 4rem;
+        margin: 0 auto 1rem;
+        color: rgba(250, 130, 49, 0.3);
+    }
+
+    .placeholder-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #3D3D3D;
+        margin-bottom: 0.5rem;
+    }
+
+    .placeholder-text {
+        color: #666;
+    }
+
+    /* Modal - HON Theme */
+    .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(8px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 1rem;
+    }
+
+    .modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        border-radius: 30px;
+        max-width: 56rem;
+        width: 100%;
+        max-height: 90vh;
+        overflow: auto;
+        padding: 1.5rem;
+        border: 2px solid rgba(250, 130, 49, 0.2);
+        box-shadow: 0 20px 60px rgba(250, 130, 49, 0.3);
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(250, 130, 49, 0.15);
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #FA8231, #F97F51, #FF6B9D);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .close-btn {
+        background: rgba(250, 130, 49, 0.1);
+        border: 2px solid rgba(250, 130, 49, 0.2);
+        color: #FA8231;
+        cursor: pointer;
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .close-btn:hover {
+        background: #FA8231;
+        color: white;
+        transform: rotate(90deg) scale(1.1);
+    }
+
+    .crop-container {
+        position: relative;
+        display: inline-block;
+        max-width: 100%;
+    }
+
+    .crop-image {
+        max-width: 100%;
+        max-height: 60vh;
+        border-radius: 15px;
+        display: block;
+    }
+
+    .crop-overlay {
+        position: absolute;
+        border: 4px solid #FA8231;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+        cursor: move;
+    }
+
+    .crop-handle {
+        position: absolute;
+        right: -12px;
+        bottom: -12px;
+        width: 24px;
+        height: 24px;
+        background: linear-gradient(135deg, #FA8231, #F97F51);
+        border-radius: 50%;
+        cursor: nwse-resize;
+        box-shadow: 0 2px 8px rgba(250, 130, 49, 0.4);
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 0.875rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-cancel {
+        background: rgba(250, 130, 49, 0.1);
+        color: #FA8231;
+        border: 2px solid rgba(250, 130, 49, 0.3);
+    }
+
+    .btn-cancel:hover {
+        background: rgba(250, 130, 49, 0.2);
+        border-color: #FA8231;
+    }
+
+    .btn-confirm {
+        background: linear-gradient(135deg, #FA8231, #F97F51, #FF6B9D);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 6px 20px rgba(250, 130, 49, 0.4);
+    }
+
+    .btn-confirm:hover {
+        background: linear-gradient(135deg, #d53119, #ff3a1e, #ff5a85);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(250, 130, 49, 0.5);
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    /* Hashtag Suggestions */
+    .hashtag-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+
+    .hashtag-btn {
+        background: linear-gradient(135deg, rgba(250, 130, 49, 0.1), rgba(255, 107, 157, 0.1));
+        color: #FA8231;
+        padding: 0.5rem 1rem;
+        border: 2px solid rgba(250, 130, 49, 0.3);
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .hashtag-btn:hover {
+        background: linear-gradient(135deg, #FA8231, #F97F51);
+        color: white;
+        border-color: #FA8231;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(250, 130, 49, 0.3);
+    }
+
+    svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Overlay - HON Theme */
+    .overlay {
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        left: 0%;
+        top: 0%;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        display: none;
+        z-index: 100;
+    }
+
+    .overlay.active {
+        display: block;
+        z-index: 100;
+    }
+
+    /* Warning Container */
+    .warning-container {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 248, 240, 0.98));
+        backdrop-filter: blur(20px);
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 30px;
+        padding: 32px;
+        max-width: 420px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(250, 130, 49, 0.4);
+        border: 3px solid rgba(250, 130, 49, 0.3);
+        animation: slideIn 0.3s ease-out;
+        position: relative;
+        z-index: 101;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -60%);
+        }
+
+        to {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    .warning-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding: 16px;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.08));
+        border: 2px solid rgba(239, 68, 68, 0.3);
+        border-radius: 20px;
+    }
+
+    .warning-icon {
+        width: 48px;
+        height: 48px;
+        animation: pulse 2s infinite;
+    }
+
+    .warning-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #3D3D3D;
+        letter-spacing: 0.5px;
+    }
+
+    .warning-message {
+        color: #555;
+        font-size: 1.125rem;
+        line-height: 1.6;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    /* Success Message Overlay */
+    .overlay2 {
+        position: fixed;
+        top: 8%;
+        left: 50%;
+        transform: translateX(-50%);
+        display: none;
+        z-index: 9999;
+        width: 100%;
+        max-width: 400px;
+        padding: 0 15px;
+    }
+
+    .overlay2.show {
+        display: block;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    }
+
+    .successMessage {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        font-size: 1.1rem;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem 1.5rem;
+        gap: 10px;
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        width: 100%;
+    }
+
+    .text {
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+    }
+
+    .text img {
+        height: 28px;
+        width: 28px;
+        flex-shrink: 0;
+    }
+
+    /* Birthday Popup - HON Theme */
+    .birthdayoverlay {
+        position: fixed;
+        height: 100%;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        z-index: 9999;
+    }
+
+    .birthdayoverlay .popup {
+        background: linear-gradient(135deg, #FA8231 0%, #F97F51 50%, #FF6B9D 100%);
+        border-radius: 30px;
+        max-width: 600px;
+        width: 80%;
+        padding: 50px 30px 40px;
+        text-align: center;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(250, 130, 49, 0.6);
+        animation: popIn 0.5s ease-out;
+        max-height: 85vh;
+        overflow-y: auto;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .gift-icon {
+        font-size: 70px;
+        margin-bottom: 15px;
+        animation: bounce 2s infinite;
+        filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+    }
+
+    @keyframes bounce {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    .party-emoji {
+        position: absolute;
+        font-size: 50px;
+        animation: spin 2s linear infinite;
+    }
+
+    .party-left {
+        top: 60px;
+        left: 60px;
+    }
+
+    .party-right {
+        top: 60px;
+        right: 60px;
+        animation-direction: reverse;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .sparkle {
+        position: absolute;
+        color: #ffd700;
+        font-size: 30px;
+        animation: pulse 1.5s infinite;
+    }
+
+    .sparkle-1 {
+        top: 40px;
+        left: 80px;
+    }
+
+    .sparkle-2 {
+        top: 80px;
+        right: 100px;
+        animation-delay: 0.5s;
+    }
+
+    .sparkle-3 {
+        bottom: 100px;
+        left: 100px;
+        animation-delay: 1s;
+    }
+
+    h1 {
+        color: white;
+        font-size: 36px;
+        font-weight: 800;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .subtitle {
+        color: white;
+        font-size: 18px;
+        margin-bottom: 25px;
+        font-weight: 600;
+    }
+
+    .bonus-card {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 20px;
+        width: 350px;
+        max-width: 100%;
+        margin: 0 auto 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .bonus-icon {
+        font-size: 50px;
+        margin-bottom: 10px;
+    }
+
+    .bonus-title {
+        color: white;
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .bonus-points {
+        color: #ffd700;
+        font-size: 38px;
+        font-weight: 900;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .bonus-duration {
+        color: white;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .cta-btn {
+        background: white;
+        color: #FA8231;
+        border: none;
+        padding: 18px 40px;
+        font-size: 20px;
+        font-weight: 800;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .cta-btn:hover {
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+        0% {
+            transform: translateY(-100px) rotate(0deg);
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+        }
+    }
+
+    /* Music Section - HON Theme */
+    .music-section {
+        margin-top: 1.5rem;
+        padding: 1.25rem;
+        background: linear-gradient(135deg, rgba(250, 130, 49, 0.08), rgba(255, 107, 157, 0.08));
+        border: 2px dashed rgba(250, 130, 49, 0.4);
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .music-section:hover {
+        border-color: #FA8231;
+        background: linear-gradient(135deg, rgba(250, 130, 49, 0.12), rgba(255, 107, 157, 0.12));
+    }
+
+    .music-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+
+    .music-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #3D3D3D;
+    }
+
+    .music-label svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: #FA8231;
+    }
+
+    .add-music-btn {
+        padding: 0.625rem 1.25rem;
+        background: linear-gradient(135deg, #FA8231, #F97F51, #FF6B9D);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .add-music-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(250, 130, 49, 0.5);
+    }
+
+    .selected-music {
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 15px;
+        border: 2px solid rgba(250, 130, 49, 0.2);
+    }
+
+    .selected-music.show {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .selected-music img {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 2px solid rgba(250, 130, 49, 0.2);
+    }
+
+    .music-info {
+        flex: 1;
+    }
+
+    .music-title {
+        font-weight: 700;
+        color: #3D3D3D;
+        margin-bottom: 0.25rem;
+    }
+
+    .music-artist {
+        font-size: 0.875rem;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .remove-music-btn {
+        padding: 0.5rem 0.75rem;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.08));
+        color: #ef4444;
+        border: 2px solid rgba(239, 68, 68, 0.3);
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+
+    .remove-music-btn:hover {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        border-color: #ef4444;
+    }
+
+    /* Music Modal - HON Theme */
+    .music-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(8px);
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        padding: 20px;
+    }
+
+    .music-modal.show {
+        display: flex;
+    }
+
+    .music-modal .modal-content {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        width: 100%;
+        max-width: 650px;
+        max-height: 90vh;
+        border-radius: 30px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(250, 130, 49, 0.4);
+        border: 3px solid rgba(250, 130, 49, 0.3);
+    }
+
+    .music-modal .modal-header {
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid rgba(250, 130, 49, 0.15);
+        background: linear-gradient(135deg, #FA8231, #F97F51, #FF6B9D);
+        color: white;
+    }
+
+    .music-modal .modal-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+    }
+
+    .close-modal {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .close-modal:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+    }
+
+    .search-section {
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid rgba(250, 130, 49, 0.1);
+        background: #fafafa;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid rgba(250, 130, 49, 0.25);
+        border-radius: 15px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #FA8231;
+        box-shadow: 0 0 0 4px rgba(250, 130, 49, 0.1);
+    }
+
+    .moods-section {
+        padding: 1rem 1.5rem;
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        background: #fafafa;
+        border-bottom: 2px solid rgba(250, 130, 49, 0.1);
+    }
+
+    .mood-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        border: 2px solid rgba(250, 130, 49, 0.3);
+        background: white;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        color: #FA8231;
+    }
+
+    .mood-btn:hover {
+        background: linear-gradient(135deg, #FA8231, #F97F51);
+        color: white;
+        border-color: #FA8231;
+        transform: translateY(-2px);
+    }
+
+    .song-list {
+        overflow-y: auto;
+        padding: 1rem 1.5rem;
+        flex: 1;
+    }
+
+    .song {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+        padding: 0;
+        border-radius: 0;
+        transition: all 0.3s ease;
+        align-items: flex-start;
+        background: white;
+    }
+
+    .song:hover {
+        background: #fafafa;
+    }
+
+    .song img {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        object-fit: cover;
+        flex-shrink: 0;
+        border: 2px solid rgba(250, 130, 49, 0.1);
+    }
+
+    .song-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .song-info {
+        flex: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .song-title {
+        font-weight: 700;
+        color: #3D3D3D;
+        margin-bottom: 0.25rem;
+        font-size: 1rem;
+        line-height: 1.3;
+    }
+
+    .song-artist {
+        font-size: 0.875rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .song-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .play-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #FA8231, #F97F51);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(250, 130, 49, 0.3);
+    }
+
+    .play-btn:hover {
+        background: linear-gradient(135deg, #d53119, #ff3a1e);
+        transform: scale(1.1);
+    }
+
+    .play-btn.playing {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .song audio {
+        display: none;
+    }
+
+    .song-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-top: 0.5rem;
+    }
+
+    .select-song-btn {
+        background: linear-gradient(135deg, #FA8231, #F97F51, #FF6B9D);
+        color: white;
+        border: none;
+        padding: 0.625rem 1.5rem;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(250, 130, 49, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .select-song-btn:hover {
+        background: linear-gradient(135deg, #d53119, #ff3a1e, #ff5a85);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(250, 130, 49, 0.5);
+    }
+
+    .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        font-weight: 600;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .overlay2 {
+            max-width: 350px;
+        }
+
+        .successMessage {
+            font-size: 1rem;
+            padding: 0.9rem 1.2rem;
+        }
+
+        .text {
+            font-size: 1rem;
+        }
+
+        .text img {
+            height: 26px;
+            width: 26px;
+        }
+
+        .card {
+            padding: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+        }
+
+        .upload-area {
+            padding: 1.5rem 1rem;
+        }
+
+        .upload-icon {
+            width: 4rem;
+            height: 4rem;
+        }
+
+        .upload-text {
+            font-size: 1rem;
+        }
+
+        .modal-content {
+            padding: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+        }
+
+        .crop-image {
+            max-height: 50vh;
+        }
+
+        .crop-handle {
+            width: 32px;
+            height: 32px;
+            right: -16px;
+            bottom: -16px;
+        }
+
+        /* Music Section Mobile */
+        .music-section {
+            padding: 1rem;
+        }
+
+        .music-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+        }
+
+        .add-music-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .music-modal .modal-content {
+            max-width: 100%;
+            max-height: 100vh;
+            border-radius: 0;
+            height: 100vh;
+        }
+
+        .song {
+            flex-direction: row;
+            padding: 0.875rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            gap: 0.75rem;
+            margin-bottom: 0;
+        }
+
+        .song img {
+            width: 70px;
+            height: 70px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .content {
+            padding: 0.5rem 0.5rem 1.3rem 0.5rem;
+        }
+
+        .upload-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+        }
+
+        .overlay2 {
+            top: 10%;
+            max-width: 320px;
+        }
+
+        .successMessage {
+            font-size: 0.95rem;
+            padding: 0.8rem 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .music-section {
+            padding: 0.875rem;
+        }
+
+        .song {
+            padding: 0.75rem 0;
+            gap: 0.625rem;
+        }
+
+        .song img {
+            width: 60px;
+            height: 60px;
+        }
+
+        .play-btn {
+            width: 32px;
+            height: 32px;
+        }
+
+        .select-song-btn {
+            padding: 0.5rem 0.875rem;
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .overlay2 {
+            max-width: 280px;
+        }
+
+        .successMessage {
+            font-size: 0.9rem;
+            padding: 0.75rem 0.9rem;
+        }
+    }
+  </style>
+
+
+</head>
+<body>
+<div class="bg-gradient">
+  <span></span>
+</div>
+
+<!--&lt;!&ndash; Mobile Logo (top-left corner) &ndash;&gt;-->
+<!--<a href="#" class="mobile-logo">-->
+<!--  <span class="logo-hot">Hot</span><span class="logo-not">Or</span><span class="logo-hot">Not</span>-->
+<!--</a>-->
+
+
+<!-- Desktop Navigation -->
+<th:block th:replace="~{NavFragmentFolder/navbar-desktop :: desktopNav}"></th:block>
+
+<!-- Mobile Bottom Navigation -->
+<div th:insert="~{NavFragmentFolder/navbar-mobile :: mobileNav}"></div>
+
+<!-- Main Content -->
+<div class="content">
+  <div class="container">
+    <!-- Upload Tab -->
+    <div id="uploadTab" class="card">
+      <div class="card-title">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #9333ea;">
+          <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+        </svg>
+        Upload Picture
+      </div>
+      <form th:action="@{/user/add-post}" method="post" id="UploadForm"  enctype="multipart/form-data">
+        <input type="file" id="fileInput" name="photo" accept="image/*" class="hidden">
+
+        <input type="hidden" name="userId" id="userId" th:value="${user_master.userId}">
+        <!-- CSRF Token -->
+        <input type="hidden"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}" />
+
+        <div id="uploadArea" class="upload-area">
+          <div class="upload-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #9333ea; width: 2.5rem; height: 2.5rem;">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+          </div>
+          <div class="upload-text">Click to upload image</div>
+          <div class="upload-subtext">PNG, JPG, GIF up to 10MB</div>
+        </div>
+
+        <div id="previewArea" class="hidden preview-container" style="margin-top: 1.5rem;">
+          <img id="previewImage"  class="preview-image">
+          <button id="removeBtn" class="remove-btn">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Caption (Optional)</label>
+          <textarea id="caption" name="caption" rows="4" placeholder="Share your thoughts..."></textarea>
+        </div>
+
+        <!-- Music Section  -->
+        <div class="music-section">
+          <div class="music-header">
+            <div class="music-label">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M9 18V5l12-2v13M9 18c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-2c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"></path>
+              </svg>
+              Add Music
+            </div>
+
+            <input type="hidden" name="musicId" id="musicId" value="">
+            <input type="hidden" name="musicName" id="musicName" value="">
+            <input type="hidden" name="musicArtist" id="musicArtist" value="">
+            <input type="hidden" name="musicAudio" id="musicAudio" value="">
+            <input type="hidden" name="musicImage" id="musicImage" value="">
+
+            <button type="button" class="add-music-btn" id="addMusicBtn">
+              🎵 Add Music
+            </button>
+          </div>
+
+          <div id="selectedMusic" class="selected-music">
+            <img id="selectedMusicImg" src="" alt="">
+            <div class="music-info">
+              <div class="music-title" id="selectedMusicTitle"></div>
+              <div class="music-artist" id="selectedMusicArtist"></div>
+            </div>
+            <button type="button" class="remove-music-btn" id="removeMusicBtn">Remove</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Hashtags (Optional)</label>
+          <textarea id="hashtags" name="hashtags" placeholder="Add Mood like ... #Crazy #Happy"></textarea>
+
+          <div class="hashtag-suggestions" id="hashtagSuggestions">
+            <button type="button" class="hashtag-btn" name="#Happy">#Happy</button>
+            <button type="button" class="hashtag-btn" name="#Crazy">#Crazy</button>
+            <button type="button" class="hashtag-btn" name="#Love">#Love</button>
+            <button type="button" class="hashtag-btn" name="#Sad">#Sad</button>
+            <button type="button" class="hashtag-btn" name="#Excited">#Excited</button>
+            <button type="button" class="hashtag-btn" name="#Chill">#Chill</button>
+            <button type="button" class="hashtag-btn" name="#Blessed">#Blessed</button>
+            <button type="button" class="hashtag-btn" name="#Motivated">#Motivated</button>
+          </div>
+
+        </div>
+
+        <input type="submit" id="submitBtn" class="submit-btn" value="Upload image" disabled/>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<!-- Music Modal -->
+<div class="music-modal" id="musicModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem;">
+          <path d="M9 18V5l12-2v13M9 18c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-2c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"></path>
+        </svg>
+        Choose Music
+      </h2>
+      <button class="close-modal" id="closeModalMusic">×</button>
+    </div>
+
+    <div class="search-section">
+      <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search for music...">
+    </div>
+
+    <div class="moods-section">
+      <button type="button" class="mood-btn" data-mood="chill">Chill</button>
+      <button type="button" class="mood-btn" data-mood="lofi">Lofi</button>
+      <button type="button" class="mood-btn" data-mood="ambient">Ambient</button>
+      <button type="button" class="mood-btn" data-mood="jazz">Jazz</button>
+      <button type="button" class="mood-btn" data-mood="hip hop">Hip Hop</button>
+      <button type="button" class="mood-btn" data-mood="pop">Pop</button>
+    </div>
+
+    <div class="song-list" id="songList">
+      <div class="loading">Search for music or select a mood...</div>
+    </div>
+  </div>
+</div>
+
+
+<div id="cropModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #9333ea;">
+          <path d="M23 3H1v18h22V3zM1 3l6 6m10 10l6 6"></path>
+        </svg>
+        Adjust Your Image
+      </div>
+      <button id="closeModal" class="close-btn">×</button>
+    </div>
+    <div style="text-align: center; width: 100%;">
+      <div class="crop-container" id="cropContainer">
+        <img id="cropImage" class="crop-image">
+        <div id="cropOverlay" class="crop-overlay">
+          <div class="crop-handle" id="cropHandle"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" id="cancelCrop">Cancel</button>
+      <button class="btn btn-confirm" id="confirmCrop">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        NEXT
+      </button>
+    </div>
+  </div>
+  <canvas id="cropCanvas" style="display: none;"></canvas>
+</div>
+
+<script>
+  const API = "/api/music/search?q=";
+  let selectedSong = null;
+  let currentAudio = null; // Track currently playing audio
+
+  // Open Music Modal
+  document.getElementById('addMusicBtn').addEventListener('click', () => {
+      document.getElementById('musicModal').classList.add('show');
+      loadMood('chill');
+  });
+
+  // Close Music Modal
+  document.getElementById('closeModalMusic').addEventListener('click', () => {
+      document.getElementById('musicModal').classList.remove('show');
+      stopAllAudio(); // Stop music when closing modal
+  });
+
+  // Close modal on outside click
+  document.getElementById('musicModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('musicModal')) {
+          document.getElementById('musicModal').classList.remove('show');
+          stopAllAudio(); // Stop music when closing modal
+      }
+  });
+
+  // Search Music
+  document.getElementById('searchInput').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter' && e.target.value.trim()) {
+          fetchSongs(e.target.value.trim());
+      }
+  });
+
+  // Mood Buttons
+  document.querySelectorAll('.mood-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+          const mood = btn.getAttribute('data-mood');
+          document.getElementById('searchInput').value = mood;
+          loadMood(mood);
+      });
+  });
+
+  function loadMood(mood) {
+      fetchSongs(mood);
+  }
+
+  function fetchSongs(query) {
+      const songList = document.getElementById('songList');
+      songList.innerHTML = '<div class="loading">Loading music...</div>';
+
+      fetch(API + encodeURIComponent(query))
+          .then(res => res.json())
+          .then(data => {
+              if (data.results && data.results.length > 0) {
+                  renderSongs(data.results);
+              } else {
+                  songList.innerHTML = '<div class="loading">No music found. Try another search.</div>';
+              }
+          })
+          .catch(err => {
+              console.error('Error fetching songs:', err);
+              songList.innerHTML = '<div class="loading">Error loading music. Please try again.</div>';
+          });
+  }
+
+  function stopAllAudio() {
+      // Stop currently playing audio if any
+      if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0;
+          currentAudio = null;
+      }
+
+      // Reset all play buttons
+      document.querySelectorAll('.play-btn').forEach(btn => {
+          btn.classList.remove('playing');
+          btn.innerHTML = '<svg fill="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M8 5v14l11-7z"/></svg>';
+      });
+  }
+
+  function renderSongs(songs) {
+      const list = document.getElementById('songList');
+      list.innerHTML = '';
+
+      songs.forEach(song => {
+          const div = document.createElement('div');
+          div.className = 'song';
+
+          div.innerHTML = `
+              <img src="${song.image}" alt="${song.name}">
+              <div class="song-details">
+                  <div class="song-info">
+                      <div class="song-title">${song.name}</div>
+                      <div class="song-artist">${song.artist_name}</div>
+                  </div>
+                  <div class="song-controls">
+                      <button type="button" class="play-btn" data-audio="${song.audio}">
+                          <svg fill="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                              <path d="M8 5v14l11-7z"/>
+                          </svg>
+                      </button>
+                  </div>
+                  <div class="song-actions">
+                      <button type="button" class="select-song-btn" data-song='${JSON.stringify(song)}'>Select</button>
+                  </div>
+              </div>
+              <audio preload="none">
+                  <source src="${song.audio}" type="audio/mpeg">
+              </audio>
+          `;
+
+          list.appendChild(div);
+      });
+
+      // Add event listeners to play buttons
+      document.querySelectorAll('.play-btn').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const audioElement = this.closest('.song').querySelector('audio');
+              togglePlay(this, audioElement);
+          });
+      });
+
+      // Add event listeners to select buttons
+      document.querySelectorAll('.select-song-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+              const song = JSON.parse(this.getAttribute('data-song'));
+              stopAllAudio(); // Stop music when selecting
+              selectSong(song);
+          });
+      });
+  }
+
+  function togglePlay(button, audioElement) {
+      // If this audio is already playing, pause it
+      if (currentAudio === audioElement && !audioElement.paused) {
+          audioElement.pause();
+          button.classList.remove('playing');
+          button.innerHTML = '<svg fill="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M8 5v14l11-7z"/></svg>';
+          currentAudio = null;
+      } else {
+          // Stop any currently playing audio
+          stopAllAudio();
+
+          // Play this audio
+          audioElement.play();
+          button.classList.add('playing');
+          button.innerHTML = '<svg fill="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>';
+          currentAudio = audioElement;
+
+          // When audio ends, reset button
+          audioElement.onended = function() {
+              button.classList.remove('playing');
+              button.innerHTML = '<svg fill="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M8 5v14l11-7z"/></svg>';
+              currentAudio = null;
+          };
+      }
+  }
+
+  function selectSong(song) {
+      selectedSong = song;
+
+      // Update hidden fields
+      document.getElementById('musicId').value = song.id || '';
+      document.getElementById('musicName').value = song.name || '';
+      document.getElementById('musicArtist').value = song.artist_name || '';
+      document.getElementById('musicAudio').value = song.audio || '';
+      document.getElementById('musicImage').value = song.image || '';
+
+      console.log("ID "+song.id);
+      console.log("Name "+song.name);
+      console.log("Artist Name "+song.artist_name);
+      console.log("Image "+song.image);
+      console.log("Audio "+song.audio);
+
+      // Update display
+      document.getElementById('selectedMusicImg').src = song.image;
+      document.getElementById('selectedMusicTitle').textContent = song.name;
+      document.getElementById('selectedMusicArtist').textContent = song.artist_name;
+      document.getElementById('selectedMusic').classList.add('show');
+
+      // Update button text
+      document.getElementById('addMusicBtn').innerHTML = '✓ Music Added';
+
+      // Close modal
+      document.getElementById('musicModal').classList.remove('show');
+
+      console.log('Selected Song:', song);
+
+      // IMPORTANT: Save ONLY metadata (id, name, artist, image)
+      // NOT audio URL for commercial usage
+  }
+
+  // Remove Music
+  document.getElementById('removeMusicBtn').addEventListener('click', () => {
+      selectedSong = null;
+      document.getElementById('musicId').value = '';
+      document.getElementById('musicName').value = '';
+      document.getElementById('musicArtist').value = '';
+      document.getElementById('musicAudio').value = '';
+      document.getElementById('musicImage').value =  '';
+      document.getElementById('selectedMusic').classList.remove('show');
+      document.getElementById('addMusicBtn').innerHTML = '🎵 Add Music';
+  });
+</script>
+
+<script>
+  // State management
+  const state = {
+    selectedImage: null,
+    croppedImage: null,
+    cropArea: { x: 0, y: 0, width: 100, height: 100 },
+    isDragging: false,
+    isResizing: false,
+    dragStart: { x: 0, y: 0 },
+    resizeStart: { width: 0, height: 0, mouseX: 0, mouseY: 0 },
+    animationFrame: null
+  };
+
+  // Elements
+  const fileInput = document.getElementById('fileInput');
+  const uploadArea = document.getElementById('uploadArea');
+  const previewArea = document.getElementById('previewArea');
+  const previewImage = document.getElementById('previewImage');
+  const removeBtn = document.getElementById('removeBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  const caption = document.getElementById('caption');
+  const cropModal = document.getElementById('cropModal');
+  const cropImage = document.getElementById('cropImage');
+  const cropOverlay = document.getElementById('cropOverlay');
+  const cropHandle = document.getElementById('cropHandle');
+  const cropCanvas = document.getElementById('cropCanvas');
+  const closeModal = document.getElementById('closeModal');
+  const cancelCrop = document.getElementById('cancelCrop');
+  const confirmCrop = document.getElementById('confirmCrop');
+
+  // Upload area click
+  uploadArea.addEventListener('click', function() {
+      fileInput.click();
+  });
+
+  // File selection
+  fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+              state.selectedImage = e.target.result;
+              cropImage.src = state.selectedImage;
+              cropModal.classList.add('active');
+          };
+          reader.readAsDataURL(file);
+      }
+  });
+
+  // Initialize crop area - Square (1:1) aspect ratio
+  cropImage.addEventListener('load', function() {
+      const rect = cropImage.getBoundingClientRect();
+      const size = Math.min(rect.width, rect.height) * 0.7;
+
+      state.cropArea = {
+          x: (rect.width - size) / 2,
+          y: (rect.height - size) / 2,
+          width: size,
+          height: size
+      };
+      updateCropOverlay();
+  });
+
+  // Smooth overlay update
+  function updateCropOverlay() {
+      cropOverlay.style.left = state.cropArea.x + 'px';
+      cropOverlay.style.top = state.cropArea.y + 'px';
+      cropOverlay.style.width = state.cropArea.width + 'px';
+      cropOverlay.style.height = state.cropArea.height + 'px';
+  }
+
+  // Get event position (mouse or touch)
+  function getEventPosition(e) {
+      if (e.type.startsWith('touch')) {
+          const touch = e.touches[0] || e.changedTouches[0];
+          return { x: touch.clientX, y: touch.clientY };
+      }
+      return { x: e.clientX, y: e.clientY };
+  }
+
+  // Drag start
+  function handleDragStart(e) {
+      if (e.target === cropHandle) return;
+
+      state.isDragging = true;
+      const pos = getEventPosition(e);
+      const imgRect = cropImage.getBoundingClientRect();
+
+      state.dragStart = {
+          x: pos.x - imgRect.left - state.cropArea.x,
+          y: pos.y - imgRect.top - state.cropArea.y
+      };
+
+      e.preventDefault();
+  }
+
+  cropOverlay.addEventListener('mousedown', handleDragStart);
+  cropOverlay.addEventListener('touchstart', handleDragStart, { passive: false });
+
+  // Drag move - smooth
+  function handleDragMove(e) {
+      if (!state.isDragging) return;
+
+      if (state.animationFrame) {
+          cancelAnimationFrame(state.animationFrame);
+      }
+
+      const pos = getEventPosition(e);
+      const imgRect = cropImage.getBoundingClientRect();
+
+      let newX = pos.x - imgRect.left - state.dragStart.x;
+      let newY = pos.y - imgRect.top - state.dragStart.y;
+
+      // Constrain within bounds
+      newX = Math.max(0, Math.min(newX, imgRect.width - state.cropArea.width));
+      newY = Math.max(0, Math.min(newY, imgRect.height - state.cropArea.height));
+
+      state.cropArea.x = newX;
+      state.cropArea.y = newY;
+
+      state.animationFrame = requestAnimationFrame(updateCropOverlay);
+      e.preventDefault();
+  }
+
+  document.addEventListener('mousemove', handleDragMove);
+  document.addEventListener('touchmove', handleDragMove, { passive: false });
+
+  // Resize start
+  function handleResizeStart(e) {
+      state.isResizing = true;
+      const pos = getEventPosition(e);
+
+      state.resizeStart = {
+          width: state.cropArea.width,
+          height: state.cropArea.height,
+          mouseX: pos.x,
+          mouseY: pos.y
+      };
+
+      e.stopPropagation();
+      e.preventDefault();
+  }
+
+  cropHandle.addEventListener('mousedown', handleResizeStart);
+  cropHandle.addEventListener('touchstart', handleResizeStart, { passive: false });
+
+  // Resize move - smooth square resizing
+  function handleResizeMove(e) {
+      if (!state.isResizing) return;
+
+      if (state.animationFrame) {
+          cancelAnimationFrame(state.animationFrame);
+      }
+
+      const pos = getEventPosition(e);
+      const imgRect = cropImage.getBoundingClientRect();
+
+      const deltaX = pos.x - state.resizeStart.mouseX;
+      const deltaY = pos.y - state.resizeStart.mouseY;
+      const delta = (deltaX + deltaY) / 2;
+
+      let newSize = state.resizeStart.width + delta;
+
+      // Minimum size
+      newSize = Math.max(80, newSize);
+
+      // Maximum size - stay within bounds
+      const maxWidthFromX = imgRect.width - state.cropArea.x;
+      const maxHeightFromY = imgRect.height - state.cropArea.y;
+      newSize = Math.min(newSize, maxWidthFromX, maxHeightFromY);
+
+      // Update square
+      state.cropArea.width = newSize;
+      state.cropArea.height = newSize;
+
+      state.animationFrame = requestAnimationFrame(updateCropOverlay);
+      e.preventDefault();
+  }
+
+  document.addEventListener('mousemove', handleResizeMove);
+  document.addEventListener('touchmove', handleResizeMove, { passive: false });
+
+  // Stop dragging/resizing
+  function handleStop() {
+      state.isDragging = false;
+      state.isResizing = false;
+
+      if (state.animationFrame) {
+          cancelAnimationFrame(state.animationFrame);
+          state.animationFrame = null;
+      }
+  }
+
+  document.addEventListener('mouseup', handleStop);
+  document.addEventListener('touchend', handleStop);
+  document.addEventListener('touchcancel', handleStop);
+
+  // Close modal
+  closeModal.addEventListener('click', function() {
+      cropModal.classList.remove('active');
+      state.selectedImage = null;
+      fileInput.value = '';
+  });
+
+  cancelCrop.addEventListener('click', function() {
+      cropModal.classList.remove('active');
+      state.selectedImage = null;
+      fileInput.value = '';
+  });
+
+  // Confirm crop - Square output
+  confirmCrop.addEventListener('click', function() {
+      const canvas = cropCanvas;
+      const ctx = canvas.getContext('2d');
+
+      const naturalWidth = cropImage.naturalWidth;
+      const naturalHeight = cropImage.naturalHeight;
+      const imgRect = cropImage.getBoundingClientRect();
+      const scaleX = naturalWidth / imgRect.width;
+      const scaleY = naturalHeight / imgRect.height;
+
+      const squareSize = state.cropArea.width * scaleX;
+
+      canvas.width = squareSize;
+      canvas.height = squareSize;
+
+      ctx.drawImage(
+          cropImage,
+          state.cropArea.x * scaleX,
+          state.cropArea.y * scaleY,
+          squareSize,
+          squareSize,
+          0, 0,
+          squareSize,
+          squareSize
+      );
+
+      state.croppedImage = canvas.toDataURL('image/png');
+      previewImage.src = state.croppedImage;
+
+      canvas.toBlob(function(blob) {
+          const file = new File([blob], "cropped-image.png", { type: "image/png" });
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          fileInput.files = dataTransfer.files;
+      }, 'image/png');
+
+      uploadArea.classList.add('hidden');
+      previewArea.classList.remove('hidden');
+      submitBtn.disabled = false;
+      cropModal.classList.remove('active');
+  });
+
+<!-- Button Disabled After Submitted -->
+
+ let form =document.getElementById('UploadForm');
+  form.addEventListener("submit",(event) => {
+   submitBtn.disabled=true;
+  });
+
+  // Hashtag buttons
+  const hashtags = document.querySelectorAll('.hashtag-btn');
+  const inputText = document.getElementById('hashtags');
+
+  function updateHashtagButtons() {
+      const currentText = inputText.value;
+      hashtags.forEach(function(btn) {
+          const tag = btn.name;
+          if (currentText.includes(tag)) {
+              btn.disabled = true;
+              btn.style.opacity = '0.5';
+              btn.style.cursor = 'not-allowed';
+          } else {
+              btn.disabled = false;
+              btn.style.opacity = '1';
+              btn.style.cursor = 'pointer';
+          }
+      });
+  }
+
+  hashtags.forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+          if (!btn.disabled) {
+              const tag = e.target.name;
+              inputText.value += tag + ' ';
+              btn.disabled = true;
+              btn.style.opacity = '0.5';
+              btn.style.cursor = 'not-allowed';
+          }
+      });
+  });
+
+  inputText.addEventListener('input', function() {
+      updateHashtagButtons();
+  });
+
+  // Remove image
+  removeBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      state.selectedImage = null;
+      state.croppedImage = null;
+      uploadArea.classList.remove('hidden');
+      previewArea.classList.add('hidden');
+      submitBtn.disabled = true;
+      fileInput.value = '';
+  });
+
+</script>
+
+<script th:src="@{/js/hotornot.js}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+<!--Upload Message-->
+<div class="overlay2" id="Overlay2">
+  <div class="successMessage" id="SuccessMessage">
+    <p class="text" id="text">
+
+    </p>
+  </div>
+</div>
+<!--Error Message -->
+<div class="overlay" id="Overlay1">
+  <div class="warning-container">
+    <button class="close-btn" onclick="closeWarning()">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 6L6 18M6 6l12 12" stroke="#4a5568" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <div class="warning-header">
+      <svg class="warning-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L2 20h20L12 2z" fill="#1a1a1a"/>
+        <path d="M12 9v5M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <h1 class="warning-title">WARNING</h1>
+    </div>
+
+    <p class="warning-message" id="warningMessage">
+    </p>
+  </div>
+</div>
+
+<!--Ai check Abhay's Part-->
+<script th:if="${PostUploaded}">
+  window.addEventListener('DOMContentLoaded', ()=> {
+  const message=document.getElementById('Overlay2');
+  const messageDiv=document.getElementById('SuccessMessage');
+  const text=document.getElementById('text');
+  const image=document.createElement('img');
+
+  if(message)
+  {
+   messageDiv.style.backgroundColor='rgb(61, 181, 61)';
+    messageDiv.style.color='white';
+   image.src='/check.png';
+   image.style.height='30px';
+   image.style.width='30px';
+   text.appendChild(image);
+   text.innerHTML+='post Uploaded';
+   message.classList.add("show");
+  }
+ setTimeout(()=>{
+  message.classList.remove("show");
+ },5000);
+  });
+</script>
+<script th:if="${EmptyPhoto}">
+  window.addEventListener('DOMContentLoaded', ()=> {
+  const message=document.getElementById('Overlay2');
+  const messageDiv=document.getElementById('SuccessMessage');
+  const text=document.getElementById('text');
+  const image=document.createElement('img');
+  if(message)
+  {
+   messageDiv.style.backgroundColor='rgb(199, 83, 83)';
+   messageDiv.style.color='white';
+   image.src='/warning.png';
+   image.style.height='30px';
+   image.style.width='30px';
+   text.appendChild(image);
+   text.innerHTML+='Please Upload a Picture';
+   message.classList.add("show");
+  }
+ setTimeout(()=>{
+  message.classList.remove("show");
+ },5000);
+  });
+</script>
+<script th:if="${NotSafe}">
+  window.addEventListener('DOMContentLoaded', () => {
+         const show = document.getElementById('Overlay1');
+         const message =document.getElementById('warningMessage');
+         if (show) {
+              message.innerHTML='Upload rejected: explicit or restricted content detected.';
+              show.classList.add("active");
+         }
+
+     setTimeout(()=>{
+      show.classList.remove("active");
+     },5000);
+     });
+</script>
+<script th:if="${Celebrity}">
+  window.addEventListener('DOMContentLoaded', () => {
+         const show = document.getElementById('Overlay1');
+         const message =document.getElementById('warningMessage');
+         if (show) {
+              message.innerHTML='Upload rejected: Celebrity Picture cannot Upload.';
+              show.classList.add("active");
+         }
+
+     setTimeout(()=>{
+      show.classList.remove("active");
+     },5000);
+     });
+</script>
+<script th:if="${Weapon}">
+  window.addEventListener('DOMContentLoaded', () => {
+         const show = document.getElementById('Overlay1');
+         const message =document.getElementById('warningMessage');
+         if (show) {
+              message.innerHTML='Upload rejected: Something Offence Detected .';
+              show.classList.add("active");
+         }
+
+     setTimeout(()=>{
+      show.classList.remove("active");
+     },5000);
+     });
+</script>
+
+
+<script>
+  function closeWarning() {
+      document.querySelector('.warning-container').style.animation = 'slideOut 0.3s ease-out';
+      setTimeout(() => {
+          let error =document.getElementById('Overlay1');
+  error.style.visibility = 'hidden';
+      }, 10);
+  }
+</script>
+
+
+</body>
+</html>
