@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HotOrNot Light Mode Wheel Game</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "brand-red": "#F73B20",
+                        "brand-orange": "#FA8231",
+                        "charcoal": "#1A1A1A",
+                        "bg-light": "#FFFFFF",
+                        "bg-subtle": "#F8F8F8",
+                        "silver": "#E2E8F0",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-bg-light font-display text-charcoal min-h-screen overflow-x-hidden;
+                background: radial-gradient(circle at top, #FFFFFF 0%, #F8F8F8 100%);
+            }
+        }
+        .header-glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .wheel-shadow {
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        }
+        .refill-gradient {
+            background: linear-gradient(135deg, #F73B20 0%, #FA8231 100%);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="sticky top-0 z-50 header-glass px-4 py-4 flex items-center justify-between">
+        <button
+            class="w-10 h-10 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 transition-colors">
+            <span class="material-symbols-outlined text-charcoal">arrow_back_ios_new</span>
+        </button>
+        <div class="flex items-center gap-2 bg-brand-red/10 border border-brand-red/20 px-4 py-1.5 rounded-full">
+            <span class="material-symbols-outlined text-brand-red text-sm fill-1">bolt</span>
+            <span class="text-brand-red text-sm font-extrabold tracking-wider">3 CHANCES LEFT</span>
+        </div>
+        <button
+            class="w-10 h-10 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 transition-colors">
+            <span class="material-symbols-outlined text-charcoal">help</span>
+        </button>
+    </header>
+    <main class="flex flex-col items-center justify-start pt-8 pb-12 px-6 space-y-10">
+        <div class="text-center space-y-1">
+            <h1 class="text-3xl font-extrabold tracking-tight text-charcoal uppercase italic">Fortune Wheel</h1>
+            <p class="text-charcoal/60 text-sm font-medium">Spin to win exclusive credits &amp; perks</p>
+        </div>
+        <div class="relative w-full max-w-[360px] aspect-square flex items-center justify-center">
+            <div class="absolute -top-3 z-30 flex flex-col items-center">
+                <div
+                    class="w-8 h-10 bg-silver rounded-t-full rounded-b-lg shadow-md flex items-center justify-center border border-gray-300">
+                    <span class="material-symbols-outlined text-charcoal font-bold text-lg">south</span>
+                </div>
+            </div>
+            <div
+                class="relative w-full h-full rounded-full border-[10px] border-silver wheel-shadow overflow-hidden flex items-center justify-center bg-white">
+                <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" fill="transparent" r="50" stroke="#F73B20" stroke-dasharray="16.6 83.4"
+                        stroke-width="100"></circle>
+                    <circle cx="50" cy="50" fill="transparent" r="50" stroke="#FA8231" stroke-dasharray="16.6 83.4"
+                        stroke-dashoffset="-16.6" stroke-width="100"></circle>
+                    <circle cx="50" cy="50" fill="transparent" r="50" stroke="#F73B20" stroke-dasharray="16.6 83.4"
+                        stroke-dashoffset="-33.2" stroke-width="100"></circle>
+                    <circle cx="50" cy="50" fill="transparent" r="50" stroke="#FA8231" stroke-dasharray="16.6 83.4"
+                        stroke-dashoffset="-49.8" stroke-width="100"></circle>
+                    <circle cx="50" cy="50" fill="transparent" r="50" stroke="#F73B20" stroke-dasharray="16.6 83.4"
+                        stroke-dashoffset="-66.4" stroke-width="100"></circle>
+                    <circle cx="50" cy="50" fill="transparent" r="50" stroke="#FA8231" stroke-dasharray="16.6 83.4"
+                        stroke-dashoffset="-83" stroke-width="100"></circle>
+                </svg>
+                <div class="absolute inset-0 w-full h-full flex items-center justify-center">
+                    <div class="absolute top-12 font-black text-xl text-white">50</div>
+                    <div class="absolute right-12 font-black text-xl text-white rotate-60">10</div>
+                    <div class="absolute bottom-12 font-black text-xl text-white rotate-180">FREE</div>
+                    <div class="absolute left-12 font-black text-xl text-white -rotate-60">20</div>
+                    <div class="absolute bottom-24 right-8 font-black text-xl text-white rotate-120">5</div>
+                    <div class="absolute bottom-24 left-8 font-black text-xl text-white -rotate-120">30</div>
+                </div>
+                <div
+                    class="absolute z-20 w-24 h-24 rounded-full bg-silver p-1 shadow-lg transition-transform active:scale-95 cursor-pointer">
+                    <div
+                        class="w-full h-full rounded-full bg-white border-4 border-silver flex flex-col items-center justify-center">
+                        <span class="text-charcoal font-black text-xl leading-none">SPIN</span>
+                        <div class="w-6 h-1 bg-charcoal/10 rounded-full mt-1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w-full space-y-4">
+            <div class="bg-white border border-brand-red/10 p-6 rounded-xl text-center space-y-2 card-shadow">
+                <p class="text-brand-red font-bold text-xs uppercase tracking-[0.2em]">Current Status</p>
+                <h3 class="text-charcoal text-xl font-extrabold">Ready to Spin?</h3>
+                <p class="text-charcoal/50 text-sm">Every spin costs 1 chance. Win up to 1000 credits instantly!</p>
+            </div>
+            <div
+                class="bg-white border border-brand-red/10 p-4 rounded-xl flex items-center gap-4 card-shadow border-l-4 border-l-brand-red">
+                <div class="w-12 h-12 rounded-full border-2 border-brand-red/20 overflow-hidden shrink-0">
+                    <img alt="User avatar" class="w-full h-full object-cover"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZlXU9SEiXpD4FzhkQURKqW_fje5uoTDencIEF1mkK7fRixvyZKKP2O-eCQVJcZDJVRwgMWUVNb0HLqK6Y9KgcMtr7ZLFhZYK_0mPVPpjIsuU6QfNAeymOx2NNwb2By7NMtciAfeDJquRzc7B8qqWN4KHvMlZx3C0Sa9bb_VGGer3UAUXDR0REZGreV1EOhA2c5M8VpfSV71u6_qKh2dGAJjrUEUkDzbiL7588TIGqsdcqbxb3CcO3lkWtLF05rhKdYpr8Uo2EYjw" />
+                </div>
+                <div class="flex-1">
+                    <p class="text-charcoal text-sm font-bold">Alex J. just won</p>
+                    <p class="text-brand-red text-xs font-semibold">50 Credits + 2 Free Spins</p>
+                </div>
+                <div class="text-charcoal/20">
+                    <span class="material-symbols-outlined">celebration</span>
+                </div>
+            </div>
+        </div>
+        <div class="w-full pt-4 flex flex-col items-center gap-4">
+            <button
+                class="w-full refill-gradient py-4 rounded-xl font-black text-lg text-white shadow-lg shadow-brand-red/20 hover:brightness-110 active:scale-[0.98] transition-all">
+                REFILL CHANCES
+            </button>
+            <p class="text-charcoal/40 text-xs font-medium">Next free chance in 04:22:15</p>
+        </div>
+    </main>
+
+</body>
+
+</html>

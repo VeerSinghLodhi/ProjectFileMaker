@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HotOrNot Premium Profile Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f73e22",
+                        "background-light": "#f7f7f7",
+                        "background-dark": "#1a1a1a",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark .glass {
+            background: rgba(26, 26, 26, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 15px rgba(247, 62, 34, 0.4);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-[#1a1a1a] dark:text-white pb-24">
+    <!-- Top Navigation Bar -->
+    <div class="sticky top-0 z-50 glass px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="bg-primary size-8 rounded-lg flex items-center justify-center text-white">
+                <span class="material-symbols-outlined text-xl">local_fire_department</span>
+            </div>
+            <h2 class="text-xl font-extrabold tracking-tight">HOT<span class="text-primary">OR</span>NOT</h2>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="size-10 flex items-center justify-center rounded-full bg-background-light dark:bg-zinc-800">
+                <span class="material-symbols-outlined text-primary">notifications</span>
+            </button>
+            <button class="size-10 flex items-center justify-center rounded-full bg-background-light dark:bg-zinc-800">
+                <span class="material-symbols-outlined">settings</span>
+            </button>
+        </div>
+    </div>
+    <!-- Profile Header -->
+    <div class="p-4">
+        <div
+            class="relative bg-white dark:bg-zinc-900 rounded-xl p-6 shadow-xl shadow-primary/5 flex flex-col items-center">
+            <div class="relative mb-4">
+                <div class="size-32 rounded-full p-1 bg-gradient-to-tr from-primary via-orange-400 to-yellow-400">
+                    <div class="size-full rounded-full border-4 border-white dark:border-zinc-900 bg-cover bg-center"
+                        data-alt="Modern stylish man portrait profile picture"
+                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDPksmOb9S9AJvwd113pmwsmQZDJgq1hcgRGxk6ELBls5WJm8kn2pdhNUzGUJFp_WRSshLWgLKSAZqMMdQmzMphEmM0udiiNsmY-dQh1C65rN9LlkMQ7EUuZ4nDFPegp8pYEMYctX7W6TMtUNrulVco8DuZe5-k3gw9zWZREbGjiiLs5aFptUIyZPJzmurv--Y_UYXELKoKawG1GIvpTRhXcFlSgSAjGcX3HWUKcUH1XkaNqKC_tNpHe1w6fKFIHH37bdFfm97QsHc")'>
+                    </div>
+                </div>
+                <div
+                    class="absolute bottom-0 right-0 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-full border-2 border-white dark:border-zinc-900 uppercase">
+                    PRO
+                </div>
+            </div>
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-extrabold tracking-tight">Alex Fire</h1>
+                <p class="text-zinc-500 text-sm font-medium">@alex_fire • 🏅 Elite Tier</p>
+                <p class="text-zinc-400 dark:text-zinc-500 text-xs mt-2 max-w-[240px]">Capturing the heat in Los
+                    Angeles. Quality over everything. 🔥</p>
+            </div>
+            <div class="flex gap-3 w-full">
+                <button
+                    class="flex-1 bg-primary text-white font-bold py-3 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-lg">edit</span> Edit Profile
+                </button>
+                <button
+                    class="px-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold py-3 rounded-xl flex items-center justify-center">
+                    <span class="material-symbols-outlined">share</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Stats Grid Section -->
+    <div class="px-4 py-2">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">analytics</span> Your Performance
+        </h3>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-sm border border-zinc-100 dark:border-zinc-800">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="material-symbols-outlined text-primary">diamond</span>
+                    <span
+                        class="text-[10px] font-bold text-green-500 bg-green-100 dark:bg-green-900/30 px-1.5 py-0.5 rounded">+12%</span>
+                </div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Total Points</p>
+                <p class="text-2xl font-black text-zinc-900 dark:text-white">42.5K</p>
+            </div>
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-sm border border-zinc-100 dark:border-zinc-800">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="material-symbols-outlined text-blue-500">public</span>
+                    <span
+                        class="text-[10px] font-bold text-green-500 bg-green-100 dark:bg-green-900/30 px-1.5 py-0.5 rounded">Up
+                        4</span>
+                </div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Global Rank</p>
+                <p class="text-2xl font-black text-zinc-900 dark:text-white">#128</p>
+            </div>
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-sm border border-zinc-100 dark:border-zinc-800">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="material-symbols-outlined text-orange-500">location_on</span>
+                    <span
+                        class="text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded">Down
+                        1</span>
+                </div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Local Rank</p>
+                <p class="text-2xl font-black text-zinc-900 dark:text-white">#12</p>
+            </div>
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-sm border border-zinc-100 dark:border-zinc-800">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="material-symbols-outlined text-primary fill-1">bolt</span>
+                    <span class="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">HOT!</span>
+                </div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Streak</p>
+                <p class="text-2xl font-black text-zinc-900 dark:text-white">15 Days</p>
+            </div>
+        </div>
+    </div>
+    <!-- Top Admirers Section -->
+    <div class="py-4">
+        <div class="px-4 flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">favorite</span> Top Admirers
+            </h3>
+            <button class="text-primary text-xs font-bold">View Leaderboard</button>
+        </div>
+        <div class="flex gap-4 overflow-x-auto px-4 no-scrollbar">
+            <!-- Admirer 1 -->
+            <div class="flex flex-col items-center gap-2 min-w-[70px]">
+                <div class="size-16 rounded-full p-1 ring-2 ring-primary ring-offset-2 dark:ring-offset-zinc-900">
+                    <div class="size-full rounded-full bg-cover bg-center" data-alt="Top female admirer profile picture"
+                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA8qC8FKDMBcsVCbmamjIypQQJglBlK1efqE4QVUnGCpGD75WxOLdk8YMQvnsNbcELP_UqE72NtB2n570am6IAVJfO__Kmam8r_5cXNhQ_Owvg7kHJEECWKmazzWn-etnpoIERRIHUygWrTVSJm1hnCKZq2qSxjU1ebcm_ODmD2MaWz4VnLqZOFheUzG-_nh-ESuzXQ0OyTahXhjRIujqZlB9fG5YPrBRBtFKCxeVVvZtWTv8ldDPHB-u7blDZ2SsVOxrLmvDOrehc")'>
+                    </div>
+                </div>
+                <span class="text-[10px] font-black uppercase text-primary">Rank 1</span>
+            </div>
+            <!-- Admirer 2 -->
+            <div class="flex flex-col items-center gap-2 min-w-[70px]">
+                <div class="size-16 rounded-full p-1 ring-2 ring-zinc-300 dark:ring-zinc-700">
+                    <div class="size-full rounded-full bg-cover bg-center" data-alt="Male admirer profile picture"
+                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuALsH6zAJOsIxcrPHXREy6Pmro_c2c_0XuS-NaK5vFEt79HM5cCkxLDS9OLkDw4mI0bikm_CXSF2v-wmo5tmf7iT3Jp4RE8CsMlnsDHwVF6HPp8PkklQIzkUUtLadnnbrcJBV0jKG8t2KR-ndo-Cu_wpGAZPUoKY3qi9Pg33v3otFe6dW5hM386FuJSDrbYiZSnDyxv8UZpUIQB5b8MlPky2VHprIksQPYUniSrErh4AhRuu1GvXYPX2nwnntldIU9FmDE4lX5Jd_s")'>
+                    </div>
+                </div>
+                <span class="text-[10px] font-bold text-zinc-400">Rank 2</span>
+            </div>
+            <!-- Admirer 3 -->
+            <div class="flex flex-col items-center gap-2 min-w-[70px]">
+                <div class="size-16 rounded-full p-1 ring-2 ring-zinc-300 dark:ring-zinc-700">
+                    <div class="size-full rounded-full bg-cover bg-center" data-alt="Female admirer profile picture"
+                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC9UeHBa_QiA97BaRrpE03F87GV1Uj4H54MQCrx7S467R-A4Lbpw5SpmgpeTfbdr6rUgd-6WprUlQGxIFNnkL1uf937jgT0QdqP-OfVVbMpocMybGzNFeF_hdi4OEKpiHfx6owHFgvqPvWld_SuWsMo0MSBaJN7vtCi_ypgXeDy0iUR9WJOrwP89WAKTFYdO1w4EoFu4ZCloDdE3V7jFdon9dO_--hflLs1ZAQr0EWZFmAsxUw6w3ToTMRQMYOBk49DWkuAnZjULIs")'>
+                    </div>
+                </div>
+                <span class="text-[10px] font-bold text-zinc-400">Rank 3</span>
+            </div>
+            <!-- Admirer 4 -->
+            <div class="flex flex-col items-center gap-2 min-w-[70px]">
+                <div class="size-16 rounded-full p-1 ring-2 ring-zinc-300 dark:ring-zinc-700">
+                    <div class="size-full rounded-full bg-cover bg-center" data-alt="Young man profile picture"
+                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDpxorz3jIGg8ACH3SS53bNJI7zIuruYgoyWhYXQrWE9M9liMnbqJvhQ5B8PHVJGJ2awXpAtSlGU70jrdTnNmQuwfZnIcZJjYaVnUbvTWUwI7IiNWw5dSlEDAcbfUbYx9x1bPVp6pCzlBPdsZ-CTYNOJGD1AyKeq38-l6ZrSjKLekUDhltOajELmKsthV8SoD80WF9ED1_sZBCOZg41Z5b9q7_wqAPfWfee_MDrWRyXLZs4BR59IeGHsmW2PkRJnucKlh7U7UZhV5o")'>
+                    </div>
+                </div>
+                <span class="text-[10px] font-bold text-zinc-400">Rank 4</span>
+            </div>
+            <!-- Admirer 5 -->
+            <div class="flex flex-col items-center gap-2 min-w-[70px]">
+                <div class="size-16 rounded-full p-1 ring-2 ring-zinc-300 dark:ring-zinc-700">
+                    <div class="size-full rounded-full bg-cover bg-center" data-alt="Woman profile picture"
+                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAz9hmzMgmgszU-ZfFZ5iaPLMtRaV_IdeCrXg-OO_s3V8X_i4BNzm2I4_1zjuV-_-3kCh_1LbbAPi4lbiBaIBR0pubHGrKy88In7fkCLzGE7pKOl3gi6xzPzPeS3Yg2MICHZ3AJg2vsXFmtk_PbHO1x4cKwsK_0wkZjueVZ9H_gRd2wEkyHm6b1uI3pmpMWMrgCD9go6HcvcwGe4GwiqKKuLLzlo9kN17QlFvD4lg3OyGYjQtPig-5et1wrCcaDljUAroTYf8XGOjs")'>
+                    </div>
+                </div>
+                <span class="text-[10px] font-bold text-zinc-400">Rank 5</span>
+            </div>
+        </div>
+    </div>
+    <!-- Posts Grid Section -->
+    <div class="px-4 py-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold">Latest Captures</h3>
+            <div class="flex gap-2">
+                <button class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">grid_view</span>
+                </button>
+                <button
+                    class="size-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">view_agenda</span>
+                </button>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <!-- Post Card 1 -->
+            <div class="relative group aspect-[3/4] rounded-2xl overflow-hidden shadow-lg">
+                <div class="absolute inset-0 bg-cover bg-center" data-alt="Aesthetic street style photography of a man"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAx9PvNcFDBS3WRBBlknQHI1Jff5rT7BNRfrL0JpbJSoj423eBKNQzRuCmP6MaWG4e0QbCSy-pZsg97ZIl_AYzrS2KzuaIkF5J1k0BfWwe15YHMFt2phrZWSujE4i9zJcRF5POk7ugkER-r2qzkBTcXsBIVsCOyjOvPQ5tphBX5220_TwIRFsWxtInSFBur4TyeX4_LMijXWBXFJkvXmxPyhYYMj1ZK8gXc_Rn4ChFkSOsjjJW8fu3JpMdnxmnW3NsXAze9C0Z-zas")'>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div class="absolute bottom-3 left-3 flex items-center gap-2">
+                    <div class="glass px-2 py-1 rounded-full flex items-center gap-1">
+                        <span class="material-symbols-outlined text-primary text-sm fill-1">local_fire_department</span>
+                        <span class="text-white text-xs font-black">9.8</span>
+                    </div>
+                </div>
+                <div class="absolute top-3 right-3">
+                    <span class="material-symbols-outlined text-white/80">more_vert</span>
+                </div>
+            </div>
+            <!-- Post Card 2 -->
+            <div class="relative group aspect-[3/4] rounded-2xl overflow-hidden shadow-lg mt-8">
+                <div class="absolute inset-0 bg-cover bg-center" data-alt="Man in premium suit sitting in office"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCjel32fFngZTgg2InB5pcUhf7ezY0jdC1DcM0MuBFUdMJx3a7HOtNg9SjepiGZyczA6L2lO67Hjvxgl8R5KXh8is2NGQFwcc3hJGlWwwv2MXsj952rrvvDBNo3H51qx9e-6xdD20xLKoq7ms_3WIfdsH9BrsdjEigrsVLK4bNp_vx7h8MMplyha5WfSZF2h72JRVzwvOMNhpbZZGFqMLjRC20j2gWaOudiw3LLxn-OxYwrmsjcYRZYDm-pBTNstFaVhOnPTdgdqMQ")'>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div class="absolute bottom-3 left-3 flex items-center gap-2">
+                    <div class="glass px-2 py-1 rounded-full flex items-center gap-1">
+                        <span class="material-symbols-outlined text-primary text-sm fill-1">local_fire_department</span>
+                        <span class="text-white text-xs font-black">9.2</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Post Card 3 -->
+            <div class="relative group aspect-[3/4] rounded-2xl overflow-hidden shadow-lg">
+                <div class="absolute inset-0 bg-cover bg-center" data-alt="Close up portrait of a man in beach lighting"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCj3V7PHI7nMPbg7ZCFLDt-paGUiA8xJhTj2vVVttcjLyRlJL8qHQhWfG-Rh5Oqr6x9XhxZeBx3Q9AxksfCHH029fc05eXAAnTrGwixuf5muRU9FffZPYoppclyF-sPZ8lnasstons0UZoGJ7fh2Cu2NmHdVhRmDCNyTwpepnm3I5ewY3ZH4y-ZD8PMbMR6yc8rIzZIybvEbgiMa-yLMHckjic9kqpO-aq5nAOHys-O8bW4U31G-P5dpcBteZs0QPQYjIYrq44vuL4")'>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div class="absolute bottom-3 left-3 flex items-center gap-2">
+                    <div class="glass px-2 py-1 rounded-full flex items-center gap-1">
+                        <span class="material-symbols-outlined text-primary text-sm fill-1">local_fire_department</span>
+                        <span class="text-white text-xs font-black">8.7</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Post Card 4 -->
+            <div class="relative group aspect-[3/4] rounded-2xl overflow-hidden shadow-lg mt-8">
+                <div class="absolute inset-0 bg-cover bg-center" data-alt="Fashion lifestyle photo of a man outdoors"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDpZ8FdZWg7HZS_PJSKyWE8mGs4rwWrfZ7p-3vkuQxfe_GDS0lWDXDKyW3pAqLuzepru0X_dkZFs58liRVkpOWHxSahw5dM7GJtkmmMOWmuO5zFdQ4WfBc8VfiSDmQeOn6VktgD7L0XsUCXsD_EUV87o-d875Vbqnaf9DIVnTJ5uMd10-__Qfd7I_KE-7fwIFuvqsjILANt0219YVyE5Yy3ehJJF-CAWxr7OK0S3A_KUzBHFdRK4c21eE0n_YAZa0TedZkYscM7zyE")'>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div class="absolute bottom-3 left-3 flex items-center gap-2">
+                    <div class="glass px-2 py-1 rounded-full flex items-center gap-1">
+                        <span class="material-symbols-outlined text-primary text-sm fill-1">local_fire_department</span>
+                        <span class="text-white text-xs font-black">9.5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Floating Navigation Bar -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50">
+        <div
+            class="bg-black/90 dark:bg-white/10 backdrop-blur-2xl rounded-2xl py-3 px-6 shadow-2xl flex items-center justify-between">
+            <button class="text-primary flex flex-col items-center">
+                <span class="material-symbols-outlined fill-1">home</span>
+            </button>
+            <button class="text-zinc-500 flex flex-col items-center">
+                <span class="material-symbols-outlined">explore</span>
+            </button>
+            <!-- Add Post Button -->
+            <button
+                class="size-14 bg-primary text-white rounded-2xl -mt-10 border-4 border-background-light dark:border-background-dark shadow-xl shadow-primary/40 flex items-center justify-center">
+                <span class="material-symbols-outlined text-3xl">add</span>
+            </button>
+            <button class="text-zinc-500 flex flex-col items-center">
+                <span class="material-symbols-outlined">chat_bubble</span>
+            </button>
+            <button class="text-zinc-500 flex flex-col items-center relative">
+                <span class="material-symbols-outlined">person</span>
+                <div class="absolute -top-1 -right-1 size-2 bg-primary rounded-full ring-2 ring-black"></div>
+            </button>
+        </div>
+    </div>
+    <!-- Bottom Padding for iOS Home Indicator -->
+    <div class="h-8"></div>
+</body>
+
+</html>

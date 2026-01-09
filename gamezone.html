@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Zone - HotOrNot</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 50%, #ff8560 100%);
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(247, 59, 32, 0.15);
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.15);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+        }
+
+        .back-btn {
+            width: 45px;
+            height: 45px;
+            border: none;
+            background: rgba(247, 59, 32, 0.1);
+            border: 2px solid rgba(247, 59, 32, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .back-btn i {
+            font-size: 1.5rem;
+            color: #F73B20;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            border-color: #F73B20;
+            transform: translateX(-3px);
+        }
+
+        .back-btn:hover i {
+            color: white;
+        }
+
+        .nav-title {
+            flex: 1;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #F73B20;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-title .logo-hot {
+            color: #F73B20;
+        }
+
+        .nav-title .logo-not {
+            color: #ff5238;
+        }
+
+        /* Main Container */
+        .main-container {
+            margin-top: 80px;
+            padding: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-bottom: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 600;
+        }
+
+        /* Games Grid */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        /* Game Card */
+        .game-card {
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(247, 59, 32, 0.4);
+        }
+
+        .game-icon-wrapper {
+            height: 180px;
+            background: linear-gradient(135deg, rgba(247, 59, 32, 0.1), rgba(247, 59, 32, 0.05));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-icon-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(247, 59, 32, 0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .game-icon {
+            font-size: 5rem;
+            position: relative;
+            z-index: 2;
+            filter: drop-shadow(0 10px 20px rgba(247, 59, 32, 0.3));
+        }
+
+        .game-card:hover .game-icon {
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .game-info {
+            padding: 25px;
+            background: white;
+        }
+
+        .game-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #F73B20;
+            margin-bottom: 8px;
+        }
+
+        .game-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .play-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(247, 59, 32, 0.3);
+        }
+
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(247, 59, 32, 0.5);
+        }
+
+        .play-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Badge */
+        .badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a1a;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            z-index: 3;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .top-nav {
+                height: 55px;
+                padding: 0 15px;
+            }
+
+            .back-btn {
+                width: 42px;
+                height: 42px;
+            }
+
+            .back-btn i {
+                font-size: 1.3rem;
+            }
+
+            .nav-title {
+                font-size: 1.3rem;
+            }
+
+            .main-container {
+                margin-top: 70px;
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .game-icon {
+                font-size: 4rem;
+            }
+
+            .game-icon-wrapper {
+                height: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-nav {
+                height: 50px;
+                padding: 0 12px;
+            }
+
+            .back-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .nav-title {
+                font-size: 1.2rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .game-name {
+                font-size: 1.3rem;
+            }
+
+            .game-info {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <a href="/user/rating" class="back-btn">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div class="nav-title">
+            <span class="logo-hot">Game</span> <span class="logo-not">Zone</span>
+        </div>
+        <div style="width: 45px;"></div> <!-- Spacer for centering -->
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="header">
+            <h1>🎮 Play & Win Points! 🎮</h1>
+            <p>Choose your favorite game and start playing</p>
+        </div>
+
+        <!-- Games Grid -->
+        <div class="games-grid">
+            <!-- Game 1: Wheel -->
+            <div class="game-card" onclick="window.location.href='/user/games/wheel'">
+                <div class="game-icon-wrapper">
+                    <div class="badge">Popular</div>
+                    <div class="game-icon">🎡</div>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">Spin the Wheel</div>
+                    <div class="game-description">Test your luck! Spin the wheel and win exciting points and rewards.</div>
+                    <button class="play-btn">Play Now</button>
+                </div>
+            </div>
+
+            <!-- Game 2: Casino -->
+            <div class="game-card" onclick="window.location.href='/user/games/casino'">
+                <div class="game-icon-wrapper">
+                    <div class="badge">Hot</div>
+                    <div class="game-icon">🎰</div>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">Casino Slots</div>
+                    <div class="game-description">Feel the thrill! Match the symbols and hit the jackpot to win big.</div>
+                    <button class="play-btn">Play Now</button>
+                </div>
+            </div>
+
+            <!-- Game 3: Flames -->
+            <div class="game-card" onclick="window.location.href='/user/games/flames'">
+                <div class="game-icon-wrapper">
+                    <div class="badge">New</div>
+                    <div class="game-icon">🔥</div>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">FLAMES Game</div>
+                    <div class="game-description">Check your compatibility! Enter names and discover your relationship fate.</div>
+                    <button class="play-btn">Play Now</button>
+                </div>
+            </div>
+
+            <!-- Game 4: Petal -->
+            <div class="game-card" onclick="window.location.href='/user/games/petal'">
+                <div class="game-icon-wrapper">
+                    <div class="game-icon">🌸</div>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">Petal Picker</div>
+                    <div class="game-description">Love or not? Pick petals one by one and let fate decide your answer.</div>
+                    <button class="play-btn">Play Now</button>
+                </div>
+            </div>
+
+            <!-- Game 5: Jigsaw Puzzle -->
+            <div class="game-card" onclick="window.location.href='/user/games/puzzle'">
+                <div class="game-icon-wrapper">
+                    <div class="game-icon">🧩</div>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">Jigsaw Puzzle</div>
+                    <div class="game-description">Challenge your mind! Solve puzzles and earn points for completion.</div>
+                    <button class="play-btn">Play Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

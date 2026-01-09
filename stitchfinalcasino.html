@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HotOrNot Light Mode Casino Game</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "brand-red": "#F73B20",
+                        "brand-orange": "#FA8231",
+                        "charcoal": "#1A1A1A",
+                        "bg-light": "#FFFFFF",
+                        "bg-subtle": "#F8F8F8",
+                        "silver-light": "#F1F5F9",
+                        "silver": "#E2E8F0",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "2rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-bg-light font-display text-charcoal min-h-screen overflow-x-hidden;
+                background: radial-gradient(circle at top, #FFFFFF 0%, #F8F8F8 100%);
+            }
+        }
+        .header-glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .slot-card-shadow {
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        }
+        .lever-gradient {
+            background: linear-gradient(135deg, #FA8231 0%, #F73B20 100%);
+        }
+        .slot-window {
+            background: linear-gradient(180deg, #F8F8F8 0%, #FFFFFF 50%, #F8F8F8 100%);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(844px, 100dvh);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="sticky top-0 z-50 header-glass px-4 py-4 flex items-center justify-between">
+        <button
+            class="w-10 h-10 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 transition-colors">
+            <span class="material-symbols-outlined text-charcoal">arrow_back_ios_new</span>
+        </button>
+        <div class="flex items-center gap-2 bg-brand-red/10 border border-brand-red/20 px-4 py-1.5 rounded-full">
+            <span class="material-symbols-outlined text-brand-red text-sm fill-1">bolt</span>
+            <span class="text-brand-red text-sm font-extrabold tracking-wider">3 PULLS LEFT</span>
+        </div>
+        <button
+            class="w-10 h-10 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 transition-colors">
+            <span class="material-symbols-outlined text-charcoal">help</span>
+        </button>
+    </header>
+    <main class="flex flex-col items-center justify-start pt-6 pb-12 px-6 space-y-8">
+        <div class="text-center space-y-1">
+            <h1 class="text-3xl font-extrabold tracking-tight text-charcoal uppercase italic">Casino Game</h1>
+            <p class="text-charcoal/60 text-sm font-medium">Test your luck to win big</p>
+        </div>
+        <div class="w-full max-w-[360px] bg-white rounded-[2.5rem] p-4 slot-card-shadow border border-gray-100">
+            <div class="flex gap-2 h-48">
+                <div
+                    class="flex-1 slot-window rounded-2xl border border-gray-100 flex items-center justify-center overflow-hidden">
+                    <span class="text-5xl">❤️</span>
+                </div>
+                <div class="w-[1px] bg-gray-100 my-4"></div>
+                <div
+                    class="flex-1 slot-window rounded-2xl border border-gray-100 flex items-center justify-center overflow-hidden">
+                    <span class="text-5xl">🌸</span>
+                </div>
+                <div class="w-[1px] bg-gray-100 my-4"></div>
+                <div
+                    class="flex-1 slot-window rounded-2xl border border-gray-100 flex items-center justify-center overflow-hidden">
+                    <span class="text-5xl">💍</span>
+                </div>
+            </div>
+        </div>
+        <div class="w-full space-y-4">
+            <div class="bg-white border border-brand-red/20 p-6 rounded-2xl text-center space-y-2 card-shadow">
+                <p class="text-brand-red font-bold text-xs uppercase tracking-[0.2em]">Current Status</p>
+                <h3 class="text-charcoal text-xl font-extrabold">Ready to Spin?</h3>
+                <p class="text-charcoal/50 text-sm">Every pull costs 1 chance. Win up to 1000 credits instantly!</p>
+            </div>
+            <div class="bg-white border border-gray-100 p-3 rounded-full flex items-center gap-3 card-shadow">
+                <div class="w-10 h-10 rounded-full border-2 border-brand-red/10 overflow-hidden shrink-0">
+                    <img alt="User avatar" class="w-full h-full object-cover"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZlXU9SEiXpD4FzhkQURKqW_fje5uoTDencIEF1mkK7fRixvyZKKP2O-eCQVJcZDJVRwgMWUVNb0HLqK6Y9KgcMtr7ZLFhZYK_0mPVPpjIsuU6QfNAeymOx2NNwb2By7NMtciAfeDJquRzc7B8qqWN4KHvMlZx3C0Sa9bb_VGGer3UAUXDR0REZGreV1EOhA2c5M8VpfSV71u6_qKh2dGAJjrUEUkDzbiL7588TIGqsdcqbxb3CcO3lkWtLF05rhKdYpr8Uo2EYjw" />
+                </div>
+                <div class="flex-1">
+                    <p class="text-charcoal text-xs font-medium leading-tight">
+                        <span class="font-bold">Alex J.</span> just won
+                        <span class="text-brand-red font-bold">50 Credits + 2 Free Pulls</span>
+                    </p>
+                </div>
+                <div class="pr-2 text-brand-orange">
+                    <span class="material-symbols-outlined text-xl">celebration</span>
+                </div>
+            </div>
+        </div>
+        <div class="w-full pt-4 flex flex-col items-center gap-4">
+            <button
+                class="w-full lever-gradient py-5 rounded-2xl font-black text-xl text-white shadow-xl shadow-brand-red/30 hover:brightness-110 active:scale-[0.97] transition-all tracking-tight uppercase">
+                PULL LEVER
+            </button>
+            <p class="text-charcoal/40 text-xs font-medium">Next free pull in 04:22:15</p>
+        </div>
+    </main>
+    <div
+        class="fixed bottom-0 left-0 right-0 h-32 pointer-events-none bg-gradient-to-t from-bg-subtle to-transparent -z-10">
+    </div>
+
+</body>
+
+</html>

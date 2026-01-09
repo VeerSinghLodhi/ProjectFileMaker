@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HotOrNot Casino Game</title>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "brand-red": "#F73B20",
+                        "brand-orange": "#FA8231",
+                        "charcoal": "#1A1A1A",
+                        "bg-light": "#FFFFFF",
+                        "bg-subtle": "#F8F8F8",
+                        "silver-light": "#F1F5F9",
+                        "silver": "#E2E8F0",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "2rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-bg-light font-display text-charcoal min-h-screen overflow-x-hidden;
+                background: radial-gradient(circle at top, #FFFFFF 0%, #F8F8F8 100%);
+            }
+        }
+        .header-glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .slot-card-shadow {
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        }
+        .lever-gradient {
+            background: linear-gradient(135deg, #FA8231 0%, #F73B20 100%);
+        }
+        .slot-window {
+            background: linear-gradient(180deg, #F8F8F8 0%, #FFFFFF 50%, #F8F8F8 100%);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(844px, 100dvh);
+        }
+
+        .slot-column.spinning .slot-symbol {
+            animation: slot-spin 0.1s linear infinite;
+        }
+
+        @keyframes slot-spin {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(-300%);
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ffd700;
+            animation: confetti-fall 3s linear;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .firework {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: firework-burst 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @keyframes firework-burst {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--x), var(--y));
+                opacity: 0;
+            }
+        }
+
+        .celebration-text {
+            position: fixed;
+            font-size: 50px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+            animation: celebration-pop 2s ease-out forwards;
+            pointer-events: none;
+            z-index: 10000;
+        }
+
+        @keyframes celebration-pop {
+            0% {
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2) rotate(5deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg) translateY(-50px);
+                opacity: 0;
+            }
+        }
+
+        .points-shower {
+            position: fixed;
+            font-size: 24px;
+            font-weight: bold;
+            animation: points-fall 2s linear forwards;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @keyframes points-fall {
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease;
+        }
+
+        .popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 248, 240, 0.95));
+            padding: 30px 40px;
+            border-radius: 25px;
+            text-align: center;
+            color: #2d2d2d;
+            box-shadow: 0 10px 50px rgba(250, 130, 49, 0.4);
+            border: 3px solid rgba(250, 130, 49, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: popupScale 0.6s ease-out;
+            max-width: 90%;
+        }
+
+        @keyframes popupScale {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .badge-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #FA8231, #F97F51, #FF6B9D);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 0 40px rgba(250, 130, 49, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        .badge-text {
+            font-size: 2em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .shine {
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+            transform: skewX(-25deg);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -75%;
+            }
+
+            100% {
+                left: 125%;
+            }
+        }
+
+        .points-earned {
+            font-size: 1.1em;
+            margin-top: 15px;
+            color: #FA8231;
+            font-weight: 700;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            color: #999;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 1001;
+        }
+
+        .close-btn:hover {
+            color: #FA8231;
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="sticky top-0 z-50 header-glass px-4 py-4 flex items-center justify-between">
+        <button onclick="history.back()"
+            class="w-10 h-10 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 transition-colors">
+            <span class="material-symbols-outlined text-charcoal">arrow_back_ios_new</span>
+        </button>
+        <div th:if="${casinoLimit==false}"
+            class="flex items-center gap-2 bg-brand-red/10 border border-brand-red/20 px-4 py-1.5 rounded-full">
+            <span class="material-symbols-outlined text-brand-red text-sm fill-1">bolt</span>
+            <span class="text-brand-red text-sm font-extrabold tracking-wider" id="pullsLeftText">
+                <span th:text="${casinoLimitCounter}"></span> PULLS LEFT
+            </span>
+        </div>
+        <div th:if="${casinoLimit==true}"
+            class="flex items-center gap-2 bg-gray-200 border border-gray-300 px-4 py-1.5 rounded-full">
+            <span class="material-symbols-outlined text-gray-600 text-sm">block</span>
+            <span class="text-gray-600 text-sm font-extrabold tracking-wider">NO PULLS LEFT</span>
+        </div>
+        <button
+            class="w-10 h-10 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 transition-colors">
+            <span class="material-symbols-outlined text-charcoal">help</span>
+        </button>
+    </header>
+
+    <main class="flex flex-col items-center justify-start pt-6 pb-12 px-6 space-y-8">
+        <div class="text-center space-y-1">
+            <h1 class="text-3xl font-extrabold tracking-tight text-charcoal uppercase italic">Casino Game</h1>
+            <p class="text-charcoal/60 text-sm font-medium">Test your luck to win big</p>
+        </div>
+
+        <div class="w-full max-w-[360px] bg-white rounded-[2.5rem] p-4 slot-card-shadow border border-gray-100">
+            <div class="flex gap-2 h-48">
+                <div id="slot1"
+                    class="flex-1 slot-window rounded-2xl border border-gray-100 flex items-center justify-center overflow-hidden slot-column">
+                    <span class="text-5xl slot-symbol">❤️</span>
+                </div>
+                <div class="w-[1px] bg-gray-100 my-4"></div>
+                <div id="slot2"
+                    class="flex-1 slot-window rounded-2xl border border-gray-100 flex items-center justify-center overflow-hidden slot-column">
+                    <span class="text-5xl slot-symbol">🌸</span>
+                </div>
+                <div class="w-[1px] bg-gray-100 my-4"></div>
+                <div id="slot3"
+                    class="flex-1 slot-window rounded-2xl border border-gray-100 flex items-center justify-center overflow-hidden slot-column">
+                    <span class="text-5xl slot-symbol">💍</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full space-y-4">
+            <div th:if="${casinoLimit==false}" id="statusCard"
+                class="bg-white border border-brand-red/20 p-6 rounded-2xl text-center space-y-2 card-shadow">
+                <p class="text-brand-red font-bold text-xs uppercase tracking-[0.2em]">Current Status</p>
+                <h3 class="text-charcoal text-xl font-extrabold" id="statusTitle">Ready to Spin?</h3>
+                <p class="text-charcoal/50 text-sm" id="statusMessage">Every pull costs 1 chance. Win up to 100 credits
+                    instantly!</p>
+            </div>
+            <div th:if="${casinoLimit==true}"
+                class="bg-white border border-gray-300 p-6 rounded-2xl text-center space-y-2 card-shadow">
+                <p class="text-gray-600 font-bold text-xs uppercase tracking-[0.2em]">Limit Reached</p>
+                <h3 class="text-charcoal text-xl font-extrabold">Your 3 pulls for this week are finished!</h3>
+                <p class="text-charcoal/50 text-sm">Come back next week for more chances to win!</p>
+            </div>
+
+            <div class="bg-white border border-gray-100 p-3 rounded-full flex items-center gap-3 card-shadow">
+                <div class="w-10 h-10 rounded-full border-2 border-brand-red/10 overflow-hidden shrink-0">
+                    <img alt="User avatar" class="w-full h-full object-cover"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZlXU9SEiXpD4FzhkQURKqW_fje5uoTDencIEF1mkK7fRixvyZKKP2O-eCQVJcZDJVRwgMWUVNb0HLqK6Y9KgcMtr7ZLFhZYK_0mPVPpjIsuU6QfNAeymOx2NNwb2By7NMtciAfeDJquRzc7B8qqWN4KHvMlZx3C0Sa9bb_VGGer3UAUXDR0REZGreV1EOhA2c5M8VpfSV71u6_qKh2dGAJjrUEUkDzbiL7588TIGqsdcqbxb3CcO3lkWtLF05rhKdYpr8Uo2EYjw" />
+                </div>
+                <div class="flex-1">
+                    <p class="text-charcoal text-xs font-medium leading-tight">
+                        <span class="font-bold">Alex J.</span> just won
+                        <span class="text-brand-red font-bold">50 Credits + 2 Free Pulls</span>
+                    </p>
+                </div>
+                <div class="pr-2 text-brand-orange">
+                    <span class="material-symbols-outlined text-xl">celebration</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full pt-4 flex flex-col items-center gap-4">
+            <button th:disabled="${casinoLimit} ? true : false" id="leverBtn" onclick="pullLever()"
+                class="w-full lever-gradient py-5 rounded-2xl font-black text-xl text-white shadow-xl shadow-brand-red/30 hover:brightness-110 active:scale-[0.97] transition-all tracking-tight uppercase disabled:opacity-50 disabled:cursor-not-allowed">
+                PULL LEVER
+            </button>
+            <p class="text-charcoal/40 text-xs font-medium">Next free pull in 04:22:15</p>
+        </div>
+    </main>
+
+    <div
+        class="fixed bottom-0 left-0 right-0 h-32 pointer-events-none bg-gradient-to-t from-bg-subtle to-transparent -z-10">
+    </div>
+
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup">
+            <button class="close-btn" onclick="closePopup()">&times;</button>
+            <div class="badge-wrapper">
+                <div class="badge">
+                    <div class="shine"></div>
+                    <div class="badge-text">+<span id="badgePoints">50</span></div>
+                </div>
+            </div>
+            <div class="points-earned"><span id="pointsText">You earned 50 points!</span></div>
+        </div>
+    </div>
+
+    <script>
+        const casinoSymbols = ['❤️', '🌸', '💍'];
+        let casinoSpinning = false;
+
+        function createConfetti() {
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.top = '-10px';
+                    confetti.style.background = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#AA96DA', '#F38181', '#95E1D3'][Math.floor(Math.random() * 6)];
+                    confetti.style.width = (Math.random() * 10 + 5) + 'px';
+                    confetti.style.height = (Math.random() * 10 + 5) + 'px';
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 20);
+            }
+        }
+
+        function createFireworks() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#AA96DA', '#F38181', '#95E1D3'];
+
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const x = Math.random() * window.innerWidth;
+                    const y = Math.random() * (window.innerHeight * 0.5);
+
+                    for (let j = 0; j < 30; j++) {
+                        const firework = document.createElement('div');
+                        firework.className = 'firework';
+                        firework.style.left = x + 'px';
+                        firework.style.top = y + 'px';
+                        firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+                        const angle = (Math.PI * 2 * j) / 30;
+                        const velocity = 50 + Math.random() * 100;
+
+                        firework.style.setProperty('--x', Math.cos(angle) * velocity + 'px');
+                        firework.style.setProperty('--y', Math.sin(angle) * velocity + 'px');
+
+                        document.body.appendChild(firework);
+                        setTimeout(() => firework.remove(), 1000);
+                    }
+                }, i * 300);
+            }
+        }
+
+        function createCelebrationText() {
+            const messages = ['🎉 AMAZING! 🎉', '⭐ FANTASTIC! ⭐', '🔥 ON FIRE! 🔥', '💫 SPECTACULAR! 💫', '🎊 INCREDIBLE! 🎊'];
+            const message = messages[Math.floor(Math.random() * messages.length)];
+
+            const celebText = document.createElement('div');
+            celebText.className = 'celebration-text';
+            celebText.textContent = message;
+            celebText.style.left = '50%';
+            celebText.style.top = '30%';
+            celebText.style.transform = 'translateX(-50%)';
+
+            document.body.appendChild(celebText);
+            setTimeout(() => celebText.remove(), 2000);
+        }
+
+        function createPointsShower(points) {
+            const colors = ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4'];
+
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.className = 'points-shower';
+                    el.textContent = '+' + points;
+                    el.style.left = (Math.random() * window.innerWidth) + 'px';
+                    el.style.top = '-50px';
+                    el.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+                    document.body.appendChild(el);
+                    setTimeout(() => el.remove(), 2000);
+                }, i * 100);
+            }
+        }
+
+        function closePopup() {
+            document.getElementById('popupOverlay').classList.remove('show');
+        }
+
+        function getRandomSymbol() {
+            return casinoSymbols[Math.floor(Math.random() * casinoSymbols.length)];
+        }
+
+        function animateSlot(slotElement, finalSymbol, duration) {
+            const symbolEl = slotElement.querySelector('.slot-symbol');
+            slotElement.classList.add('spinning');
+
+            let elapsed = 0;
+            const interval = setInterval(() => {
+                symbolEl.textContent = getRandomSymbol();
+                elapsed += 100;
+
+                if (elapsed >= duration) {
+                    clearInterval(interval);
+                    slotElement.classList.remove('spinning');
+                    symbolEl.textContent = finalSymbol;
+                }
+            }, 100);
+
+            return new Promise(resolve => setTimeout(resolve, duration));
+        }
+
+        function pullLever() {
+            if (casinoSpinning) return;
+
+            const slot1 = document.getElementById('slot1');
+            const slot2 = document.getElementById('slot2');
+            const slot3 = document.getElementById('slot3');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+            const leverBtn = document.getElementById('leverBtn');
+
+            casinoSpinning = true;
+            leverBtn.disabled = true;
+
+            if (statusTitle) statusTitle.textContent = "Spinning...";
+            if (statusMessage) statusMessage.textContent = "🎰 Good luck!";
+
+            const final1 = getRandomSymbol();
+            const final2 = getRandomSymbol();
+            const final3 = getRandomSymbol();
+
+            Promise.all([
+                animateSlot(slot1, final1, 1000),
+                animateSlot(slot2, final2, 1500),
+                animateSlot(slot3, final3, 2000)
+            ]).then(() => {
+                let points = 0;
+                let message = '';
+
+                if (final1 === final2 && final2 === final3) {
+                    if (final1 === '💍') {
+                        points = 100;
+                        message = '💍 JACKPOT! Triple Rings! 💍';
+                    } else if (final1 === '❤️') {
+                        points = 75;
+                        message = '❤️ AMAZING! Triple Hearts! ❤️';
+                    } else {
+                        points = 50;
+                        message = '🌸 GREAT! Triple Flowers! 🌸';
+                    }
+                } else if (final1 === final2 || final2 === final3 || final1 === final3) {
+                    points = 20;
+                    message = '🎊 Nice! Two matching symbols! 🎊';
+                } else {
+                    points = 5;
+                    message = '✨ Keep trying! Here are 5 points! ✨';
+                }
+
+                if (statusTitle) statusTitle.textContent = message;
+                if (statusMessage) statusMessage.textContent = `You won ${points} points!`;
+
+                createConfetti();
+                createFireworks();
+                createCelebrationText();
+                createPointsShower(points);
+                saveRewardToServer(points, "CASINO");
+
+                document.getElementById('badgePoints').textContent = points;
+                document.getElementById('pointsText').textContent = `You earned ${points} points!`;
+                document.getElementById('popupOverlay').classList.add('show');
+
+                setTimeout(() => {
+                    casinoSpinning = false;
+                }, 1000);
+            });
+        }
+
+        function saveRewardToServer(reward, category) {
+            const formData = new URLSearchParams();
+            formData.append("reward", reward);
+            formData.append("category", category);
+
+            const csrfToken = document.querySelector("meta[name='_csrf']").content;
+            const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
+
+            const leverBtn = document.getElementById('leverBtn');
+            const pullsLeftText = document.getElementById('pullsLeftText');
+
+            fetch('/user/spinWheel', {
+                method: 'POST',
+                headers: {
+                    [csrfHeader]: csrfToken,
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: formData
+            })
+                .then(response => response.json())
+                .then(res => {
+                    console.log("SERVER RESPONSE:", res);
+
+                    if (res.casinoSpins >= 2) {
+                        leverBtn.disabled = true;
+                        if (pullsLeftText) {
+                            pullsLeftText.innerHTML = '0 PULLS LEFT';
+                        }
+                    } else {
+                        leverBtn.disabled = false;
+                        if (pullsLeftText) {
+                            const remaining = 3 - (res.casinoSpins || 0);
+                            pullsLeftText.innerHTML = `${remaining} PULLS LEFT`;
+                        }
+                    }
+
+                    if (res.status === "limit") {
+                        if (category === "CASINO") leverBtn.disabled = true;
+                        return;
+                    }
+                })
+                .catch(err => {
+                    console.error("ERROR:", err);
+                    alert("Something went wrong!");
+                });
+        }
+    </script>
+</body>
+
+</html>

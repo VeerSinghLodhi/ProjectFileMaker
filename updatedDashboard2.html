@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotOrNot - Modern Dashboard</title>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f73e22",
+                        "background-light": "#f7f7f7",
+                        "background-dark": "#1a1a1a",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark .glass {
+            background: rgba(26, 26, 26, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            min-height: 100vh;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Delete Modal Styles */
+        .delete-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .delete-modal-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.3);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .delete-modal-overlay.show .delete-modal {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Sidebar Styles */
+        .sidebar-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 320px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 30px rgba(247, 59, 32, 0.2);
+            transition: right 0.4s ease;
+            z-index: 3000;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        .sidebar-panel.active {
+            right: 0;
+        }
+
+        .dark .sidebar-panel {
+            background: #1a1a1a;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-[#1a1a1a] dark:text-white pb-24">
+
+    <!-- Top Navigation Bar -->
+    <div class="sticky top-0 z-50 glass px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="bg-primary size-8 rounded-lg flex items-center justify-center text-white">
+                <span class="material-symbols-outlined text-xl">local_fire_department</span>
+            </div>
+            <h2 class="text-xl font-extrabold tracking-tight">HOT<span class="text-primary">OR</span>NOT</h2>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="size-10 flex items-center justify-center rounded-full bg-white/50 dark:bg-zinc-800">
+                <span class="material-symbols-outlined text-primary">notifications</span>
+            </button>
+            <button th:if="${isOwnDashboard}" id="sidebarToggle"
+                class="size-10 flex items-center justify-center rounded-full bg-white/50 dark:bg-zinc-800">
+                <span class="material-symbols-outlined">settings</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Profile Header -->
+    <div class="p-4">
+        <div class="relative bg-white dark:bg-zinc-900 rounded-xl p-6 shadow-xl flex flex-col items-center">
+            <div class="relative mb-4">
+                <div class="size-32 rounded-full p-1 bg-gradient-to-tr from-primary via-orange-400 to-yellow-400">
+                    <div class="size-full rounded-full border-4 border-white dark:border-zinc-900 bg-cover bg-center"
+                        th:style="'background-image: url(' + ${profileImage != '' ? profileImage : '/noprofilepic.png'} + ')'">
+                    </div>
+                </div>
+                <div th:if="${rankBadgeImage != null}"
+                    class="absolute bottom-0 right-0 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-full border-2 border-white dark:border-zinc-900 uppercase">
+                    PRO
+                </div>
+            </div>
+
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-extrabold tracking-tight" th:text="${user.username}">Username</h1>
+                <p class="text-zinc-500 text-sm font-medium">
+                    @<span th:text="${user.username}">username</span> • 🏅 Elite Tier
+                </p>
+                <p class="text-zinc-400 dark:text-zinc-500 text-xs mt-2 max-w-[240px]"
+                    th:text="${user.bio != null ? user.bio : 'No bio provided.'}">
+                    Living life one rating at a time ✨
+                </p>
+            </div>
+
+            <!-- Badge Display -->
+            <div th:if="${badgeImage != null || referralBadgeImage != null || rankBadgeImage != null}"
+                class="flex gap-3 mb-4">
+                <div th:if="${badgeImage != null}" class="size-12 rounded-full border-2 border-primary">
+                    <img th:src="${badgeImage}" th:alt="${badgeName}" class="w-full h-full rounded-full object-cover" />
+                </div>
+                <div th:if="${referralBadgeImage != null}" class="size-12 rounded-full border-2 border-orange-400">
+                    <img th:src="${referralBadgeImage}" th:alt="${referralBadgeName}"
+                        class="w-full h-full rounded-full object-cover" />
+                </div>
+                <div th:if="${rankBadgeImage != null}" class="size-12 rounded-full border-2 border-yellow-400">
+                    <img th:src="${rankBadgeImage}" alt="Rank Badge" class="w-full h-full rounded-full object-cover" />
+                </div>
+            </div>
+
+            <div class="flex gap-3 w-full">
+                <a th:if="${isOwnDashboard}" href="/user/update-profile"
+                    class="flex-1 bg-primary text-white font-bold py-3 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 no-underline">
+                    <span class="material-symbols-outlined text-lg">edit</span> Edit Profile
+                </a>
+                <a th:if="${!isOwnDashboard}" th:href="@{'/user/whisper/' + ${user.userId}}"
+                    class="flex-1 bg-primary text-white font-bold py-3 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 no-underline">
+                    <span class="material-symbols-outlined text-lg">chat</span> Whisper
+                </a>
+                <button
+                    class="px-4 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold py-3 rounded-xl flex items-center justify-center">
+                    <span class="material-symbols-outlined">share</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Grid Section -->
+    <div class="px-4 py-2">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">analytics</span> Your Performance
+        </h3>
+        <div class="grid grid-cols-2 gap-4">
+            <!-- Total Points -->
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-sm border border-zinc-100 dark:border-zinc-800">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="material-symbols-outlined text-primary">diamond</span>
+                </div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Total Points</p>
+                <p class="text-2xl font-black text-zinc-900 dark:text-white" th:text="${totalRating}">0</p>
+            </div>
+
+            <!-- Global Rank -->
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-sm border border-zinc-100 dark:border-zinc-800">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="material-symbols-outlined text-blue-500">public</span>
+                </div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Global Rank</p>
+                <p class="text-2xl font-black text-zinc-900 dark:text-white">#<span th:text="${globalRank}">0</span></p>
+            </div>
+
+            <!-- Local Rank -->
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-sm border border-zinc-100 dark:border-zinc-800">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="material-symbols-outlined text-orange-500">location_on</span>
+                </div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Local Rank</p>
+                <p class="text-2xl font-black text-zinc-900 dark:text-white">#<span th:text="${localRank}">0</span></p>
+            </div>
+
+            <!-- Streak -->
+            <div th:if="${isOwnDashboard}"
+                class="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-sm border border-zinc-100 dark:border-zinc-800">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="material-symbols-outlined text-primary fill-1">bolt</span>
+                    <span class="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">HOT!</span>
+                </div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Streak</p>
+                <p class="text-2xl font-black text-zinc-900 dark:text-white"><span th:text="${streak}">0</span> Days</p>
+                <p class="text-[10px] text-zinc-400 mt-1">Longest: <span th:text="${longestStreak}">0</span>d</p>
+            </div>
+
+            <!-- Mutual Crush -->
+            <div th:if="${isOwnDashboard}"
+                class="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-sm border border-zinc-100 dark:border-zinc-800">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="material-symbols-outlined text-pink-500">favorite</span>
+                </div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Mutual Crush</p>
+                <p class="text-2xl font-black text-zinc-900 dark:text-white" th:text="${mutualCount}">0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Admirers Section -->
+    <div th:if="${isOwnDashboard}" class="py-4">
+        <div class="px-4 flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">favorite</span> Top Admirers
+            </h3>
+        </div>
+        <div class="flex gap-4 overflow-x-auto px-4 no-scrollbar">
+            <a th:each="admirer, iterStat : ${topAdmirers}" th:href="@{'/user/dashboard/' + ${admirer.id}}"
+                class="flex flex-col items-center gap-2 min-w-[70px] no-underline">
+                <div class="size-16 rounded-full p-1"
+                    th:classappend="${iterStat.index == 0} ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-zinc-900' : 'ring-2 ring-zinc-300 dark:ring-zinc-700'">
+                    <div class="size-full rounded-full bg-cover bg-center"
+                        th:style="'background-image: url(' + ${admirer.photo != null ? admirer.photo : '/noprofilepic.png'} + ')'">
+                    </div>
+                </div>
+                <span class="text-[10px] font-bold"
+                    th:classappend="${iterStat.index == 0} ? 'text-primary font-black uppercase' : 'text-zinc-400'"
+                    th:text="'Rank ' + ${iterStat.count}">Rank 1</span>
+            </a>
+            <div th:if="${#lists.isEmpty(topAdmirers)}" class="text-center text-zinc-400 text-sm italic py-4 w-full">
+                No admirers yet
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Section -->
+    <div th:if="${isOwnDashboard}" class="px-4 py-4">
+        <div class="bg-white dark:bg-zinc-900 rounded-xl p-5 shadow-sm border border-zinc-100 dark:border-zinc-800">
+            <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">insights</span> Analytics
+            </h3>
+            <div class="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
+                <p th:text="${analyticsLine1}">Analytics line 1</p>
+                <p th:text="${analyticsLine2}">Analytics line 2</p>
+                <p th:text="${analyticsLine4}">Analytics line 4</p>
+                <p th:text="${analyticsLine5}">Analytics line 5</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Neighbors -->
+    <div class="px-4 py-4">
+        <div class="bg-white dark:bg-zinc-900 rounded-xl p-5 shadow-sm border border-zinc-100 dark:border-zinc-800">
+            <h3 class="text-lg font-bold mb-4 text-center">Leaderboard Neighbours</h3>
+            <div class="flex gap-4 justify-center flex-wrap">
+                <div th:if="${aboveUser != null}" class="flex flex-col items-center">
+                    <p class="text-xs font-bold text-zinc-400 uppercase mb-2">Previous</p>
+                    <a th:href="@{'/user/dashboard/' + ${aboveUser.userId}}" class="no-underline">
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="size-24 rounded-full ring-2 ring-zinc-300 dark:ring-zinc-700 p-1">
+                                <div class="size-full rounded-full bg-cover bg-center"
+                                    th:style="'background-image: url(' + ${aboveUserImage != null ? aboveUserImage : '/noprofilepic.png'} + ')'">
+                                </div>
+                            </div>
+                            <h4 class="text-sm font-bold text-zinc-900 dark:text-white" th:text="${AboveName}">Name</h4>
+                        </div>
+                    </a>
+                </div>
+
+                <div th:if="${belowUser != null}" class="flex flex-col items-center">
+                    <p class="text-xs font-bold text-zinc-400 uppercase mb-2">Next</p>
+                    <a th:href="@{'/user/dashboard/' + ${belowUser.userId}}" class="no-underline">
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="size-24 rounded-full ring-2 ring-zinc-300 dark:ring-zinc-700 p-1">
+                                <div class="size-full rounded-full bg-cover bg-center"
+                                    th:style="'background-image: url(' + ${belowUserImage != null ? belowUserImage : '/noprofilepic.png'} + ')'">
+                                </div>
+                            </div>
+                            <h4 class="text-sm font-bold text-zinc-900 dark:text-white" th:text="${BelowName}">Name</h4>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Posts Grid Section -->
+    <div class="px-4 py-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold">Latest Captures</h3>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div th:each="p, iterStat : ${postDtos}"
+                class="relative group aspect-[3/4] rounded-2xl overflow-hidden shadow-lg"
+                th:classappend="${iterStat.index % 2 == 1} ? 'mt-8' : ''">
+
+                <!-- Post Menu (for own posts) -->
+                <div th:if="${isOwnDashboard}" class="absolute top-3 right-3 z-10">
+                    <button
+                        class="size-8 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/50 transition-all"
+                        onclick="showDeleteModal(this)" th:attr="data-post-id=${p.postId}">
+                        <span class="material-symbols-outlined text-lg">more_vert</span>
+                    </button>
+                </div>
+
+                <!-- Post Link -->
+                <a th:if="${isOwnDashboard}" th:href="@{'/user/post/' + ${p.postId} + '/demographics'}"
+                    class="absolute inset-0 no-underline">
+                    <div class="absolute inset-0 bg-cover bg-center"
+                        th:style="'background-image: url(' + ${p.photoDataUrl != null ? p.photoDataUrl : '/noprofilepic.png'} + ')'">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div class="absolute bottom-3 left-3 flex items-center gap-2">
+                        <div class="glass px-2 py-1 rounded-full flex items-center gap-1">
+                            <span
+                                class="material-symbols-outlined text-primary text-sm fill-1">local_fire_department</span>
+                            <span class="text-white text-xs font-black"
+                                th:text="${p.avgRating == 0} ? '0' : ${#numbers.formatDecimal(p.avgRating, 1, 1)}">0</span>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-3 right-3">
+                        <span class="text-white text-[10px] font-medium" th:text="${p.dateTime}">Date</span>
+                    </div>
+                </a>
+
+                <!-- For other users who can rate -->
+                <a th:if="${!isOwnDashboard && canRatePosts}"
+                    th:href="@{/user/rating-though-profile(postId=${p.postId})}" class="absolute inset-0 no-underline">
+                    <div class="absolute inset-0 bg-cover bg-center"
+                        th:style="'background-image: url(' + ${p.photoDataUrl != null ? p.photoDataUrl : '/noprofilepic.png'} + ')'">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div class="absolute bottom-3 left-3 flex items-center gap-2">
+                        <div class="glass px-2 py-1 rounded-full flex items-center gap-1">
+                            <span
+                                class="material-symbols-outlined text-primary text-sm fill-1">local_fire_department</span>
+                            <span class="text-white text-xs font-black"
+                                th:text="${p.avgRating == 0} ? '0' : ${#numbers.formatDecimal(p.avgRating, 1, 1)}">0</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- For view-only (can't rate) -->
+                <div th:if="${!isOwnDashboard && !canRatePosts}" class="absolute inset-0 cursor-pointer"
+                    onclick="openImageModal(this)"
+                    th:attr="data-image=${p.photoDataUrl}, data-rating=${p.avgRating}, data-date=${p.dateTime}">
+                    <div class="absolute inset-0 bg-cover bg-center"
+                        th:style="'background-image: url(' + ${p.photoDataUrl != null ? p.photoDataUrl : '/noprofilepic.png'} + ')'">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div class="absolute bottom-3 left-3 flex items-center gap-2">
+                        <div class="glass px-2 py-1 rounded-full flex items-center gap-1">
+                            <span
+                                class="material-symbols-outlined text-primary text-sm fill-1">local_fire_department</span>
+                            <span class="text-white text-xs font-black"
+                                th:text="${p.avgRating == 0} ? '0' : ${#numbers.formatDecimal(p.avgRating, 1, 1)}">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="delete-modal-overlay" id="deleteModal">
+        <div class="delete-modal">
+            <div
+                class="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <i class="bi bi-trash3 text-4xl text-red-500"></i>
+            </div>
+            <h3 class="text-2xl font-black text-center mb-2">Delete Post?</h3>
+            <p class="text-center text-zinc-600 dark:text-zinc-400 mb-4">Are you sure you want to delete this post
+                permanently?</p>
+            <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-3 rounded mb-6">
+                <p class="text-sm text-red-700 dark:text-red-400 font-semibold">
+                    <i class="bi bi-exclamation-triangle"></i> This action cannot be undone.
+                </p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()"
+                    class="flex-1 px-6 py-3 rounded-full font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all">
+                    Cancel
+                </button>
+                <button onclick="confirmDelete()"
+                    class="flex-1 px-6 py-3 rounded-full font-bold bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Already Rated Modal -->
+    <div th:if="${dashboardMessage}" class="delete-modal-overlay show" id="ratePopup">
+        <div class="delete-modal">
+            <div
+                class="w-20 h-20 mx-auto mb-4 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                <i class="bi bi-ban text-4xl text-orange-500"></i>
+            </div>
+            <h3 class="text-2xl font-black text-center mb-2">Already Rated</h3>
+            <p class="text-center text-zinc-600 dark:text-zinc-400 mb-6">This post has already been rated by you.</p>
+            <button onclick="document.getElementById('ratePopup').classList.remove('show')"
+                class="w-full px-6 py-3 rounded-full font-bold bg-primary text-white shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <!-- Image View Modal -->
+    <div class="delete-modal-overlay" id="imageModal">
+        <div class="delete-modal max-w-2xl">
+            <button onclick="closeImageModal()"
+                class="absolute top-4 right-4 size-10 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <img id="modalImage" src="" alt="Post" class="w-full rounded-xl mb-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary fill-1">local_fire_department</span>
+                    <span id="modalRating" class="font-bold">0</span>
+                </div>
+                <span id="modalDate" class="text-sm text-zinc-500">Date</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar (for own dashboard) -->
+    <div th:if="${isOwnDashboard}" id="sidebarPanel" class="sidebar-panel">
+        <div class="flex items-center justify-between mb-6">
+            <h4 class="text-xl font-bold text-primary">Settings</h4>
+            <button onclick="closeSidebar()"
+                class="size-10 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div class="space-y-3">
+            <a href="/user/user-rating"
+                class="flex items-center gap-3 p-3 rounded-xl bg-primary/10 text-primary font-semibold hover:bg-primary/20 transition-all no-underline">
+                <i class="bi bi-coin text-xl"></i> My Points History
+            </a>
+            <a href="/user/update-profile"
+                class="flex items-center gap-3 p-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 font-semibold hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all no-underline">
+                <i class="bi bi-person-circle text-xl"></i> Update Profile
+            </a>
+            <a href="/user/leaderboard"
+                class="flex items-center gap-3 p-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 font-semibold hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all no-underline">
+                <i class="bi bi-award-fill text-xl"></i> Leaderboard
+            </a>
+            <a href="/user/referral"></a>
+        </div>
+    </div>
+</body>
+
+</html>

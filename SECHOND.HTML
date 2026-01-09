@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Game Zone Lobby Variant 1</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3de1ce",
+                        "secondary": "#E64DE6",
+                        "background-light": "#f1f2f4",
+                        "background-dark": "#1c1e22",
+                        "card-dark": "#2F343A",
+                        "border-dark": "#36635e",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+        }
+
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Custom subtle grid background */
+        .grid-bg {
+            background-image:
+                linear-gradient(to right, rgba(61, 225, 206, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(61, 225, 206, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .card-glow:hover {
+            box-shadow: 0 0 15px rgba(61, 225, 206, 0.2);
+            border-color: rgba(61, 225, 206, 0.5);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen grid-bg">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <!-- TopNavBar Component -->
+            <header
+                class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-dark/30 bg-background-dark/80 backdrop-blur-md px-6 md:px-10 py-3">
+                <div class="flex items-center gap-6">
+                    <button
+                        class="flex items-center justify-center gap-2 rounded-lg bg-border-dark/40 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-border-dark/60">
+                        <span class="material-symbols-outlined text-sm">arrow_back</span>
+                        <span>Back</span>
+                    </button>
+                    <div class="flex items-center gap-3 text-white">
+                        <div class="size-6 text-primary">
+                            <svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                <path clip-rule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z"
+                                    fill-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <h2 class="font-display text-xl font-bold tracking-tight">Game Zone</h2>
+                    </div>
+                </div>
+                <div class="flex flex-1 justify-end gap-6 items-center">
+                    <nav class="hidden md:flex items-center gap-8">
+                        <a class="text-white/70 hover:text-primary text-sm font-medium transition-colors"
+                            href="#">Lobby</a>
+                        <a class="text-white/70 hover:text-primary text-sm font-medium transition-colors"
+                            href="#">Leaderboard</a>
+                        <a class="text-white/70 hover:text-primary text-sm font-medium transition-colors"
+                            href="#">Store</a>
+                    </nav>
+                    <div class="flex gap-3">
+                        <button
+                            class="flex items-center justify-center rounded-lg h-10 w-10 bg-border-dark/40 text-white hover:bg-primary/20 transition-all">
+                            <span class="material-symbols-outlined">notifications</span>
+                        </button>
+                        <div class="flex items-center gap-3 pl-2 border-l border-border-dark/50">
+                            <div class="flex flex-col items-end hidden sm:flex">
+                                <span class="text-xs font-bold text-primary">RANK #42</span>
+                                <span class="text-[10px] text-white/50 tracking-widest uppercase">Pro League</span>
+                            </div>
+                            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-2 ring-primary/30"
+                                data-alt="User profile avatar portrait"
+                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA3etQebex4Wr_lJkDB9lp7XyyLXHpnLrB2sjdejDJK9Q_YkQoVps5k9PeSxmz5yQGWEkLXy07er6ZYz98oveJPnowL4Ef-C_xL9AiEqZI1HwdQhlh-c882RzAr-ZE2UTqqQsKx4JOvY4mPZDd0dOp6WtRoufdrypIPfqK71Ah9_m3HNEfFAWa7qHT_lU22SAwQRncocxues5Iru-2_4vKxXAcqZbApMs_3je07PDW_0lUy7iKB3iz2naUS32B0VMQKoZZjUq1xTREy");'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <main class="flex-1 px-6 md:px-20 lg:px-40 py-8">
+                <div class="layout-content-container flex flex-col max-w-[1200px] mx-auto">
+                    <!-- PageHeading Component -->
+                    <div class="flex flex-col md:flex-row justify-between items-end gap-4 p-4 mb-8">
+                        <div class="flex flex-col gap-2">
+                            <h1
+                                class="font-display text-white text-4xl md:text-5xl font-black leading-tight tracking-tighter">
+                                CHOOSE YOUR <span class="text-primary">ARENA</span>
+                            </h1>
+                            <p class="text-white/60 text-lg font-normal max-w-lg">
+                                Competitive mini-games designed for high-stakes thrills. Dominate the boards.
+                            </p>
+                        </div>
+                        <div
+                            class="bg-primary/10 border border-primary/20 rounded-xl px-6 py-3 flex gap-8 items-center">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] text-white/40 uppercase tracking-widest">Balance</span>
+                                <span class="text-primary font-bold font-display text-xl">12,450 GZ</span>
+                            </div>
+                            <button
+                                class="bg-primary text-background-dark font-bold px-4 py-1.5 rounded-lg text-sm transition-transform hover:scale-105">
+                                Top Up
+                            </button>
+                        </div>
+                    </div>
+                    <!-- SectionHeader Component -->
+                    <div class="flex items-center justify-between px-4 pb-4">
+                        <h2 class="font-display text-white text-2xl font-bold tracking-tight flex items-center gap-3">
+                            <span class="w-2 h-8 bg-primary rounded-full"></span>
+                            Trending Games
+                        </h2>
+                        <a class="text-primary text-sm font-bold hover:underline" href="#">View All</a>
+                    </div>
+                    <!-- ImageGrid Component - Custom styled cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 p-4">
+                        <!-- Card: Wheel -->
+                        <div
+                            class="group flex flex-col bg-card-dark/40 border border-border-dark/30 rounded-xl overflow-hidden card-glow transition-all duration-300">
+                            <div class="relative w-full aspect-[4/5] bg-background-dark">
+                                <div class="absolute inset-0 bg-gradient-to-t from-background-dark to-transparent z-10">
+                                </div>
+                                <div class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-110"
+                                    data-alt="Neon glowing prize wheel in a dark digital space"
+                                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDhrVYFBFfflqJ9FUBbLbINresC8s9gY1-gZVV5K8k2XTXVLzK7k_zZGUoWzUTlqyY68lp1-UvWaHyXdgsVefBHiPN5blnfblKtYuglgse2DIlXeo9pdUTelBiNqlFv4erlNEl1IAw-UpP44KTvTQYhtjjQP3CCjLG5iE8zJ-4qGJg3PN4B6a-xWEZ4z_2iTuJj49sDKKubAua2L4AfPreRBUXj9-S8TWOjdMfx2CfcR0aoIZULVyuutpXugiF2DgPBF3p9I7NsVjOr");'>
+                                </div>
+                                <span
+                                    class="absolute top-3 right-3 z-20 bg-primary/20 backdrop-blur-md text-primary text-[10px] font-bold px-2 py-1 rounded border border-primary/30 uppercase tracking-wider">Popular</span>
+                            </div>
+                            <div class="p-5 flex flex-col gap-1">
+                                <p class="font-display text-white text-xl font-bold">Wheel</p>
+                                <p class="text-white/50 text-xs font-normal leading-normal mb-4">Spin and win massive
+                                    multipliers.</p>
+                                <a class="flex items-center justify-center w-full py-3 bg-primary text-background-dark rounded-lg font-bold text-sm tracking-wide transition-all hover:shadow-[0_0_20px_rgba(61,225,206,0.4)]"
+                                    href="#">
+                                    PLAY NOW
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Card: Casino -->
+                        <div
+                            class="group flex flex-col bg-card-dark/40 border border-border-dark/30 rounded-xl overflow-hidden card-glow transition-all duration-300">
+                            <div class="relative w-full aspect-[4/5] bg-background-dark">
+                                <div class="absolute inset-0 bg-gradient-to-t from-background-dark to-transparent z-10">
+                                </div>
+                                <div class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-110"
+                                    data-alt="Futuristic digital poker cards with glowing blue edges"
+                                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDTHTENpc6MN7ITrb-8eebPWES7MWCJbIsZ0bpyNeGjjQrC7QEBJ5ro-46UsK8MHNX9Gy9pVj2ZIP4AN0bbX7XgX916kRTibCFAVB_O9pmu_JiPoA_YjBJ-lvR2JKvv_AMWiZ9vxtMzLUmVilgxvBmkvJDIMZh1RZ9Iu62wOD0bwYZBON22fPFpGIqKrPKHnEcJvBHj1AjxsqoFlWMvEctPFoPb854O-fzjS-dRHfScbgNso1n3kiIBjefdCEBUTrlZJHRYEcH1xXdU");'>
+                                </div>
+                            </div>
+                            <div class="p-5 flex flex-col gap-1">
+                                <p class="font-display text-white text-xl font-bold">Casino</p>
+                                <p class="text-white/50 text-xs font-normal leading-normal mb-4">High stakes digital
+                                    card action.</p>
+                                <a class="flex items-center justify-center w-full py-3 bg-primary text-background-dark rounded-lg font-bold text-sm tracking-wide transition-all hover:shadow-[0_0_20px_rgba(61,225,206,0.4)]"
+                                    href="#">
+                                    PLAY NOW
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Card: Flames -->
+                        <div
+                            class="group flex flex-col bg-card-dark/40 border border-border-dark/30 rounded-xl overflow-hidden card-glow transition-all duration-300">
+                            <div class="relative w-full aspect-[4/5] bg-background-dark">
+                                <div class="absolute inset-0 bg-gradient-to-t from-background-dark to-transparent z-10">
+                                </div>
+                                <div class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-110"
+                                    data-alt="Abstract pink and purple fire flames in neon"
+                                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBxZdVKQQalWGuOERWSUXqs9Ah1I_9RE_7HfRBSF-bbTgHgPrLbuPuwFEHiyixfsg3xvO4WcByzQ_u7BUHq0gzEJqep-gtHVxwmpaW5RRLV7tsd3QAWNINUeBTbruxwJU1-offipGLLN62-ht-HmRFY1zPW0F7hHgtYdr9EHHcsmj9fEq8iOwEGqONqO-dDpokQpqt8-kIavb4RFAo6D9r_AoJLyot2n-UWE_lhzSk47I0hz1MbWvxwTHwcDBYfqstYvfAQt5Ezs5tl");'>
+                                </div>
+                                <span
+                                    class="absolute top-3 right-3 z-20 bg-secondary/20 backdrop-blur-md text-secondary text-[10px] font-bold px-2 py-1 rounded border border-secondary/30 uppercase tracking-wider">HOT</span>
+                            </div>
+                            <div class="p-5 flex flex-col gap-1">
+                                <p class="font-display text-white text-xl font-bold">Flames</p>
+                                <p class="text-white/50 text-xs font-normal leading-normal mb-4">Fast-paced reaction
+                                    challenges.</p>
+                                <a class="flex items-center justify-center w-full py-3 bg-primary text-background-dark rounded-lg font-bold text-sm tracking-wide transition-all hover:shadow-[0_0_20px_rgba(61,225,206,0.4)]"
+                                    href="#">
+                                    PLAY NOW
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Card: Petal -->
+                        <div
+                            class="group flex flex-col bg-card-dark/40 border border-border-dark/30 rounded-xl overflow-hidden card-glow transition-all duration-300">
+                            <div class="relative w-full aspect-[4/5] bg-background-dark">
+                                <div class="absolute inset-0 bg-gradient-to-t from-background-dark to-transparent z-10">
+                                </div>
+                                <div class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-110"
+                                    data-alt="Geometric floral patterns with cyan glowing lines"
+                                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDQeB-DSC7rrk7eiefFdQWeTr-Huu7YIzYIN0kn5wT5k9M4AoxG-iTHWQusP6N3VRs5TDEQ_-bBk4NnDf06LuJcY9ikcIUbFIl8UEi4WU6DUUL6igUNMW7_47vHcsWT4xC7y5zmc2S-TUhhWdbo8Z7fl_ASYcQ5L9ppCXwud49FtIf5jBoDIMkate8X3TC3_xO02wCqxlyAo4HdLTU9YzT1wC1TmIl4MPkLB9TztzHG_x-J3Y4lwEuFf809eM8L7Gz_7Fe8Lu_-UpdZ");'>
+                                </div>
+                            </div>
+                            <div class="p-5 flex flex-col gap-1">
+                                <p class="font-display text-white text-xl font-bold">Petal</p>
+                                <p class="text-white/50 text-xs font-normal leading-normal mb-4">Strategic matching of
+                                    patterns.</p>
+                                <a class="flex items-center justify-center w-full py-3 bg-primary text-background-dark rounded-lg font-bold text-sm tracking-wide transition-all hover:shadow-[0_0_20px_rgba(61,225,206,0.4)]"
+                                    href="#">
+                                    PLAY NOW
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Card: Jigsaw -->
+                        <div
+                            class="group flex flex-col bg-card-dark/40 border border-border-dark/30 rounded-xl overflow-hidden card-glow transition-all duration-300">
+                            <div class="relative w-full aspect-[4/5] bg-background-dark">
+                                <div class="absolute inset-0 bg-gradient-to-t from-background-dark to-transparent z-10">
+                                </div>
+                                <div class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-110"
+                                    data-alt="Fragmented 3D glass pieces forming a puzzle"
+                                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDGnmdVdZka6kxUWGkF_QvrtDa3no_X5vZa451q4mMaGZoS5MzELm1tsLaYIeQZX4NDOYqEYUXZKK-YB-jrUt5xM7ypePL5bRMEXrfKWdnr3whtg5LYvmtmeyC5sRUtxYp16KGgMsMWg11jrl2bEhZ6VlMrtYjyZsVO8GHga1m731QZdVJDbqDkrOh_YSCdF-f-i3AmDdd_J5pSuVg2hlmew5gKNq61E4vucHWtMOXh277d4lvOoOH0tpGI6Pki_ZXphXpwCnmLhn2f");'>
+                                </div>
+                            </div>
+                            <div class="p-5 flex flex-col gap-1">
+                                <p class="font-display text-white text-xl font-bold">Jigsaw</p>
+                                <p class="text-white/50 text-xs font-normal leading-normal mb-4">Master-level spatial
+                                    puzzles.</p>
+                                <a class="flex items-center justify-center w-full py-3 bg-primary text-background-dark rounded-lg font-bold text-sm tracking-wide transition-all hover:shadow-[0_0_20px_rgba(61,225,206,0.4)]"
+                                    href="#">
+                                    PLAY NOW
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- SectionHeader Component: Leaderboard -->
+                    <div class="flex items-center gap-3 px-4 pb-4 pt-12">
+                        <h2 class="font-display text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">Live
+                            Leaderboard</h2>
+                        <span class="flex size-2 bg-red-500 rounded-full animate-pulse"></span>
+                    </div>
+                    <!-- Table Component -->
+                    <div class="px-4 py-3 @container">
+                        <div
+                            class="flex overflow-hidden rounded-xl border border-border-dark/50 bg-background-dark/60 backdrop-blur-sm">
+                            <table class="flex-1 text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-border-dark/20 border-b border-border-dark/50">
+                                        <th
+                                            class="px-6 py-4 text-primary text-xs font-bold uppercase tracking-widest w-20">
+                                            Rank</th>
+                                        <th class="px-6 py-4 text-white text-xs font-bold uppercase tracking-widest">
+                                            Player</th>
+                                        <th
+                                            class="px-6 py-4 text-white text-xs font-bold uppercase tracking-widest text-center">
+                                            Last Game</th>
+                                        <th
+                                            class="px-6 py-4 text-white text-xs font-bold uppercase tracking-widest text-right">
+                                            Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        class="border-t border-t-border-dark/30 hover:bg-white/5 transition-colors group">
+                                        <td class="px-6 py-5 text-primary font-display font-black text-xl italic">01
+                                        </td>
+                                        <td class="px-6 py-5">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="size-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-600 border border-white/20">
+                                                </div>
+                                                <span class="text-white font-medium">CyberKnight</span>
+                                                <span
+                                                    class="material-symbols-outlined text-yellow-500 text-sm">workspace_premium</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-5 text-center">
+                                            <span
+                                                class="px-3 py-1 rounded-full bg-border-dark/40 text-white/70 text-xs font-medium border border-border-dark/30">Wheel</span>
+                                        </td>
+                                        <td class="px-6 py-5 text-right font-display text-white font-bold tabular-nums">
+                                            45,000</td>
+                                    </tr>
+                                    <tr
+                                        class="border-t border-t-border-dark/30 hover:bg-white/5 transition-colors group">
+                                        <td class="px-6 py-5 text-white/50 font-display font-black text-xl italic">02
+                                        </td>
+                                        <td class="px-6 py-5">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="size-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 border border-white/20">
+                                                </div>
+                                                <span class="text-white font-medium">NeonPulse</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-5 text-center">
+                                            <span
+                                                class="px-3 py-1 rounded-full bg-border-dark/40 text-white/70 text-xs font-medium border border-border-dark/30">Flames</span>
+                                        </td>
+                                        <td class="px-6 py-5 text-right font-display text-white font-bold tabular-nums">
+                                            42,300</td>
+                                    </tr>
+                                    <tr
+                                        class="border-t border-t-border-dark/30 hover:bg-white/5 transition-colors group">
+                                        <td class="px-6 py-5 text-white/50 font-display font-black text-xl italic">03
+                                        </td>
+                                        <td class="px-6 py-5">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="size-8 rounded-full bg-gradient-to-br from-green-400 to-teal-600 border border-white/20">
+                                                </div>
+                                                <span class="text-white font-medium">GridRunner</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-5 text-center">
+                                            <span
+                                                class="px-3 py-1 rounded-full bg-border-dark/40 text-white/70 text-xs font-medium border border-border-dark/30">Casino</span>
+                                        </td>
+                                        <td class="px-6 py-5 text-right font-display text-white font-bold tabular-nums">
+                                            39,150</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <!-- Simple Footer -->
+            <footer
+                class="mt-20 border-t border-border-dark/20 py-10 px-10 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-3 text-white/30">
+                    <div class="size-5">
+                        <svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                            <path clip-rule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z"
+                                fill-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <span class="text-sm font-display tracking-widest uppercase">Game Zone Lobby v1.0.4</span>
+                </div>
+                <div class="flex gap-8 text-xs font-medium text-white/40 uppercase tracking-widest">
+                    <a class="hover:text-primary" href="#">Support</a>
+                    <a class="hover:text-primary" href="#">Privacy</a>
+                    <a class="hover:text-primary" href="#">Terms of Service</a>
+                </div>
+                <div class="flex gap-4">
+                    <a class="size-8 rounded bg-border-dark/20 flex items-center justify-center hover:text-primary transition-colors"
+                        href="#">
+                        <svg class="size-4" fill="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z">
+                            </path>
+                        </svg>
+                    </a>
+                    <a class="size-8 rounded bg-border-dark/20 flex items-center justify-center hover:text-primary transition-colors"
+                        href="#">
+                        <svg class="size-4" fill="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.011-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.627-5.373-12-12-12z">
+                            </path>
+                        </svg>
+                    </a>
+                </div>
+            </footer>
+        </div>
+    </div>
+</body>
+
+</html>

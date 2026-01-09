@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thyeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wheel Game - HotOrNot</title>
+  <meta name="_csrf" th:content="${_csrf.token}">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    .header-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: linear-gradient(135deg, #FA8231, #F97F51, #FF6B9D);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        z-index: 1000;
+    }
+
+    .back-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: white;
+        font-size: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    .back-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateX(-3px);
+        color: white;
+    }
+
+    @media (max-width: 480px) {
+        .header-bar {
+            height: 50px;
+            padding: 0 15px;
+        }
+        
+        .back-button {
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+        }
+    }
+
+    .wheel-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px 10px;
+        min-height: 500px;
+    }
+
+    #result {
+        font-size: 20px;
+        font-weight: bold;
+        color: green;
+        margin-bottom: 20px;
+        text-align: center;
+        min-height: 30px;
+    }
+
+    @media (max-width: 480px) {
+        #result {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+    }
+
+    .main {
+        position: relative;
+        width: 100%;
+        max-width: 350px;
+        aspect-ratio: 1;
+        margin: 0 auto;
+    }
+
+    @media (min-width: 480px) {
+        .main {
+            max-width: 400px;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .main {
+            max-width: 450px;
+        }
+    }
+
+    .wheel {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 8px solid gold;
+        overflow: hidden;
+        transition: transform 4s ease-out;
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.7);
+    }
+
+    @media (min-width: 768px) {
+        .wheel {
+            border-width: 10px;
+        }
+    }
+
+    .pointer {
+        position: absolute;
+        top: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-top: 40px solid khaki;
+        z-index: 10;
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
+    }
+
+    @media (min-width: 768px) {
+        .pointer {
+            border-left-width: 25px;
+            border-right-width: 25px;
+            border-top-width: 50px;
+        }
+    }
+
+    .slice {
+        position: absolute;
+        width: 50%;
+        height: 50%;
+        transform-origin: 100% 100%;
+        clip-path: polygon(0 0, 100% 0, 100% 100%);
+    }
+
+    .c1 {
+        background: #ff1f1f;
+    }
+
+    .c2 {
+        background: #19e3cf;
+    }
+
+    .c3 {
+        background: #9e0bf3;
+    }
+
+    .c4 {
+        background: #15b600;
+    }
+
+    .c5 {
+        background: #ffb700;
+    }
+
+    .c6 {
+        background: #ff5a5a;
+    }
+
+    .c7 {
+        background: #57fff1;
+    }
+
+    .c8 {
+        background: #ff9612;
+    }
+
+    .label {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform-origin: center;
+    }
+
+    .label span {
+        position: absolute;
+        top: 22%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 20px;
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 2px 2px 6px #000;
+        pointer-events: none;
+    }
+
+    @media (min-width: 480px) {
+        .label span {
+            font-size: 22px;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .label span {
+            font-size: 26px;
+        }
+    }
+
+    .spin {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        border: solid 2px #fff;
+        background-color: gold;
+        color: #000;
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
+        z-index: 5;
+        transition: all 0.3s ease;
+    }
+
+    @media (min-width: 768px) {
+        .spin {
+            width: 80px;
+            height: 80px;
+            font-size: 20px;
+        }
+    }
+
+    .spin:hover:not(:disabled) {
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 8px 30px rgba(255, 215, 0, 0.8);
+    }
+
+    .spin:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    #result1 {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #FFD700;
+        text-shadow: 2px 2px 6px #000;
+        text-align: center;
+    }
+
+    @media (min-width: 768px) {
+        #result1 {
+            font-size: 22px;
+        }
+    }
+
+    .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: #ffd700;
+        animation: confetti-fall 3s linear;
+        pointer-events: none;
+    }
+
+    @keyframes confetti-fall {
+        to {
+            transform: translateY(100vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    .firework {
+        position: fixed;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        animation: firework-burst 1s ease-out forwards;
+        pointer-events: none;
+    }
+
+    @keyframes firework-burst {
+        0% {
+            transform: translate(0, 0);
+            opacity: 1;
+        }
+
+        100% {
+            transform: translate(var(--x), var(--y));
+            opacity: 0;
+        }
+    }
+
+    .celebration-text {
+        position: fixed;
+        font-size: 50px;
+        font-weight: bold;
+        color: #ffd700;
+        text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+        animation: celebration-pop 2s ease-out forwards;
+        pointer-events: none;
+        z-index: 1000;
+    }
+
+    @media (min-width: 768px) {
+        .celebration-text {
+            font-size: 70px;
+        }
+    }
+
+    @keyframes celebration-pop {
+        0% {
+            transform: scale(0) rotate(-10deg);
+            opacity: 0;
+        }
+
+        50% {
+            transform: scale(1.2) rotate(5deg);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(1) rotate(0deg) translateY(-50px);
+            opacity: 0;
+        }
+    }
+
+    .points-shower {
+        position: fixed;
+        font-size: 24px;
+        font-weight: bold;
+        animation: points-fall 2s linear forwards;
+        pointer-events: none;
+        z-index: 999;
+    }
+
+    @media (min-width: 768px) {
+        .points-shower {
+            font-size: 30px;
+        }
+    }
+
+    @keyframes points-fall {
+        0% {
+            transform: translateY(-50px) rotate(0deg);
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+        }
+    }
+
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.4s ease;
+    }
+
+    .popup-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .popup {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 248, 240, 0.95));
+        padding: 30px 40px;
+        border-radius: 25px;
+        text-align: center;
+        color: #2d2d2d;
+        box-shadow: 0 10px 50px rgba(250, 130, 49, 0.4);
+        border: 3px solid rgba(250, 130, 49, 0.3);
+        position: relative;
+        overflow: hidden;
+        animation: popupScale 0.6s ease-out;
+        max-width: 90%;
+    }
+
+    @media (min-width: 768px) {
+        .popup {
+            padding: 40px 60px;
+        }
+    }
+
+    @keyframes popupScale {
+        0% {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .badge-wrapper {
+        position: relative;
+        margin-bottom: 15px;
+    }
+
+    .badge {
+        background: linear-gradient(135deg, #FA8231, #F97F51, #FF6B9D);
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        position: relative;
+        box-shadow: 0 0 40px rgba(250, 130, 49, 0.6);
+        animation: pulse 1.5s infinite;
+    }
+
+    @media (min-width: 768px) {
+        .badge {
+            width: 120px;
+            height: 120px;
+        }
+    }
+
+    .badge-text {
+        font-size: 2em;
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    @media (min-width: 768px) {
+        .badge-text {
+            font-size: 2.5em;
+        }
+    }
+
+    .shine {
+        position: absolute;
+        top: 0;
+        left: -75%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(120deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+        transform: skewX(-25deg);
+        animation: shine 2s infinite;
+    }
+
+    @keyframes shine {
+        0% {
+            left: -75%;
+        }
+
+        100% {
+            left: 125%;
+        }
+    }
+
+    .points-earned {
+        font-size: 1.1em;
+        margin-top: 15px;
+        color: #FA8231;
+        font-weight: 700;
+    }
+
+    @media (min-width: 768px) {
+        .points-earned {
+            font-size: 1.2em;
+        }
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.08);
+        }
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 28px;
+        color: #999;
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        z-index: 1001;
+    }
+
+    @media (min-width: 768px) {
+        .close-btn {
+            top: 15px;
+            right: 20px;
+            font-size: 32px;
+        }
+    }
+
+    .close-btn:hover {
+        color: #FA8231;
+        transform: rotate(90deg);
+    }
+
+    .badge-circle-md {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    .main-container {
+        padding-top: 80px;
+    }
+  </style>
+</head>
+
+<body>
+<!-- <a href="javascript:history.back()" class="back-button">
+  <i class="bi bi-arrow-left"></i>
+</a> -->
+
+
+<div class="header-bar">
+  <a href="javascript:history.back()" class="back-button">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+</div>
+
+<div class="main-container">
+  <div class="card shadow-sm p-3 rounded-4">
+    <h3 class="text-center mb-3 fw-bold text-danger">Wheel Game</h3>
+    <span class="badge bg-dark badge-circle-md" th:text="${wheelLimitCounter}"></span>
+    <div class="wheel-container">
+      <div th:if="${wheelLimit==false}" id="result">Ready to spin? you have <span th:text="${wheelLimitCounter}" id="wheelChance"></span> Chances</div>
+      <div th:if="${wheelLimit==true}" class="text-danger fw-bolder my-4">Your 3 spins for this week are finished!</div>
+      <div class="main">
+        <div class="pointer"></div>
+        <div id="wheel" class="wheel">
+          <div class="slice c1" style="transform: rotate(0deg) skewY(-45deg);"></div>
+          <div class="slice c2" style="transform: rotate(45deg) skewY(-45deg);"></div>
+          <div class="slice c3" style="transform: rotate(90deg) skewY(-45deg);"></div>
+          <div class="slice c4" style="transform: rotate(135deg) skewY(-45deg);"></div>
+          <div class="slice c5" style="transform: rotate(180deg) skewY(-45deg);"></div>
+          <div class="slice c6" style="transform: rotate(225deg) skewY(-45deg);"></div>
+          <div class="slice c7" style="transform: rotate(270deg) skewY(-45deg);"></div>
+          <div class="slice c8" style="transform: rotate(315deg) skewY(-45deg);"></div>
+          <div class="label" style="transform: rotate(22.5deg);"><span>5</span></div>
+          <div class="label" style="transform: rotate(67.5deg);"><span>10</span></div>
+          <div class="label" style="transform: rotate(112.5deg);"><span>Free</span></div>
+          <div class="label" style="transform: rotate(157.5deg);"><span>20</span></div>
+          <div class="label" style="transform: rotate(202.5deg);"><span>30</span></div>
+          <div class="label" style="transform: rotate(247.5deg);"><span>50</span></div>
+          <div class="label" style="transform: rotate(292.5deg);"><span>Free</span></div>
+          <div class="label" style="transform: rotate(337.5deg);"><span>2</span></div>
+        </div>
+        <button th:disabled="${wheelLimit} ? true : false" class="spin" id="spinBtn" onclick="letsSpin()">SPIN</button>
+      </div>
+      <div id="result1"></div>
+    </div>
+  </div>
+</div>
+
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup">
+    <button class="close-btn" onclick="closePopup()">&times;</button>
+    <div class="badge-wrapper">
+      <div class="badge">
+        <div class="shine"></div>
+        <div class="badge-text">+<span id="badgePoints">50</span></div>
+      </div>
+    </div>
+    <div class="points-earned"><span id="pointsText">You earned 50 points!</span></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script>
+  const rewardOptions = [5, 10, "free", 20, 30, 50, "free", 2];
+  const segmentAngle = 360 / rewardOptions.length;
+  let spinning = false;
+
+  function createConfetti() {
+    for (let i = 0; i < 100; i++) {
+      setTimeout(() => {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * window.innerWidth + 'px';
+        confetti.style.top = '-10px';
+        confetti.style.background = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#AA96DA', '#F38181', '#95E1D3'][Math.floor(Math.random() * 6)];
+        confetti.style.width = (Math.random() * 10 + 5) + 'px';
+        confetti.style.height = (Math.random() * 10 + 5) + 'px';
+        document.body.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 3000);
+      }, i * 20);
+    }
+  }
+
+  function createFireworks() {
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#AA96DA', '#F38181', '#95E1D3'];
+
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => {
+        const x = Math.random() * window.innerWidth;
+        const y = Math.random() * (window.innerHeight * 0.5);
+
+        for (let j = 0; j < 30; j++) {
+          const firework = document.createElement('div');
+          firework.className = 'firework';
+          firework.style.left = x + 'px';
+          firework.style.top = y + 'px';
+          firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+          const angle = (Math.PI * 2 * j) / 30;
+          const velocity = 50 + Math.random() * 100;
+
+          firework.style.setProperty('--x', Math.cos(angle) * velocity + 'px');
+          firework.style.setProperty('--y', Math.sin(angle) * velocity + 'px');
+
+          document.body.appendChild(firework);
+          setTimeout(() => firework.remove(), 1000);
+        }
+      }, i * 300);
+    }
+  }
+
+  function createCelebrationText() {
+    const messages = ['🎉 AMAZING! 🎉', '⭐ FANTASTIC! ⭐', '🔥 ON FIRE! 🔥', '💫 SPECTACULAR! 💫', '🎊 INCREDIBLE! 🎊'];
+    const message = messages[Math.floor(Math.random() * messages.length)];
+
+    const celebText = document.createElement('div');
+    celebText.className = 'celebration-text';
+    celebText.textContent = message;
+    celebText.style.left = '50%';
+    celebText.style.top = '30%';
+    celebText.style.transform = 'translateX(-50%)';
+
+    document.body.appendChild(celebText);
+    setTimeout(() => celebText.remove(), 2000);
+  }
+
+  function createPointsShower(points) {
+    const colors = ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4'];
+
+    for (let i = 0; i < 20; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'points-shower';
+        el.textContent = '+' + points;
+        el.style.left = (Math.random() * window.innerWidth) + 'px';
+        el.style.top = '-50px';
+        el.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 2000);
+      }, i * 100);
+    }
+  }
+
+  function closePopup() {
+    document.getElementById('popupOverlay').classList.remove('show');
+  }
+
+  function letsSpin() {
+    if (spinning) return;
+
+    const wheel = document.getElementById('wheel');
+    const result = document.getElementById('result');
+    const spinBtn = document.getElementById('spinBtn');
+
+    spinning = true;
+    spinBtn.disabled = true;
+    result.innerText = "Spinning... 🎡";
+
+    const randomIndex = Math.floor(Math.random() * rewardOptions.length);
+    const reward = rewardOptions[randomIndex];
+    const spins = 10;
+
+    const stopAngle = randomIndex * segmentAngle + segmentAngle / 2;
+    const totalRotation = spins * 360 + stopAngle;
+
+    wheel.style.transition = "transform 3.8s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
+    wheel.style.transform = `rotate(-${totalRotation}deg)`;
+
+    setTimeout(() => {
+      if (reward === "free") {
+        result.innerHTML = `🎉 You got a <b>FREE SPIN</b>! Click spin again! 🎉`;
+
+        wheel.style.transition = "none";
+        wheel.style.transform = "rotate(0deg)";
+
+        setTimeout(() => {
+          spinning = false;
+          spinBtn.disabled = false;
+        }, 200);
+
+        return;
+      }
+
+      result.innerHTML = `🎊 You won <b>${reward}</b> points! 🎊`;
+
+      createConfetti();
+      createFireworks();
+      createCelebrationText();
+      createPointsShower(reward);
+      saveRewardToServer(reward, "WHEEL");
+
+      document.getElementById('badgePoints').textContent = reward;
+      document.getElementById('pointsText').textContent = `You earned ${reward} points!`;
+      document.getElementById('popupOverlay').classList.add('show');
+
+      wheel.style.transition = "none";
+      wheel.style.transform = `rotate(-${stopAngle}deg)`;
+
+      setTimeout(() => {
+        spinning = false;
+      }, 500);
+
+    }, 4000);
+  }
+
+  function saveRewardToServer(reward, category) {
+    const formData = new URLSearchParams();
+    formData.append("reward", reward);
+    formData.append("category", category);
+
+    const csrfToken = document.querySelector("meta[name='_csrf']").content;
+    const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
+
+    const spinBtn = document.getElementById('spinBtn');
+
+    fetch('/user/spinWheel', {
+      method: 'POST',
+      headers: {
+        [csrfHeader]: csrfToken,
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: formData
+    })
+      .then(response => response.json())
+      .then(res => {
+        console.log("SERVER RESPONSE:", res);
+
+        if (res.wheelSpins >= 2) {
+          spinBtn.disabled = true;
+        } else {
+          spinBtn.disabled = false;
+        }
+
+        if (res.status === "limit") {
+          if (category === "WHEEL") spinBtn.disabled = true;
+          return;
+        }
+      })
+      .catch(err => {
+        console.error("ERROR:", err);
+        alert("Something went wrong!");
+      });
+  }
+</script>
+
+</body>
+</html>
