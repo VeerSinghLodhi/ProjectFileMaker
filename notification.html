@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HotOrNot Premium Notifications</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ed462c",
+                        "primary-dark": "#C71C0F",
+                        "background-light": "#ffffff",
+                        "background-dark": "#18181b",
+                        "soft-pink": "#FFF0F1",
+                    },
+                    fontFamily: {
+                        "display": ["Epilogue", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .premium-shadow {
+            box-shadow: 0 10px 30px -10px rgba(237, 70, 44, 0.08);
+        }
+        .bg-orb {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(237, 70, 44, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased">
+<!-- Background Gradient Orbs -->
+<div class="bg-orb top-[-100px] right-[-100px]"></div>
+<div class="bg-orb bottom-[-100px] left-[-100px]"></div>
+<div class="relative flex min-h-screen w-full flex-col max-w-[430px] mx-auto bg-white/80 dark:bg-background-dark/80 backdrop-blur-sm shadow-2xl overflow-x-hidden">
+<!-- Sticky Header -->
+<header class="sticky top-0 z-50 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-50 dark:border-zinc-800">
+<div class="flex items-center p-4 justify-between">
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
+<span class="material-symbols-outlined text-primary text-[28px]">arrow_back</span>
+</button>
+<h1 class="text-[#181211] dark:text-white text-xl font-extrabold leading-tight tracking-tight flex-1 text-center pr-10 uppercase">Notifications</h1>
+<div class="w-2"></div>
+</div>
+<!-- Filter Pills -->
+<div class="flex gap-3 px-4 pb-4 overflow-x-auto no-scrollbar scroll-smooth">
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-gradient-to-r from-primary to-primary-dark px-6 shadow-lg shadow-primary/20">
+<p class="text-white text-sm font-bold">All</p>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 px-6">
+<p class="text-[#181211] dark:text-zinc-300 text-sm font-medium">Ratings</p>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 px-6">
+<p class="text-[#181211] dark:text-zinc-300 text-sm font-medium">Crushes</p>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 px-6">
+<p class="text-[#181211] dark:text-zinc-300 text-sm font-medium">Gifts</p>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 px-6">
+<p class="text-[#181211] dark:text-zinc-300 text-sm font-medium">System</p>
+</button>
+</div>
+</header>
+<main class="flex-1 flex flex-col gap-3 p-4">
+<!-- Rating Alert (Unread) -->
+<div class="flex items-center gap-4 bg-white dark:bg-zinc-900 px-4 py-4 rounded-xl premium-shadow border border-gray-50 dark:border-zinc-800 relative">
+<div class="relative">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-14 ring-2 ring-primary/10" data-alt="User profile photo of a handsome man" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDTqETHRyOjdSB1ddbNPV1FxQHd1Zj4jC7ABNfXkhI9CUv2tdvlVI6yozXyCTuGhhqvPGTn8At06vg8FICV4UY_J8IPlHr6YVZLd9D5cMdilRNmHC-WtrYibgqgdNWYirh3Ib1O3OCut4PwhlEXbWWMV9QwFiVR81X8Vyz6u9oZClghNtWtCd4pQ4_7Jf4fl2yYgyNeYNL2BHX73GWJiKrv549Aunn0JvskbPZ1UECXwjJP9cKFRcE9nNe6J_Wjqo0AElb1PBzu5h8");'></div>
+<div class="absolute -bottom-1 -right-1 bg-white dark:bg-zinc-900 rounded-full p-1 shadow-sm">
+<span class="material-symbols-outlined text-primary text-base fill-1">local_fire_department</span>
+</div>
+</div>
+<div class="flex flex-col flex-1 justify-center">
+<p class="text-[#181211] dark:text-white text-[15px] font-semibold leading-snug line-clamp-2">
+                        Alex rated your photo <span class="text-primary font-extrabold">9/10</span>
+</p>
+<p class="text-zinc-400 dark:text-zinc-500 text-xs mt-1 font-medium">2m ago</p>
+</div>
+<div class="shrink-0 flex flex-col items-end gap-2">
+<div class="size-2 rounded-full bg-primary"></div>
+</div>
+</div>
+<!-- Mutual Crush Alert (Featured) -->
+<div class="flex items-center gap-4 bg-soft-pink dark:bg-primary/10 px-4 py-5 rounded-xl border border-primary/20">
+<div class="flex items-center justify-center rounded-xl bg-white dark:bg-zinc-900 shrink-0 size-14 shadow-sm">
+<span class="material-symbols-outlined text-primary text-[32px] fill-1">favorite</span>
+</div>
+<div class="flex flex-col flex-1 justify-center">
+<p class="text-[#181211] dark:text-white text-[15px] font-bold leading-snug">
+                        It's a Match! <span class="text-primary">Sarah</span> and you have a mutual crush
+                    </p>
+<p class="text-primary/70 dark:text-primary/80 text-xs mt-1 font-bold uppercase tracking-wider">Tap to chat now</p>
+</div>
+<div class="shrink-0 flex flex-col items-end gap-2">
+<p class="text-zinc-400 dark:text-zinc-500 text-xs font-medium">5m ago</p>
+<div class="size-2 rounded-full bg-primary"></div>
+</div>
+</div>
+<!-- Gift Alert -->
+<div class="flex items-center gap-4 bg-white dark:bg-zinc-900 px-4 py-4 rounded-xl premium-shadow border border-gray-50 dark:border-zinc-800">
+<div class="flex items-center justify-center rounded-lg bg-gray-50 dark:bg-zinc-800 shrink-0 size-14">
+<span class="material-symbols-outlined text-[#181211] dark:text-white text-[28px]">card_giftcard</span>
+</div>
+<div class="flex flex-col flex-1 justify-center">
+<p class="text-[#181211] dark:text-white text-[15px] font-semibold leading-snug">
+                        You received a 'Rose' from <span class="font-bold">Michael</span>
+</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="text-green-600 dark:text-green-500 text-xs font-bold">+50 pts</span>
+<span class="text-zinc-300 mx-1">•</span>
+<p class="text-zinc-400 dark:text-zinc-500 text-xs font-medium">View gifts</p>
+</div>
+</div>
+<div class="shrink-0">
+<p class="text-zinc-400 dark:text-zinc-500 text-xs font-medium">15m ago</p>
+</div>
+</div>
+<!-- Rating Alert (Read) -->
+<div class="flex items-center gap-4 bg-white/50 dark:bg-zinc-900/50 px-4 py-4 rounded-xl border border-gray-50 dark:border-zinc-800 opacity-80">
+<div class="relative">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-14 grayscale-[0.5]" data-alt="User profile photo of a smiling woman" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBTieKFcaCc57YDxaUTLD1xPvF_FzDH7EOuiBeWBCRC2KwAh4ulmiES6H7xeEunSIQ1icX97buIXYQ4FlNUNWoGhablKyds3dKZaKijZCFry71yNwi-gFgbuc7f5m9EYM6TZdhtl0O3ByadiGrSHIZSThnyjbdMm0WgsqqVcRk1zcaixM2xPz7OnoIKm6mXEPj0Oj9MfikR0di_4tBuVlnhFvOQNUh5bqJMW1BgQ1voNCBj_2X0anoTDhANMyDQIvz85gkCbTAEtVE");'></div>
+</div>
+<div class="flex flex-col flex-1 justify-center">
+<p class="text-zinc-600 dark:text-zinc-400 text-[15px] font-medium leading-snug">
+                        Jessica rated your photo <span class="font-bold">8/10</span>
+</p>
+<p class="text-zinc-400 dark:text-zinc-500 text-xs mt-1 font-medium">1h ago</p>
+</div>
+<div class="shrink-0">
+</div>
+</div>
+<!-- System Alert -->
+<div class="flex items-center gap-4 bg-white dark:bg-zinc-900 px-4 py-4 rounded-xl premium-shadow border border-gray-50 dark:border-zinc-800">
+<div class="flex items-center justify-center rounded-lg bg-primary/5 shrink-0 size-14">
+<span class="material-symbols-outlined text-primary text-[28px]">verified_user</span>
+</div>
+<div class="flex flex-col flex-1 justify-center">
+<p class="text-[#181211] dark:text-white text-[15px] font-semibold leading-snug">
+                        Profile Verified!
+                    </p>
+<p class="text-zinc-400 dark:text-zinc-500 text-xs mt-1 font-medium">Your account is now official</p>
+</div>
+<div class="shrink-0">
+<p class="text-zinc-400 dark:text-zinc-500 text-xs font-medium">3h ago</p>
+</div>
+</div>
+</main>
+<!-- Tab Bar Placeholder (iOS Style) -->
+<footer class="sticky bottom-0 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-t border-gray-100 dark:border-zinc-800 pb-8 pt-2 px-8">
+<div class="flex justify-between items-center">
+<span class="material-symbols-outlined text-zinc-300 dark:text-zinc-600 text-[30px]">home</span>
+<span class="material-symbols-outlined text-zinc-300 dark:text-zinc-600 text-[30px]">search</span>
+<div class="relative">
+<span class="material-symbols-outlined text-primary text-[30px] fill-1">notifications</span>
+<div class="absolute -top-1 -right-1 size-4 bg-primary rounded-full border-2 border-white dark:border-zinc-900 flex items-center justify-center">
+<span class="text-[8px] text-white font-bold">2</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-zinc-300 dark:text-zinc-600 text-[30px]">person</span>
+</div>
+<div class="mt-4 mx-auto w-32 h-1 bg-gray-200 dark:bg-zinc-700 rounded-full"></div>
+</footer>
+</div>
+<!-- Empty State Example (Commented out/Alternative View) -->
+<!-- 
+    <div class="flex flex-col items-center justify-center min-h-[60vh] px-12 text-center">
+        <div class="relative mb-6">
+            <div class="absolute inset-0 bg-primary/10 blur-3xl rounded-full"></div>
+            <span class="material-symbols-outlined text-primary/20 text-[120px] font-light relative">notifications_none</span>
+        </div>
+        <h3 class="text-xl font-bold text-[#181211] dark:text-white mb-2">Silence is Golden</h3>
+        <p class="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">When someone rates you or sends a gift, you'll see it here first.</p>
+    </div>
+    -->
+</body></html>
