@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ed462c",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221310",
+                    },
+                    fontFamily: {
+                        "display": ["Epilogue", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .puzzle-grid-texture {
+            background-image: radial-gradient(#ed462c22 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .gradient-orb {
+            filter: blur(80px);
+            z-index: -1;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display min-h-screen relative overflow-x-hidden">
+    <!-- Decorative Gradient Orbs -->
+    <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[40%] bg-primary/10 rounded-full gradient-orb"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[60%] h-[50%] bg-primary/5 rounded-full gradient-orb"></div>
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 glass-header border-b border-gray-100 dark:border-white/5">
+        <div class="flex items-center p-4 justify-between max-w-md mx-auto">
+            <div class="text-[#181211] dark:text-white flex size-12 shrink-0 items-center justify-start cursor-pointer">
+                <span class="material-symbols-outlined text-2xl">arrow_back_ios</span>
+            </div>
+            <h2
+                class="text-[#181211] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">
+                Jigsaw Challenge</h2>
+        </div>
+    </header>
+    <main class="max-w-md mx-auto pb-32">
+        <!-- User Context Badge -->
+        <div class="flex items-center gap-3 px-4 pt-6 pb-2 justify-center">
+            <div
+                class="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-white/20">
+                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-6 w-6"
+                    data-alt="profile picture of the photo owner"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCY4YuQUHuMhObRTxIsXGMe0pODrJGCqYpD3ksjhqL4GEhmNZUwUR84qVhCbk8CJ7JtN4En4xDftfymOXgi9-8gg0prMuhXfmDyP3Pjb4jHGAIWzdW4vrGRTuGoJvPp94uF-jl_usTw1GagCO-0wMa9oEUys9b8SMcpXMqhL9eFDUH7hNSipOYGsEN2m_uIvQGux394xA9MSfaXWpj9RKWqw9dlsa-etX9ITZjMeu3fxIWYlIC99tkiRINmaagaUleVzyiM8UqUqas");'>
+                </div>
+                <p class="text-[#181211] dark:text-white text-xs font-semibold leading-normal">@sara_valencia</p>
+                <div class="flex size-4 items-center justify-center">
+                    <div class="size-2 rounded-full bg-[#078809]"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Puzzle Area Container -->
+        <div class="relative p-4 @container">
+            <!-- Reference Image Thumbnail (Top Right Overlay) -->
+            <div class="absolute top-8 right-8 z-10 group cursor-pointer">
+                <div
+                    class="relative w-20 h-20 rounded-lg overflow-hidden border-2 border-white shadow-lg ring-1 ring-black/5">
+                    <div
+                        class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white drop-shadow-md">zoom_in</span>
+                    </div>
+                    <div class="w-full h-full bg-center bg-no-repeat bg-cover"
+                        data-alt="reference image of the completed puzzle"
+                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA7u4A8mrRmJ9QlaKca5m42sooIaUSQ_24uHtq9ZLMawIheC8noCGGDjPcPbEfqosdsCTML6HQ1BRleT9JPMINX-P_DYrjeeNTBkUuiTYEHoDUvci6PcdxEeysgdlHg0akmYPTKwIjz-QklrAnS2QnLFlHtKXeDq2VDysdSdW4-I4xU-p-JPcWZywGzPFV1_o_THV4kwnKK5GliGfmUxoZ6vfVi9qxl8BUBTcUub4tTyrdhE-8mYtJkW3BCbb15MYq268W_3x0g96o");'>
+                    </div>
+                </div>
+            </div>
+            <!-- Puzzle Canvas -->
+            <div
+                class="flex flex-col items-center justify-center rounded-xl bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/10 aspect-square w-full shadow-xl relative overflow-hidden puzzle-grid-texture">
+                <!-- Mock Puzzle Pieces -->
+                <!-- Piece 1: Floating -->
+                <div class="absolute top-1/4 left-1/4 w-32 h-32 rotate-6 shadow-[0_10px_20px_rgba(0,0,0,0.15)] rounded-lg cursor-grab active:cursor-grabbing border border-white/20 overflow-hidden"
+                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB9Lz5Cq7uGNhpjTiLcP-IeGqEcw8b1l6pdBxlI1P3QYZ4dp2s7hTokcCbTmcgzf_ByvkuT7806J0O-v4-4safFD-xnqb5wqUaU5K_fHYsRN56nU1KGKIYRrQu82_9PAXm536n1smxAjNILvznwxMJ71SunOLdZl-huHt4KHb4b78ifGPsrX0BaVYcAKjghWCry0wuyYmzl8pLNpz4s3l4Kkj8fuXDhqgf4xUz7kuP3SGsR9ppfALzWTFpz9rxnW1RUUjI7ic-xqJ4'); background-position: -40px -40px; background-size: 300px;">
+                </div>
+                <!-- Piece 2: Snapped with glow -->
+                <div class="absolute bottom-1/4 right-1/4 w-32 h-32 rounded-lg border-2 border-primary shadow-[0_0_20px_rgba(237,70,44,0.4)] overflow-hidden"
+                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCeQSI5I-J-l8PQat7R3pKny7YIsKukQqD2GomWSvFvxTRTbfcW12NlRGLyQYOCGme9iYxbJ01sTg18mAClxXrAlESkccS3sDTBJEe4RW_Kv1Dn8Co6j_Zun1KF2oDdeXhTKakcj23HajXJXH5HFzaVPlWVwEVTj0zEbRiAGPMXzO3ObdoscZ3eSdYeC6RS3BezNerfICtaOQv79LO3EdnvR_AQ_HAIrRN21VopOQAWndxPpz0iW4X35zpxMPzUTKiCJK609YzbQ8k'); background-position: -120px -160px; background-size: 300px;">
+                    <div class="absolute inset-0 bg-primary/10"></div>
+                </div>
+                <!-- Piece 3: Another floating piece -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 -rotate-12 shadow-[0_10px_20px_rgba(0,0,0,0.15)] rounded-lg cursor-grab border border-white/20 overflow-hidden"
+                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDtwpuqDUdXsLPKAbBRf0WZPXd_vFhFzG-R_CefqgpyCrzVC8dAzt85gyaNYB48K0zSCIAwYAnv30mxEW-o0x456pkhLXf7ZIf8WMRtBHT39VViEaxanSxi1uPydzOHdp5iVqP1SZV5ZZ9otbppCsZB3h4fYqFLjdg4TT_nwvHhU8C94CSCsLmMmgtu4BSD7Nz0BZvBuMB27jbRHeJOpccQn3xJDGqkn6NDrjsoJ3RAHlAhTkHhGYNPNG3JKSBH_dTbCpCtCJB8lQ4'); background-position: -160px -80px; background-size: 300px;">
+                </div>
+            </div>
+        </div>
+        <!-- Success Popup (Static representation for layout) -->
+        <div
+            class="px-6 py-4 mx-4 mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-4">
+            <div class="bg-green-500 text-white rounded-full p-1 flex items-center justify-center">
+                <span class="material-symbols-outlined text-lg">check</span>
+            </div>
+            <div>
+                <p class="text-green-800 dark:text-green-200 text-sm font-bold">Perfect Match!</p>
+                <p class="text-green-700/80 dark:text-green-300/80 text-xs">This piece fits perfectly into the portrait.
+                </p>
+            </div>
+        </div>
+    </main>
+    <!-- Bottom Controls Area -->
+    <div class="fixed bottom-0 left-0 right-0 p-4 pb-8 glass-header border-t border-gray-100 dark:border-white/5">
+        <div class="max-w-md mx-auto flex items-center gap-3">
+            <button
+                class="flex items-center justify-center size-14 shrink-0 rounded-xl bg-gray-100 dark:bg-white/10 text-[#181211] dark:text-white">
+                <span class="material-symbols-outlined">skip_next</span>
+            </button>
+            <button
+                class="flex-1 flex min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-5 bg-gradient-to-r from-primary to-[#ff5a43] text-white text-base font-bold leading-normal tracking-[0.015em] shadow-lg shadow-primary/25">
+                <span class="truncate">Submit Solution</span>
+            </button>
+            <button
+                class="flex-1 flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-5 border-2 border-primary/30 text-primary text-base font-bold leading-normal tracking-[0.015em] bg-white/50 dark:bg-transparent">
+                <span class="truncate">Auto Solve</span>
+            </button>
+        </div>
+    </div>
+</body>
+
+</html>

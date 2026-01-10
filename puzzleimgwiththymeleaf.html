@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jigsaw Challenge</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ed462c",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221310",
+                    },
+                    fontFamily: {
+                        "display": ["Epilogue", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .dark .glass-header {
+            background: rgba(34, 19, 16, 0.8);
+        }
+
+        .puzzle-grid-texture {
+            background-image: radial-gradient(#ed462c22 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .gradient-orb {
+            filter: blur(80px);
+            z-index: -1;
+        }
+
+        body {
+            min-height: max(884px, 100dvh);
+        }
+
+        canvas {
+            touch-action: none;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(237, 70, 44, 0.3);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .lightbox.active {
+            display: flex;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .lightbox-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display min-h-screen relative overflow-x-hidden">
+    <!-- Decorative Gradient Orbs -->
+    <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[40%] bg-primary/10 rounded-full gradient-orb"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[60%] h-[50%] bg-primary/5 rounded-full gradient-orb"></div>
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 glass-header border-b border-gray-100 dark:border-white/5">
+        <div class="flex items-center p-4 justify-between max-w-md mx-auto">
+            <div class="text-[#181211] dark:text-white flex size-12 shrink-0 items-center justify-start cursor-pointer"
+                onclick="window.history.back()">
+                <span class="material-symbols-outlined text-2xl">arrow_back_ios</span>
+            </div>
+            <h2
+                class="text-[#181211] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">
+                Jigsaw Challenge
+            </h2>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto pb-32">
+        <!-- User Context Badge -->
+        <div class="flex items-center gap-3 px-4 pt-6 pb-2 justify-center">
+            <div
+                class="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-white/20">
+                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-6 w-6" id="userAvatar"
+                    style='background-image: url("https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f9e9.png");'>
+                </div>
+                <p class="text-[#181211] dark:text-white text-xs font-semibold leading-normal" id="username">
+                    @puzzle_master</p>
+                <div class="flex size-4 items-center justify-center">
+                    <div class="size-2 rounded-full bg-[#078809]"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Puzzle Area Container -->
+        <div class="relative p-4 @container">
+            <!-- Reference Image Thumbnail (Top Right Overlay) -->
+            <div class="absolute top-8 right-8 z-10 group cursor-pointer" id="referenceThumbnail">
+                <div
+                    class="relative w-20 h-20 rounded-lg overflow-hidden border-2 border-white shadow-lg ring-1 ring-black/5">
+                    <div
+                        class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white drop-shadow-md">zoom_in</span>
+                    </div>
+                    <img id="referenceThumb" class="w-full h-full object-cover"
+                        src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9e9.svg" alt="Reference">
+                </div>
+            </div>
+
+            <!-- Puzzle Canvas Container -->
+            <div
+                class="flex flex-col items-center justify-center rounded-xl bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/10 aspect-square w-full shadow-xl relative overflow-hidden puzzle-grid-texture">
+                <canvas id="puzzleCanvas" class="w-full h-full"></canvas>
+            </div>
+        </div>
+
+        <!-- Success Message (Hidden by default) -->
+        <div id="successMessage"
+            class="hidden px-6 py-4 mx-4 mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl items-center gap-4">
+            <div class="bg-green-500 text-white rounded-full p-1 flex items-center justify-center">
+                <span class="material-symbols-outlined text-lg">check</span>
+            </div>
+            <div>
+                <p class="text-green-800 dark:text-green-200 text-sm font-bold">Perfect Match!</p>
+                <p class="text-green-700/80 dark:text-green-300/80 text-xs">Puzzle completed successfully!</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Controls Area -->
+    <div class="fixed bottom-0 left-0 right-0 p-4 pb-8 glass-header border-t border-gray-100 dark:border-white/5">
+        <div class="max-w-md mx-auto flex items-center gap-3">
+            <button id="skipBtn"
+                class="flex items-center justify-center size-14 shrink-0 rounded-xl bg-gray-100 dark:bg-white/10 text-[#181211] dark:text-white hover:scale-105 transition-transform">
+                <span class="material-symbols-outlined">skip_next</span>
+            </button>
+            <button id="submitBtn"
+                class="flex-1 flex min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-5 bg-gradient-to-r from-primary to-[#ff5a43] text-white text-base font-bold leading-normal tracking-[0.015em] shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all">
+                <span class="truncate">Submit Solution</span>
+            </button>
+            <button id="solveBtn"
+                class="flex-1 flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-5 border-2 border-primary/30 text-primary text-base font-bold leading-normal tracking-[0.015em] bg-white/50 dark:bg-transparent hover:bg-primary hover:text-white transition-all">
+                <span class="truncate">Auto Solve</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Lightbox for Reference Image -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightboxImg" class="lightbox-content" alt="Reference Image">
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal">
+            <div class="flex flex-col items-center">
+                <div id="modalIcon" class="w-20 h-20 rounded-full flex items-center justify-center mb-4 bg-primary/10">
+                    <span class="material-symbols-outlined text-4xl text-primary">info</span>
+                </div>
+                <h3 id="modalTitle" class="text-2xl font-bold text-gray-900 mb-2 text-center">Notice</h3>
+                <p id="modalMessage" class="text-gray-600 text-center mb-6">Message goes here</p>
+                <button id="modalBtn"
+                    class="px-8 py-3 rounded-full bg-gradient-to-r from-primary to-[#ff5a43] text-white font-bold shadow-lg hover:shadow-xl transition-all">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("puzzleCanvas");
+        const ctx = canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+
+        const RENDER_BLEED = 40;
+        const BOARD_PADDING = 60;
+        const ROWS = 4;
+        const COLS = 4;
+        const MAGNET_DISTANCE = 25;
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9e9.svg";
+
+        const buffer = document.createElement("canvas");
+        const bctx = buffer.getContext("2d");
+
+        const hitCanvas = document.createElement("canvas");
+        const hitCtx = hitCanvas.getContext("2d", { willReadFrequently: true });
+
+        let pieces = [];
+        let groups = [];
+        let selected = null;
+        let activeGroupId = null;
+        let offsetX = 0;
+        let offsetY = 0;
+        const edges = [];
+
+        let puzzleWidth = 0;
+        let puzzleHeight = 0;
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const size = Math.min(container.clientWidth, container.clientHeight);
+            canvas.width = size;
+            canvas.height = size;
+            hitCanvas.width = size;
+            hitCanvas.height = size;
+
+            if (img.complete) {
+                initPuzzle();
+            }
+        }
+
+        function initPuzzle() {
+            puzzleWidth = canvas.width - BOARD_PADDING * 2;
+            puzzleHeight = canvas.height - BOARD_PADDING * 2;
+
+            buffer.width = puzzleWidth + RENDER_BLEED * 2;
+            buffer.height = puzzleHeight + RENDER_BLEED * 2;
+
+            bctx.drawImage(
+                img,
+                0, 0, img.width, img.height,
+                RENDER_BLEED, RENDER_BLEED,
+                puzzleWidth, puzzleHeight
+            );
+
+            generateEdgeMap();
+            createPieces();
+            scatterPieces();
+            draw();
+        }
+
+        img.onload = () => {
+            resizeCanvas();
+        };
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function generateEdgeMap() {
+            for (let r = 0; r < ROWS; r++) {
+                edges[r] = [];
+                for (let c = 0; c < COLS; c++) {
+                    edges[r][c] = {
+                        top: r === 0 ? 0 : -edges[r - 1][c].bottom,
+                        left: c === 0 ? 0 : -edges[r][c - 1].right,
+                        right: c === COLS - 1 ? 0 : Math.random() > 0.5 ? 1 : -1,
+                        bottom: r === ROWS - 1 ? 0 : Math.random() > 0.5 ? 1 : -1
+                    };
+                }
+            }
+        }
+
+        class Piece {
+            constructor(r, c, id) {
+                this.r = r;
+                this.c = c;
+                this.id = id;
+
+                this.w = puzzleWidth / COLS;
+                this.h = puzzleHeight / ROWS;
+
+                this.correctX = BOARD_PADDING + c * this.w - RENDER_BLEED;
+                this.correctY = BOARD_PADDING + r * this.h - RENDER_BLEED;
+
+                this.x = 0;
+                this.y = 0;
+                this.groupId = id;
+
+                this.hitColor = `rgb(${(id * 17) % 256}, ${(id * 37) % 256}, ${(id * 73) % 256})`;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                drawPiecePath(this, ctx);
+                ctx.clip();
+
+                ctx.drawImage(
+                    buffer,
+                    this.c * this.w,
+                    this.r * this.h,
+                    this.w + RENDER_BLEED * 2,
+                    this.h + RENDER_BLEED * 2,
+                    0, 0,
+                    this.w + RENDER_BLEED * 2,
+                    this.h + RENDER_BLEED * 2
+                );
+
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            drawHit() {
+                hitCtx.save();
+                hitCtx.translate(this.x, this.y);
+                drawPiecePath(this, hitCtx);
+                hitCtx.fillStyle = this.hitColor;
+                hitCtx.fill();
+                hitCtx.restore();
+            }
+        }
+
+        function drawPiecePath(p, context) {
+            const e = edges[p.r][p.c];
+            const w = p.w;
+            const h = p.h;
+            const ox = RENDER_BLEED;
+            const oy = RENDER_BLEED;
+
+            context.beginPath();
+            context.moveTo(ox, oy);
+            edge(context, ox, oy, ox + w, oy, e.top);
+            edge(context, ox + w, oy, ox + w, oy + h, e.right);
+            edge(context, ox + w, oy + h, ox, oy + h, e.bottom);
+            edge(context, ox, oy + h, ox, oy, e.left);
+            context.closePath();
+        }
+
+        function edge(context, x1, y1, x2, y2, type) {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+
+            context.lineTo(x1 + dx * 0.35, y1 + dy * 0.35);
+
+            if (type !== 0) {
+                context.bezierCurveTo(
+                    x1 + dx * 0.35 + dy * 0.3 * type,
+                    y1 + dy * 0.35 - dx * 0.3 * type,
+                    x1 + dx * 0.65 + dy * 0.3 * type,
+                    y1 + dy * 0.65 - dx * 0.3 * type,
+                    x1 + dx * 0.65,
+                    y1 + dy * 0.65
+                );
+            }
+
+            context.lineTo(x2, y2);
+        }
+
+        function createPieces() {
+            pieces = [];
+            groups = [];
+            let id = 0;
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const p = new Piece(r, c, id);
+                    pieces.push(p);
+                    groups[id] = [p];
+                    id++;
+                }
+            }
+        }
+
+        function scatterPieces() {
+            const margin = 10;
+            const maxPieceWidth = puzzleWidth / COLS + RENDER_BLEED * 2;
+            const maxPieceHeight = puzzleHeight / ROWS + RENDER_BLEED * 2;
+
+            pieces.forEach(p => {
+                p.x = Math.random() * (canvas.width - maxPieceWidth - margin * 2) + margin;
+                p.y = Math.random() * (canvas.height - maxPieceHeight - margin * 2) + margin;
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hitCtx.clearRect(0, 0, hitCanvas.width, hitCanvas.height);
+
+            pieces.forEach(p => {
+                if (activeGroupId === null || p.groupId !== activeGroupId) {
+                    p.draw();
+                    p.drawHit();
+                }
+            });
+
+            if (activeGroupId !== null && groups[activeGroupId]) {
+                groups[activeGroupId].forEach(p => {
+                    p.draw();
+                    p.drawHit();
+                });
+            }
+        }
+
+        function areAdjacent(p1, p2) {
+            const rowDiff = Math.abs(p1.r - p2.r);
+            const colDiff = Math.abs(p1.c - p2.c);
+            return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+        }
+
+        function getConnectedPieces(startPiece, groupPieces) {
+            const connected = new Set([startPiece]);
+            const toCheck = [startPiece];
+
+            while (toCheck.length > 0) {
+                const current = toCheck.pop();
+
+                groupPieces.forEach(other => {
+                    if (!connected.has(other) && areAdjacent(current, other)) {
+                        connected.add(other);
+                        toCheck.push(other);
+                    }
+                });
+            }
+
+            return Array.from(connected);
+        }
+
+        function trySnap(piece) {
+            pieces.forEach(other => {
+                if (piece === other || piece.groupId === other.groupId) return;
+
+                const dx = other.correctX - piece.correctX;
+                const dy = other.correctY - piece.correctY;
+
+                const expectedX = piece.x + dx;
+                const expectedY = piece.y + dy;
+
+                if (Math.hypot(other.x - expectedX, other.y - expectedY) < MAGNET_DISTANCE) {
+                    const moveX = expectedX - other.x;
+                    const moveY = expectedY - other.y;
+
+                    const oldGroupId = other.groupId;
+                    const g1 = groups[piece.groupId];
+                    const g2 = groups[oldGroupId];
+
+                    g2.forEach(p => {
+                        p.x += moveX;
+                        p.y += moveY;
+                        p.groupId = piece.groupId;
+                    });
+
+                    groups[piece.groupId] = g1.concat(g2);
+                    groups[oldGroupId] = [];
+                }
+            });
+        }
+
+        function getEventCoords(e) {
+            const r = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const scaleX = canvas.width / r.width;
+            const scaleY = canvas.height / r.height;
+            return {
+                x: (clientX - r.left) * scaleX,
+                y: (clientY - r.top) * scaleY
+            };
+        }
+
+        function getPieceAtPoint(x, y) {
+            const pixel = hitCtx.getImageData(x, y, 1, 1).data;
+            const color = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+
+            for (let i = pieces.length - 1; i >= 0; i--) {
+                if (pieces[i].hitColor === color) {
+                    return pieces[i];
+                }
+            }
+            return null;
+        }
+
+        function handleStart(e) {
+            const coords = getEventCoords(e);
+            const piece = getPieceAtPoint(coords.x, coords.y);
+
+            if (piece) {
+                selected = piece;
+                activeGroupId = piece.groupId;
+                offsetX = coords.x - piece.x;
+                offsetY = coords.y - piece.y;
+
+                const fullGroup = groups[piece.groupId];
+                const connectedPieces = getConnectedPieces(piece, fullGroup);
+
+                selected.connectedPieces = connectedPieces;
+
+                pieces = pieces.filter(p => !connectedPieces.includes(p));
+                pieces = pieces.concat(connectedPieces);
+
+                draw();
+            }
+        }
+
+        function handleMove(e) {
+            if (!selected) return;
+            e.preventDefault();
+
+            const coords = getEventCoords(e);
+            const newX = coords.x - offsetX;
+            const newY = coords.y - offsetY;
+
+            const dx = newX - selected.x;
+            const dy = newY - selected.y;
+
+            const connectedPieces = selected.connectedPieces;
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+            connectedPieces.forEach(p => {
+                const hitW = p.w + RENDER_BLEED * 2;
+                const hitH = p.h + RENDER_BLEED * 2;
+                minX = Math.min(minX, p.x);
+                minY = Math.min(minY, p.y);
+                maxX = Math.max(maxX, p.x + hitW);
+                maxY = Math.max(maxY, p.y + hitH);
+            });
+
+            const newMinX = minX + dx;
+            const newMinY = minY + dy;
+            const newMaxX = maxX + dx;
+            const newMaxY = maxY + dy;
+
+            let constrainedDx = dx;
+            let constrainedDy = dy;
+
+            if (newMinX < 0) constrainedDx = -minX;
+            if (newMinY < 0) constrainedDy = -minY;
+            if (newMaxX > canvas.width) constrainedDx = canvas.width - maxX;
+            if (newMaxY > canvas.height) constrainedDy = canvas.height - maxY;
+
+            connectedPieces.forEach(p => {
+                p.x += constrainedDx;
+                p.y += constrainedDy;
+            });
+
+            draw();
+        }
+
+        function handleEnd(e) {
+            if (selected) trySnap(selected);
+            selected = null;
+            activeGroupId = null;
+            draw();
+        }
+
+        canvas.addEventListener("mousedown", handleStart);
+        canvas.addEventListener("mousemove", handleMove);
+        canvas.addEventListener("mouseup", handleEnd);
+
+        canvas.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            handleStart(e);
+        }, { passive: false });
+
+        canvas.addEventListener("touchmove", handleMove, { passive: false });
+        canvas.addEventListener("touchend", handleEnd, { passive: false });
+
+        // Button handlers
+        document.getElementById("solveBtn").onclick = () => {
+            pieces.forEach(p => {
+                p.x = p.correctX;
+                p.y = p.correctY;
+            });
+            draw();
+        };
+
+        document.getElementById("submitBtn").onclick = () => {
+            let solved = true;
+
+            for (let i = 0; i < pieces.length; i++) {
+                for (let j = i + 1; j < pieces.length; j++) {
+                    const p1 = pieces[i];
+                    const p2 = pieces[j];
+
+                    const expectedDx = p2.correctX - p1.correctX;
+                    const expectedDy = p2.correctY - p1.correctY;
+
+                    const actualDx = p2.x - p1.x;
+                    const actualDy = p2.y - p1.y;
+
+                    if (
+                        Math.abs(actualDx - expectedDx) > 5 ||
+                        Math.abs(actualDy - expectedDy) > 5
+                    ) {
+                        solved = false;
+                        break;
+                    }
+                }
+                if (!solved) break;
+            }
+
+            if (!solved) {
+                showModal("Almost there!", "Keep going, you're making progress! 🧩", "warning");
+            } else {
+                showModal("Perfect Match!", "Congratulations! Puzzle completed successfully! 🎉", "success");
+                document.getElementById("successMessage").classList.remove("hidden");
+                document.getElementById("successMessage").classList.add("flex");
+            }
+        };
+
+        document.getElementById("skipBtn").onclick = () => {
+            if (confirm("Skip this puzzle and load a new one?")) {
+                location.reload();
+            }
+        };
+
+        // Modal functions
+        function showModal(title, message, type) {
+            const overlay = document.getElementById("modalOverlay");
+            const icon = document.getElementById("modalIcon");
+            const titleEl = document.getElementById("modalTitle");
+            const messageEl = document.getElementById("modalMessage");
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+
+            if (type === "success") {
+                icon.innerHTML = '<span class="material-symbols-outlined text-4xl text-green-500">check_circle</span>';
+                icon.className = "w-20 h-20 rounded-full flex items-center justify-center mb-4 bg-green-500/10";
+            } else if (type === "warning") {
+                icon.innerHTML = '<span class="material-symbols-outlined text-4xl text-yellow-500">warning</span>';
+                icon.className = "w-20 h-20 rounded-full flex items-center justify-center mb-4 bg-yellow-500/10";
+            } else {
+                icon.innerHTML = '<span class="material-symbols-outlined text-4xl text-primary">info</span>';
+                icon.className = "w-20 h-20 rounded-full flex items-center justify-center mb-4 bg-primary/10";
+            }
+
+            overlay.classList.add("show");
+        }
+
+        document.getElementById("modalBtn").onclick = () => {
+            document.getElementById("modalOverlay").classList.remove("show");
+        };
+
+        document.getElementById("modalOverlay").onclick = (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById("modalOverlay").classList.remove("show");
+            }
+        };
+
+        // Lightbox functionality
+        const refThumb = document.getElementById("referenceThumbnail");
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImg = document.getElementById("lightboxImg");
+        const lightboxClose = document.querySelector(".lightbox-close");
+
+        refThumb.addEventListener("click", function (e) {
+            e.stopPropagation();
+            lightboxImg.src = img.src;
+            lightbox.classList.add("active");
+            document.body.style.overflow = "hidden";
+        });
+
+        lightboxClose.addEventListener("click", function (e) {
+            e.stopPropagation();
+            closeLightbox();
+        });
+
+        lightbox.addEventListener("click", function (e) {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && lightbox.classList.contains("active")) {
+                closeLightbox();
+            }
+        });
+
+        function closeLightbox() {
+            lightbox.classList.remove("active");
+            document.body.style.overflow = "";
+        }
+    </script>
+</body>
+
+</html>
