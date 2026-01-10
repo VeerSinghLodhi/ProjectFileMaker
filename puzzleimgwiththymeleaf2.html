@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Jigsaw Puzzle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #fafafa;
+            color: #1a1a1a;
+            font-family: 'Caveat', system-ui;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 10px 0;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .page-container {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Background Animation */
+        .hero-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #F73B20, transparent);
+            top: -10%;
+            right: -10%;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #ff5238, transparent);
+            bottom: -15%;
+            left: -10%;
+            animation-duration: 20s;
+            animation-delay: 2s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #F73B20, transparent);
+            top: 40%;
+            left: 50%;
+            animation-duration: 18s;
+            animation-delay: 1s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(50px, -80px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-50px, 50px) scale(0.9);
+            }
+        }
+
+        /* Layout */
+        #layout {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 10px;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            max-height: calc(100vh - 100px);
+        }
+
+        /* Reference Container */
+        .reference-container {
+            background: #ffffff;
+            border: 1px solid rgba(247, 59, 32, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-radius: 20px;
+            padding: 1rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        .reference-container:hover {
+            transform: translateY(-3px);
+            border-color: rgba(247, 59, 32, 0.3);
+            box-shadow: 0 15px 40px rgba(247, 59, 32, 0.15);
+        }
+
+        .reference-container p {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+            font-size: 1rem;
+        }
+
+        #reference {
+            width: 160px;
+            height: auto;
+            border: 2px solid rgba(247, 59, 32, 0.15);
+            border-radius: 12px;
+            display: block;
+            object-fit: contain;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        #reference:hover {
+            transform: scale(1.02);
+        }
+
+        /* Puzzle Container */
+        .puzzle-container {
+            background: #ffffff;
+            border: 1px solid rgba(247, 59, 32, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-radius: 20px;
+            padding: 1rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            max-height: 100%;
+        }
+
+        canvas {
+            background: #ffffff;
+            border: 2px solid rgba(247, 59, 32, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            max-width: 100%;
+            height: auto;
+            touch-action: none;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            text-align: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 0.6rem 1.5rem;
+            margin: 0;
+            font-size: 15px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Caveat', system-ui;
+        }
+
+        #submitBtn,
+        button[type="submit"] {
+            background: #F73B20;
+            color: white;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.3);
+        }
+
+        #submitBtn:hover,
+        button[type="submit"]:hover {
+            background: #ff5238;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(247, 59, 32, 0.5);
+        }
+
+        #solveBtn {
+            background: transparent;
+            border: 2px solid #F73B20;
+            color: #F73B20;
+        }
+
+        #solveBtn:hover {
+            background: #F73B20;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(247, 59, 32, 0.4);
+        }
+
+        /* Messages */
+        .message {
+            text-align: center;
+            margin: 20px auto;
+            padding: 12px 20px;
+            max-width: 500px;
+            background: rgba(247, 59, 32, 0.1);
+            border: 1px solid rgba(247, 59, 32, 0.3);
+            border-radius: 50px;
+            color: #F73B20;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .success-message {
+            margin: 20px auto;
+            padding: 12px 20px;
+            max-width: 500px;
+            text-align: center;
+            background: #28a745;
+            color: #fff;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .username-display {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .username-display strong {
+            color: #F73B20;
+            font-size: 1.1rem;
+        }
+
+        #puzzleForm {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+
+        .lightbox.active {
+            display: flex;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .lightbox-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+            animation: zoomIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: white;
+            font-weight: 300;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            z-index: 10000;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .lightbox-close:hover {
+            transform: rotate(90deg) scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Fade In Animation */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .a {
+            padding: 0.6rem 1.5rem;
+            margin: 0;
+            font-size: 15px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Caveat', system-ui;
+            background: #F73B20;
+            color: white;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.3);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        /* Modal Styles */
+        .delete-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .delete-modal-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.3);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .delete-modal-overlay.show .delete-modal {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .success-modal {
+            box-shadow: 0 20px 60px rgba(34, 197, 94, 0.3);
+            border: 2px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .delete-modal-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #dc2626;
+            animation: shake 2s ease infinite;
+        }
+
+        .success-icon {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.15));
+            color: #16a34a;
+            animation: pulse 2s ease infinite;
+        }
+
+        #messagePopup .delete-modal-icon {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.15));
+            color: #2563eb;
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            25% {
+                transform: rotate(-5deg);
+            }
+
+            75% {
+                transform: rotate(5deg);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .delete-modal-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #1a1a1a;
+            text-align: center;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .delete-modal-message {
+            font-size: 1rem;
+            color: rgba(26, 26, 26, 0.7);
+            text-align: center;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .delete-modal-warning {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+            border-left: 4px solid #ef4444;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: #b91c1c;
+            font-weight: 600;
+        }
+
+        .delete-modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .delete-modal-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            min-width: 120px;
+        }
+
+        .delete-modal-btn-delete {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .delete-modal-btn-delete:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5);
+        }
+
+        .delete-modal-btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .delete-modal-btn-success:hover {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(34, 197, 94, 0.5);
+        }
+
+        .delete-modal-btn-cancel {
+            background: rgba(26, 26, 26, 0.1);
+            color: #1a1a1a;
+            border: 2px solid rgba(26, 26, 26, 0.2);
+        }
+
+        .delete-modal-btn-cancel:hover {
+            background: rgba(26, 26, 26, 0.15);
+            border-color: rgba(26, 26, 26, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+                margin: 8px 0;
+            }
+
+            #layout {
+                flex-direction: column;
+                gap: 10px;
+                padding: 5px;
+                max-height: calc(100vh - 80px);
+            }
+
+            .reference-container {
+                padding: 0.8rem;
+                order: 2;
+                max-width: 180px;
+            }
+
+            #reference {
+                width: 120px;
+                object-fit: contain;
+            }
+
+            .reference-container p {
+                font-size: 0.9rem;
+                margin-bottom: 0.3rem;
+            }
+
+            .username-display {
+                margin-top: 0.5rem;
+            }
+
+            .username-display strong {
+                font-size: 0.95rem;
+            }
+
+            .puzzle-container {
+                padding: 0.8rem;
+                order: 1;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                max-width: 95vw;
+            }
+
+            canvas {
+                width: 100% !important;
+                height: auto !important;
+                max-height: 60vh;
+            }
+
+            .controls {
+                gap: 8px;
+                margin-top: 10px;
+            }
+
+            button {
+                padding: 0.5rem 1.2rem;
+                font-size: 14px;
+            }
+
+            .message,
+            .success-message {
+                font-size: 14px;
+                padding: 8px 15px;
+                margin: 10px auto;
+            }
+
+            .lightbox-close {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .delete-modal {
+                padding: 1.5rem;
+            }
+
+            .delete-modal-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .delete-modal-title {
+                font-size: 1.3rem;
+            }
+
+            .delete-modal-message {
+                font-size: 0.9rem;
+            }
+
+            .delete-modal-buttons {
+                flex-direction: column;
+            }
+
+            .delete-modal-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-container">
+        <!-- Background Animation -->
+        <div class="hero-bg">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+        </div>
+
+        <!-- Page Title -->
+        <h1 class="fade-in">Advanced Jigsaw Puzzle</h1>
+
+        <!-- General Message Popup (Thymeleaf Conditional) -->
+        <div th:if="${message}" class="delete-modal-overlay show" id="messagePopup">
+            <div class="delete-modal">
+                <div class="delete-modal-icon">
+                    <i class="bi bi-info-circle"></i>
+                </div>
+                <h3 class="delete-modal-title">Notice</h3>
+                <p class="delete-modal-message" th:text="${message}"></p>
+                <div class="delete-modal-buttons">
+                    <button type="button" class="delete-modal-btn delete-modal-btn-delete"
+                        onclick="closePopup('messagePopup')">OK
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Message Popup (Thymeleaf Conditional) -->
+        <div th:if="${successMessage}" class="delete-modal-overlay show" id="successPopup">
+            <div class="delete-modal success-modal">
+                <div class="delete-modal-icon success-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <h3 class="delete-modal-title">Success!</h3>
+                <p class="delete-modal-message" th:text="${successMessage}"></p>
+                <div class="delete-modal-buttons">
+                    <button type="button" class="delete-modal-btn delete-modal-btn-success"
+                        onclick="closePopup('successPopup')">OK
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message Popup (Thymeleaf Conditional) -->
+        <div th:if="${errorMessage}" class="delete-modal-overlay show" id="errorPopup">
+            <div class="delete-modal">
+                <div class="delete-modal-icon">
+                    <i class="bi bi-exclamation-circle"></i>
+                </div>
+                <h3 class="delete-modal-title">Error</h3>
+                <p class="delete-modal-message" th:text="${errorMessage}"></p>
+                <div class="delete-modal-warning">
+                    <i class="bi bi-exclamation-triangle"></i> Please try again or contact support if the issue
+                    persists.
+                </div>
+                <div class="delete-modal-buttons">
+                    <button type="button" class="delete-modal-btn delete-modal-btn-delete"
+                        onclick="closePopup('errorPopup')">OK
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Layout (Thymeleaf Conditional) -->
+        <div id="layout" th:if="${post != null}">
+            <!-- Reference Image Container -->
+            <div class="reference-container fade-in">
+                <p>Reference</p>
+                <img id="reference" th:src="@{'/user/post/photo/' + ${post.postId}}" alt="Reference Image">
+                <div class="username-display">
+                    <p>
+                        <a th:href="@{'/user/dashboard/' + ${postOwnerId}}">
+                            <strong th:text="${postOwnerName}">Username</strong>
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Puzzle Container -->
+            <div class="puzzle-container fade-in">
+                <canvas id="canvas" width="480" height="480"></canvas>
+                <div class="controls">
+                    <!-- Form with Thymeleaf CSRF Protection -->
+                    <form th:action="@{/user/solved}" method="post" id="puzzleForm">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button type="button" id="submitBtn">Submit Solution</button>
+                    </form>
+                    <button id="solveBtn">Auto Solve</button>
+                    <a class="a" th:href="@{/user/op}">Next</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lightbox for Image Zoom -->
+        <div id="lightbox" class="lightbox">
+            <span class="lightbox-close">&times;</span>
+            <img id="lightbox-img" class="lightbox-content" alt="Enlarged Reference">
+        </div>
+    </div>
+
+    <script>
+        // POPUP MANAGEMENT FUNCTIONS
+        function closePopup(popupId) {
+            const popup = document.getElementById(popupId);
+            if (popup) {
+                popup.classList.remove('show');
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        // Close popup when clicking outside
+        document.querySelectorAll('.delete-modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closePopup(this.id);
+                }
+            });
+        });
+
+        // Helper function to show custom popups dynamically
+        function showCustomPopup(message, type) {
+            const overlay = document.createElement('div');
+            overlay.className = 'delete-modal-overlay show';
+            overlay.id = 'dynamicPopup';
+
+            const iconClass = type === 'error' ? 'bi-exclamation-circle' : 'bi-check-circle';
+            const iconColor = type === 'error' ? '' : 'success-icon';
+            const modalClass = type === 'error' ? '' : 'success-modal';
+            const btnClass = type === 'error' ? 'delete-modal-btn-delete' : 'delete-modal-btn-success';
+            const title = type === 'error' ? 'Not Yet!' : 'Success!';
+
+            overlay.innerHTML = `
+        <div class="delete-modal ${modalClass}">
+            <div class="delete-modal-icon ${iconColor}">
+                <i class="${iconClass}"></i>
+            </div>
+            <h3 class="delete-modal-title">${title}</h3>
+            <p class="delete-modal-message">${message}</p>
+            <div class="delete-modal-buttons">
+                <button type="button" class="delete-modal-btn ${btnClass}" onclick="closeDynamicPopup()">OK</button>
+            </div>
+        </div>
+    `;
+
+            document.body.appendChild(overlay);
+
+            overlay.addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closeDynamicPopup();
+                }
+            });
+        }
+
+        function closeDynamicPopup() {
+            const popup = document.getElementById('dynamicPopup');
+            if (popup) {
+                popup.classList.remove('show');
+                setTimeout(() => {
+                    popup.remove();
+                }, 300);
+            }
+        }
+
+        // LIGHTBOX FUNCTIONALITY
+        const refImg = document.getElementById("reference");
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImg = document.getElementById("lightbox-img");
+        const lightboxClose = document.querySelector(".lightbox-close");
+
+        refImg.addEventListener("click", function (e) {
+            e.stopPropagation();
+            lightboxImg.src = this.src;
+            lightbox.classList.add("active");
+            document.body.style.overflow = "hidden";
+        });
+
+        lightboxClose.addEventListener("click", function (e) {
+            e.stopPropagation();
+            closeLightbox();
+        });
+
+        lightbox.addEventListener("click", function (e) {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && lightbox.classList.contains("active")) {
+                closeLightbox();
+            }
+        });
+
+        function closeLightbox() {
+            lightbox.classList.remove("active");
+            document.body.style.overflow = "";
+        }
+    </script>
+
+    <script>
+        // GET EVENT COORDINATES (MOUSE OR TOUCH)
+        function getEventCoords(e) {
+            const r = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const scaleX = canvas.width / r.width;
+            const scaleY = canvas.height / r.height;
+            return {
+                x: (clientX - r.left) * scaleX,
+                y: (clientY - r.top) * scaleY
+            };
+        }
+
+        // GET PIECE AT SPECIFIC POINT USING HIT DETECTION
+        function getPieceAtPoint(x, y) {
+            const pixel = hitCtx.getImageData(x, y, 1, 1).data;
+            const color = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+
+            for (let i = pieces.length - 1; i >= 0; i--) {
+                if (pieces[i].hitColor === color) {
+                    return pieces[i];
+                }
+            }
+            return null;
+        }
+
+        // HANDLE START OF DRAG (MOUSE DOWN / TOUCH START)
+        function handleStart(e) {
+            const coords = getEventCoords(e);
+            const piece = getPieceAtPoint(coords.x, coords.y);
+
+            if (piece) {
+                selected = piece;
+                activeGroupId = piece.groupId;
+                offsetX = coords.x - piece.x;
+                offsetY = coords.y - piece.y;
+
+                const fullGroup = groups[piece.groupId];
+                const connectedPieces = getConnectedPieces(piece, fullGroup);
+
+                selected.connectedPieces = connectedPieces;
+
+                // Move selected pieces to end of array (render on top)
+                pieces = pieces.filter(p => !connectedPieces.includes(p));
+                pieces = pieces.concat(connectedPieces);
+
+                draw();
+            }
+        }
+
+        // HANDLE DRAG MOVEMENT (MOUSE MOVE / TOUCH MOVE)
+        function handleMove(e) {
+            if (!selected) return;
+            e.preventDefault();
+
+            const coords = getEventCoords(e);
+            const newX = coords.x - offsetX;
+            const newY = coords.y - offsetY;
+
+            const dx = newX - selected.x;
+            const dy = newY - selected.y;
+
+            const connectedPieces = selected.connectedPieces;
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+            // Calculate bounding box of connected pieces
+            connectedPieces.forEach(p => {
+                const hitW = p.w + RENDER_BLEED * 2;
+                const hitH = p.h + RENDER_BLEED * 2;
+                minX = Math.min(minX, p.x);
+                minY = Math.min(minY, p.y);
+                maxX = Math.max(maxX, p.x + hitW);
+                maxY = Math.max(maxY, p.y + hitH);
+            });
+
+            const newMinX = minX + dx;
+            const newMinY = minY + dy;
+            const newMaxX = maxX + dx;
+            const newMaxY = maxY + dy;
+
+            let constrainedDx = dx;
+            let constrainedDy = dy;
+
+            // Constrain movement within canvas bounds
+            if (newMinX < 0) constrainedDx = -minX;
+            if (newMinY < 0) constrainedDy = -minY;
+            if (newMaxX > canvas.width) constrainedDx = canvas.width - maxX;
+            if (newMaxY > canvas.height) constrainedDy = canvas.height - maxY;
+
+            // Move all connected pieces together
+            connectedPieces.forEach(p => {
+                p.x += constrainedDx;
+                p.y += constrainedDy;
+            });
+
+            draw();
+        }
+
+        // HANDLE END OF DRAG (MOUSE UP / TOUCH END)
+        function handleEnd(e) {
+            if (selected) trySnap(selected);
+            selected = null;
+            activeGroupId = null;
+            draw();
+        }
+
+        // MOUSE EVENT LISTENERS
+        canvas.addEventListener("mousedown", handleStart);
+        canvas.addEventListener("mousemove", handleMove);
+        canvas.addEventListener("mouseup", handleEnd);
+
+        // TOUCH EVENT LISTENERS
+        canvas.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            handleStart(e);
+        }, { passive: false });
+
+        canvas.addEventListener("touchmove", handleMove, { passive: false });
+        canvas.addEventListener("touchend", handleEnd, { passive: false });
+
+        // AUTO SOLVE BUTTON
+        document.getElementById("solveBtn").onclick = () => {
+            pieces.forEach(p => {
+                p.x = p.correctX;
+                p.y = p.correctY;
+            });
+            draw();
+        };
+
+        // SUBMIT SOLUTION BUTTON WITH VALIDATION
+        document.getElementById("submitBtn").onclick = () => {
+            let solved = true;
+
+            // Check if all pieces are in correct position relative to each other
+            for (let i = 0; i < pieces.length; i++) {
+                for (let j = i + 1; j < pieces.length; j++) {
+                    const p1 = pieces[i];
+                    const p2 = pieces[j];
+
+                    const expectedDx = p2.correctX - p1.correctX;
+                    const expectedDy = p2.correctY - p1.correctY;
+
+                    const actualDx = p2.x - p1.x;
+                    const actualDy = p2.y - p1.y;
+
+                    // Allow 5 pixel tolerance
+                    if (
+                        Math.abs(actualDx - expectedDx) > 5 ||
+                        Math.abs(actualDy - expectedDy) > 5
+                    ) {
+                        solved = false;
+                        break;
+                    }
+                }
+                if (!solved) break;
+            }
+
+            if (!solved) {
+                // Show error popup
+                showCustomPopup("Almost there! Keep going 🧩", "error");
+            } else {
+                // Puzzle is solved - submit the form
+                document.getElementById("puzzleForm").submit();
+            }
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>HON • Circle Reports</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400..800&display=swap" rel="stylesheet">
+
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "TASA Explorer", sans-serif;
+      font-optical-sizing: auto;
+      font-style: normal;
+      background: #fafafa;
+      overflow-x: hidden;
+    }
+
+    /* ===== ANIMATED BACKGROUND ===== */
+    .bg-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      background: #fafafa;
+    }
+
+    .gradient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.1;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, #F73B20, transparent);
+      top: -10%;
+      right: -10%;
+      animation-duration: 25s;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, #ff5238, transparent);
+      bottom: -15%;
+      left: -10%;
+      animation-duration: 20s;
+      animation-delay: 2s;
+    }
+
+    .orb-3 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, #F73B20, transparent);
+      top: 40%;
+      left: 50%;
+      animation-duration: 18s;
+      animation-delay: 1s;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      33% {
+        transform: translate(50px, -80px) scale(1.1);
+      }
+
+      66% {
+        transform: translate(-50px, 50px) scale(0.9);
+      }
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 0;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #F73B20, #ff5238);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      background: white;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+      min-height: calc(100vh - 76px);
+      padding: 2rem 1rem;
+    }
+
+    .nav-item {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-link {
+      color: #4a5568;
+      padding: 0.875rem 1.25rem;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .nav-link i {
+      font-size: 1.25rem;
+      width: 24px;
+    }
+
+    .nav-link:hover {
+      background: #f7f7f7;
+      color: #F73B20;
+    }
+
+    .nav-link.active {
+      background: linear-gradient(135deg, #F73B20, #ff5238);
+      color: white;
+      box-shadow: 0 4px 15px rgba(247, 59, 32, 0.3);
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+      padding: 2rem;
+      min-height: calc(100vh - 76px);
+    }
+
+    /* ===== PAGE HEADER ===== */
+    .page-header {
+      background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+      padding: 1.5rem 2rem;
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(247, 59, 32, 0.25);
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.95);
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      transform: scale(1.08);
+      background: white;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .back-btn i {
+      font-size: 20px;
+      color: var(--theme-orange);
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .page-title i {
+      font-size: 1.5rem;
+    }
+
+    /* ===== STATS CARDS ===== */
+    .stat-card {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f0f0f0;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      transform: translateY(-5px);
+    }
+
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.75rem;
+      flex-shrink: 0;
+    }
+
+    .stat-total .stat-icon {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    }
+
+    .stat-pending .stat-icon {
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    }
+
+    .stat-reviewed .stat-icon {
+      background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    }
+
+    .stat-resolved .stat-icon {
+      background: linear-gradient(135deg, #10b981, #34d399);
+    }
+
+    .stat-info {
+      flex: 1;
+    }
+
+    .stat-label {
+      color: #6b7280;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    /* ===== FILTERS CARD ===== */
+    .filters-card {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f0f0f0;
+    }
+
+    .filters-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .filters-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
+    }
+
+    .filters-title i {
+      color: #F73B20;
+    }
+
+    .filters-form .row {
+      margin-bottom: 1rem;
+    }
+
+    .filter-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .filter-select,
+    .filter-input {
+      width: 100%;
+      padding: 0.625rem 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      color: #4a5568;
+      background: white;
+      transition: all 0.3s ease;
+    }
+
+    .filter-select:focus,
+    .filter-input:focus {
+      outline: none;
+      border-color: #F73B20;
+      box-shadow: 0 0 0 3px rgba(247, 59, 32, 0.1);
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 1rem;
+    }
+
+    .search-box .filter-input {
+      padding-left: 2.5rem;
+    }
+
+    .filters-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .filter-btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .filter-btn-primary {
+      background: linear-gradient(135deg, #F73B20, #ff5238);
+      color: white;
+      box-shadow: 0 4px 15px rgba(247, 59, 32, 0.3);
+    }
+
+    .filter-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(247, 59, 32, 0.4);
+    }
+
+    .filter-btn-secondary {
+      background: #f1f2f7;
+      color: #4a5568;
+    }
+
+    .filter-btn-secondary:hover {
+      background: #e5e7eb;
+    }
+
+    .filter-btn-export {
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .filter-btn-export:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    /* ===== TABLE CONTAINER ===== */
+    .table-container {
+      background: white;
+      border-radius: 1rem;
+      border: 1px solid #f0f0f0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .table-header {
+      padding: 1.5rem 1.75rem;
+      border-bottom: 1px solid #e6e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .table-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 0;
+    }
+
+    .table-count {
+      font-size: 0.875rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .table-count span {
+      font-weight: 700;
+      color: #F73B20;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+    }
+
+    thead th {
+      padding: 1.125rem 1.25rem;
+      text-align: left;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #e6e8f0;
+      transition: all 0.2s ease;
+    }
+
+    tbody tr:hover {
+      background: #f7f7f7;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody td {
+      padding: 1.125rem 1.25rem;
+      font-size: 0.88rem;
+      color: #1a1a1a;
+      vertical-align: middle;
+    }
+
+    .row-number {
+      font-weight: 700;
+      color: #6b7280;
+    }
+
+    .group-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .group-name {
+      font-weight: 700;
+      color: #1a1a1a;
+      font-size: 1rem;
+    }
+
+    .group-members {
+      font-size: 0.75rem;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .reporter-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .username {
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .reporter-email {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .date-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    .date-text {
+      font-weight: 600;
+      color: #1a1a1a;
+      font-size: 0.875rem;
+    }
+
+    .time-text {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-reviewed {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .status-resolved {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .reason-cell {
+      max-width: 350px;
+    }
+
+    .reason-text {
+      color: #4a5568;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .action-btn {
+      padding: 0.625rem 1.25rem;
+      border-radius: 0.5rem;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      text-decoration: none;
+      color: white;
+      background: linear-gradient(135deg, #F73B20, #ff5238);
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(247, 59, 32, 0.4);
+      color: white;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 5rem 2rem;
+      color: #6b7280;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      color: rgba(247, 59, 32, 0.2);
+      margin-bottom: 1.5rem;
+    }
+
+    .empty-state h3 {
+      font-size: 1.3rem;
+      margin-bottom: 0.75rem;
+      color: #1a1a1a;
+    }
+
+    .empty-state p {
+      color: #6b7280;
+    }
+
+    /* ===== PAGINATION ===== */
+    .pagination-container {
+      padding: 1.5rem 1.75rem;
+      border-top: 1px solid #e6e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pagination-info {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .pagination-info span {
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .page-btn {
+      padding: 0.5rem 0.75rem;
+      border: 2px solid #e5e7eb;
+      background: white;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #4a5568;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .page-btn:hover:not(:disabled) {
+      border-color: #F73B20;
+      color: #F73B20;
+    }
+
+    .page-btn.active {
+      background: linear-gradient(135deg, #F73B20, #ff5238);
+      color: white;
+      border-color: #F73B20;
+    }
+
+    .page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .page-dots {
+      display: flex;
+      align-items: center;
+      padding: 0 0.5rem;
+      color: #6b7280;
+    }
+
+    /* ===== SUCCESS POPUP ===== */
+    .warn-popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #22c55e, #4ade80);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0.75rem;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.35);
+      z-index: 9999;
+      animation: slideIn 0.4s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .warn-popup-error {
+      background: linear-gradient(135deg, #ef4444, #f87171);
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.35);
+    }
+
+    .warn-popup i {
+      font-size: 1.25rem;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 991.98px) {
+      .sidebar {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 767.98px) {
+      .main-content {
+        padding: 1rem;
+      }
+
+      .page-header {
+        padding: 1rem 1.25rem;
+      }
+
+      .page-title {
+        font-size: 1.25rem;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+      }
+
+      .filters-card {
+        padding: 1rem;
+      }
+
+      .filters-actions {
+        flex-direction: column;
+      }
+
+      .filter-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .table-wrapper {
+        overflow-x: scroll;
+      }
+
+      table {
+        min-width: 1000px;
+      }
+
+      .pagination-container {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Animated Background -->
+  <div class="bg-gradient">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1>Circle Reports</h1>
+        </div>
+        <div class="user-avatar">A</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar for Desktop -->
+      <div class="col-lg-3 col-xl-2 d-none d-lg-block p-0">
+        <nav class="sidebar" style="position:sticky;top:70px;">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/hon/users">
+                <i class="fas fa-users"></i>
+                <span>HON Users</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/badge/management">
+                <i class="fas fa-award"></i>
+                <span>Badges</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/get-all-post-report">
+                <i class="fas fa-flag"></i>
+                <span>Reported Posts</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/reports">
+                <i class="fas fa-file-alt"></i>
+                <span>Report Section</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/admin/circle/reports">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Circle Reports</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/virtual/gift">
+                <i class="fas fa-gift"></i>
+                <span>Virtual Gift</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/quiz/management">
+                <i class="fas fa-question-circle"></i>
+                <span>Quiz Management</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/circle-quiz/management">
+                <i class="fas fa-users-cog"></i>
+                <span>Circle Quiz</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/contact/requests">
+                <i class="fas fa-envelope"></i>
+                <span>Contact Admin</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Offcanvas Sidebar for Mobile -->
+      <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title">Menu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+          <nav class="sidebar">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/dashboard">
+                  <i class="fas fa-chart-line"></i>
+                  <span>Dashboard</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/hon/users">
+                  <i class="fas fa-users"></i>
+                  <span>HON Users</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/badge/management">
+                  <i class="fas fa-award"></i>
+                  <span>Badges</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/get-all-post-report">
+                  <i class="fas fa-flag"></i>
+                  <span>Reported Posts</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/reports">
+                  <i class="fas fa-file-alt"></i>
+                  <span>Report Section</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/admin/circle/reports">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <span>Circle Reports</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/virtual/gift">
+                  <i class="fas fa-gift"></i>
+                  <span>Virtual Gift</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/quiz/management">
+                  <i class="fas fa-question-circle"></i>
+                  <span>Quiz Management</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/circle-quiz/management">
+                  <i class="fas fa-users-cog"></i>
+                  <span>Circle Quiz</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/contact/requests">
+                  <i class="fas fa-envelope"></i>
+                  <span>Contact Admin</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/settings">
+                  <i class="fas fa-cog"></i>
+                  <span>Settings</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="col-lg-9 col-xl-10">
+        <main class="main-content">
+         
+
+          <!-- Stats Overview -->
+          <div class="row g-4 mb-4">
+            <div class="col-sm-6 col-lg-3">
+              <div class="stat-card stat-total">
+                <div class="stat-icon">
+                  <i class="bi bi-flag-fill"></i>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-label">Total Reports</div>
+                  <div class="stat-value" th:text="${totalReports != null ? totalReports : '0'}">124</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="stat-card stat-pending">
+                <div class="stat-icon">
+                  <i class="bi bi-clock-history"></i>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-label">Pending</div>
+                  <div class="stat-value" th:text="${pendingReports != null ? pendingReports : '0'}">42</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="stat-card stat-reviewed">
+                <div class="stat-icon">
+                  <i class="bi bi-eye-fill"></i>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-label">Reviewed</div>
+                  <div class="stat-value" th:text="${reviewedReports != null ? reviewedReports : '0'}">58</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="stat-card stat-resolved">
+                <div class="stat-icon">
+                  <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-label">Resolved</div>
+                  <div class="stat-value" th:text="${resolvedReports != null ? resolvedReports : '0'}">24</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filters Section -->
+          <div class="filters-card">
+            <div class="filters-header">
+              <h3 class="filters-title">
+                <i class="bi bi-funnel"></i>
+                Filter Reports
+              </h3>
+            </div>
+
+            <form method="get" action="/admin/circle/reports" class="filters-form">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="filter-label">Status</label>
+                  <select class="filter-select" name="status" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="PENDING" th:selected="${param.status != null && param.status[0] == 'PENDING'}">
+                      Pending</option>
+                    <option value="REVIEWED" th:selected="${param.status != null && param.status[0] == 'REVIEWED'}">
+                      Reviewed</option>
+                    <option value="RESOLVED" th:selected="${param.status != null && param.status[0] == 'RESOLVED'}">
+                      Resolved</option>
+                  </select>
+                </div>
+
+                <div class="col-md-3">
+                  <label class="filter-label">Date Range</label>
+                  <select class="filter-select" name="dateRange" id="dateFilter">
+                    <option value="">All Time</option>
+                    <option value="today" th:selected="${param.dateRange != null && param.dateRange[0] == 'today'}">
+                      Today</option>
+                    <option value="week" th:selected="${param.dateRange != null && param.dateRange[0] == 'week'}">This
+                      Week</option>
+                    <option value="month" th:selected="${param.dateRange != null && param.dateRange[0] == 'month'}">This
+                      Month</option>
+                    <option value="custom" th:selected="${param.dateRange != null && param.dateRange[0] == 'custom'}">
+                      Custom Range</option>
+                  </select>
+                </div>
+
+                <div class="col-md-3">
+                  <label class="filter-label">Sort By</label>
+                  <select class="filter-select" name="sortBy" id="sortFilter">
+                    <option value="recent" th:selected="${param.sortBy == null || param.sortBy[0] == 'recent'}">Most
+                      Recent</option>
+                    <option value="oldest" th:selected="${param.sortBy != null && param.sortBy[0] == 'oldest'}">Oldest
+                      First</option>
+                    <option value="group" th:selected="${param.sortBy != null && param.sortBy[0] == 'group'}">Group Name
+                    </option>
+                    <option value="reporter" th:selected="${param.sortBy != null && param.sortBy[0] == 'reporter'}">
+                      Reporter Name</option>
+                  </select>
+                </div>
+
+                <div class="col-md-3">
+                  <label class="filter-label">Search</label>
+                  <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="filter-input" name="search" placeholder="Search groups..."
+                      th:value="${param.search != null ? param.search[0] : ''}">
+                  </div>
+                </div>
+              </div>
+
+              <div class="filters-actions">
+                <button type="submit" class="filter-btn filter-btn-primary">
+                  <i class="bi bi-funnel-fill"></i>
+                  Apply Filters
+                </button>
+                <a href="/admin/circle/reports" class="filter-btn filter-btn-secondary">
+                  <i class="bi bi-arrow-clockwise"></i>
+                  Reset All
+                </a>
+                <button type="button" class="filter-btn filter-btn-export" onclick="exportReports()">
+                  <i class="bi bi-download"></i>
+                  Export CSV
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Reports Table -->
+          <div class="table-container">
+            <div class="table-header">
+              <h3 class="table-title">All Reports</h3>
+              <div class="table-count">
+                <span th:text="${groupReportList != null ? groupReportList.size() : 0}">0</span> reports found
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table id="reportsTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Group Name</th>
+                    <th>Reported By</th>
+                    <th>Status</th>
+                    <th>Reason</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="reportsTableBody">
+                  <tr th:each="list, iterStat : ${groupReportList}">
+                    <td>
+                      <span class="row-number" th:text="${iterStat.count}">1</span>
+                    </td>
+                    <td>
+                      <div class="group-cell">
+                        <span class="group-name" th:text="${list.groupMaster.groupName}">Tech Enthusiasts Hub</span>
+                        <span class="group-members">
+                          <i class="bi bi-people"></i>
+                          <span
+                            th:text="${list.groupMaster.memberCount != null ? list.groupMaster.memberCount + ' members' : 'N/A'}">245
+                            members</span>
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="reporter-cell">
+                        <span class="username" th:text="${'@' + list.reporter.username}">@sarah_mod</span>
+                        <span class="reporter-email" th:text="${list.reporter.email}">sarah@example.com</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="status-badge"
+                        th:classappend="${list.status == 'PENDING' ? 'status-pending' : (list.status == 'REVIEWED' ? 'status-reviewed' : 'status-resolved')}"
+                        th:text="${list.status}">
+                        PENDING
+                      </span>
+                    </td>
+                    <td>
+                      <div class="reason-cell">
+                        <div class="reason-text" th:text="${list.reason}">
+                          Inappropriate content being shared repeatedly. Multiple spam messages and offensive language
+                          towards other members.
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="date-cell">
+                        <span class="date-text" th:text="${#temporals.format(list.createdAt, 'MMM dd, yyyy')}">Jan 10,
+                          2026</span>
+                        <span class="time-text" th:text="${#temporals.format(list.createdAt, 'hh:mm a')}">02:30
+                          PM</span>
+                      </div>
+                    </td>
+                    <td>
+                      <a th:href="@{/user/review/group/report/{reportId}(reportId=${list.id})}" class="action-btn">
+                        <i class="bi bi-clipboard-check"></i>
+                        Review
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- Empty State -->
+              <div class="empty-state" th:if="${groupReportList == null || groupReportList.isEmpty()}">
+                <i class="bi bi-inbox"></i>
+                <h3>No Reports Found</h3>
+                <p>There are no group reports matching your criteria.</p>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-container" th:if="${groupReportList != null && !groupReportList.isEmpty()}">
+              <div class="pagination-info">
+                Showing <span>1-10</span> of <span th:text="${totalReports}">124</span> reports
+              </div>
+              <div class="pagination">
+                <button class="page-btn" disabled>
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <span class="page-dots">...</span>
+                <button class="page-btn">13</button>
+                <button class="page-btn">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Popups -->
+  <div id="warnPopup" class="warn-popup" th:if="${warned}">
+    <i class="bi bi-check-circle-fill"></i>
+    Successfully Warned User.
+  </div>
+
+  <div id="rejectPopup" class="warn-popup warn-popup-error" th:if="${rejected}">
+    <i class="bi bi-x-circle-fill"></i>
+    Successfully Rejected User Report.
+  </div>
+
+  <div id="successPopup" class="warn-popup" th:if="${success}">
+    <i class="bi bi-check-circle-fill"></i>
+    <span th:text="${successMessage}">Action completed successfully!</span>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- JavaScript will go here -->
+  <script>
+    // Warning popup auto-dismiss
+    document.addEventListener("DOMContentLoaded", function () {
+      const warnPopup = document.getElementById("warnPopup");
+      if (warnPopup) {
+        setTimeout(() => {
+          warnPopup.style.opacity = "0";
+          warnPopup.style.transform = "translateX(30px)";
+          setTimeout(() => warnPopup.remove(), 400);
+        }, 3000);
+      }
+
+      const rejectPopup = document.getElementById("rejectPopup");
+      if (rejectPopup) {
+        setTimeout(() => {
+          rejectPopup.style.opacity = "0";
+          rejectPopup.style.transform = "translateX(30px)";
+          setTimeout(() => rejectPopup.remove(), 400);
+        }, 3000);
+      }
+
+      const successPopup = document.getElementById("successPopup");
+      if (successPopup) {
+        setTimeout(() => {
+          successPopup.style.opacity = "0";
+          successPopup.style.transform = "translateX(30px)";
+          setTimeout(() => successPopup.remove(), 400);
+        }, 3000);
+      }
+    });
+
+    // Export reports to CSV
+    function exportReports() {
+      const table = document.getElementById("reportsTable");
+      const rows = table.querySelectorAll("tr");
+
+      let csv = [];
+
+      // Headers
+      const headers = [];
+      rows[0].querySelectorAll("th").forEach(th => {
+        headers.push(th.textContent.trim());
+      });
+      csv.push(headers.join(","));
+
+      // Data rows
+      for (let i = 1; i < rows.length; i++) {
+        const row = [];
+        const cols = rows[i].querySelectorAll("td");
+
+        cols.forEach((col, index) => {
+          // Skip action column
+          if (index === cols.length - 1) return;
+
+          let text = col.textContent.trim().replace(/\n/g, ' ').replace(/\s+/g, ' ');
+          // Escape commas and quotes
+          if (text.includes(',') || text.includes('"')) {
+            text = '"' + text.replace(/"/g, '""') + '"';
+          }
+          row.push(text);
+        });
+
+        csv.push(row.join(","));
+      }
+
+      // Download CSV
+      const csvContent = csv.join("\n");
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute("href", url);
+      link.setAttribute("download", `circle_reports_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Table row click handler (optional - for quick view)
+    document.addEventListener("DOMContentLoaded", function () {
+      const tableRows = document.querySelectorAll("#reportsTableBody tr");
+
+      tableRows.forEach(row => {
+        row.addEventListener("click", function (e) {
+          // Don't trigger if clicking the action button
+          if (e.target.closest('.action-btn')) return;
+
+          // Add visual feedback
+          this.style.backgroundColor = '#fef3c7';
+          setTimeout(() => {
+            this.style.backgroundColor = '';
+          }, 300);
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>

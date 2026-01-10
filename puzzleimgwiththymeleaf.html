@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jigsaw Challenge</title>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet">
-    <script>
+        rel="stylesheet" />
+
+    <!-- TAILWIND CONFIGURATION -->
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -22,12 +23,20 @@
                     fontFamily: {
                         "display": ["Epilogue", "sans-serif"]
                     },
-                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
                 },
             },
         }
     </script>
+
+    <!-- CUSTOM STYLES -->
     <style>
+        /* Glass morphism effect for header */
         .glass-header {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
@@ -38,107 +47,182 @@
             background: rgba(34, 19, 16, 0.8);
         }
 
+        /* Puzzle grid texture background */
         .puzzle-grid-texture {
             background-image: radial-gradient(#ed462c22 1px, transparent 1px);
             background-size: 40px 40px;
         }
 
+        /* Gradient orbs with blur effect */
         .gradient-orb {
             filter: blur(80px);
             z-index: -1;
         }
 
+        /* Ensure minimum height */
         body {
             min-height: max(884px, 100dvh);
         }
 
-        canvas {
-            touch-action: none;
+        /* Canvas styling to fill container */
+        #canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal {
-            background: white;
-            border-radius: 24px;
-            padding: 2rem;
-            max-width: 450px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(237, 70, 44, 0.3);
-            transform: scale(0.9);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .modal-overlay.show .modal {
-            transform: scale(1);
-            opacity: 1;
+        /* Lightbox animations */
+        #lightbox.active {
+            display: flex !important;
+            animation: fadeIn 0.3s ease forwards;
         }
 
         @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
             to {
                 opacity: 1;
             }
         }
 
-        .lightbox {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
+        #lightboxImg {
+            animation: zoomIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .lightbox.active {
-            display: flex;
-            animation: fadeIn 0.3s ease forwards;
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
-        .lightbox-content {
-            max-width: 90vw;
-            max-height: 90vh;
-            object-fit: contain;
-            border-radius: 12px;
-            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        /* Popup animations */
+        #messagePopup,
+        #successPopup,
+        #errorPopup {
+            animation: fadeIn 0.3s ease;
         }
 
-        .lightbox-close {
+        #messagePopup>div,
+        #successPopup>div,
+        #errorPopup>div {
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px) scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Success feedback slide in */
+        #successFeedback.show {
+            display: flex !important;
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            #canvas {
+                width: 100% !important;
+                height: auto !important;
+            }
+        }
+
+        /* Prevent text selection on canvas interactions */
+        #canvas {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Material icons fix */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Hover effects for buttons */
+        button:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        /* Loading state for submit button */
+        #submitBtn.loading {
+            opacity: 0.7;
+            cursor: wait;
+        }
+
+        #submitBtn.loading::after {
+            content: '';
             position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 40px;
-            color: white;
-            cursor: pointer;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.1);
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
             border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Dynamic popup styles */
+        .dynamic-popup {
+            animation: fadeIn 0.3s ease;
+        }
+
+        .dynamic-popup>div {
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Reference thumbnail pulse effect on hover */
+        #referenceThumb:hover .size-2 {
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
         }
     </style>
 </head>
@@ -151,10 +235,10 @@
     <!-- Sticky Header -->
     <header class="sticky top-0 z-50 glass-header border-b border-gray-100 dark:border-white/5">
         <div class="flex items-center p-4 justify-between max-w-md mx-auto">
-            <div class="text-[#181211] dark:text-white flex size-12 shrink-0 items-center justify-start cursor-pointer"
-                onclick="window.history.back()">
+            <a th:href="@{/user/op}"
+                class="text-[#181211] dark:text-white flex size-12 shrink-0 items-center justify-start cursor-pointer">
                 <span class="material-symbols-outlined text-2xl">arrow_back_ios</span>
-            </div>
+            </a>
             <h2
                 class="text-[#181211] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">
                 Jigsaw Challenge
@@ -162,372 +246,161 @@
         </div>
     </header>
 
-    <main class="max-w-md mx-auto pb-32">
+    <!-- General Message Popup -->
+    <div th:if="${message}" id="messagePopup"
+        class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm mx-4 shadow-2xl border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full p-2">
+                    <span class="material-symbols-outlined text-2xl">info</span>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Notice</h3>
+            </div>
+            <p class="text-gray-600 dark:text-gray-300 mb-6" th:text="${message}"></p>
+            <button onclick="closePopup('messagePopup')"
+                class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <!-- Success Message Popup -->
+    <div th:if="${successMessage}" id="successPopup"
+        class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm mx-4 shadow-2xl border border-green-200 dark:border-green-700">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full p-2">
+                    <span class="material-symbols-outlined text-2xl">check_circle</span>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Success!</h3>
+            </div>
+            <p class="text-gray-600 dark:text-gray-300 mb-6" th:text="${successMessage}"></p>
+            <button onclick="closePopup('successPopup')"
+                class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-colors">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <!-- Error Message Popup -->
+    <div th:if="${errorMessage}" id="errorPopup"
+        class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm mx-4 shadow-2xl border border-red-200 dark:border-red-700">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full p-2">
+                    <span class="material-symbols-outlined text-2xl">error</span>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Error</h3>
+            </div>
+            <p class="text-gray-600 dark:text-gray-300 mb-4" th:text="${errorMessage}"></p>
+            <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-3 rounded mb-6">
+                <p class="text-sm text-red-700 dark:text-red-300">Please try again or contact support if the issue
+                    persists.</p>
+            </div>
+            <button onclick="closePopup('errorPopup')"
+                class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition-colors">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <main class="max-w-md mx-auto pb-32" th:if="${post != null}">
         <!-- User Context Badge -->
         <div class="flex items-center gap-3 px-4 pt-6 pb-2 justify-center">
-            <div
-                class="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-white/20">
-                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-6 w-6" id="userAvatar"
-                    style='background-image: url("https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f9e9.png");'>
+            <a th:href="@{'/user/dashboard/' + ${postOwnerId}}"
+                class="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-white/20 hover:bg-white/90 dark:hover:bg-white/20 transition-colors">
+                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-6 w-6"
+                    th:style="'background-image: url(' + @{'/user/post/photo/' + ${post.postId}} + ');'">
                 </div>
-                <p class="text-[#181211] dark:text-white text-xs font-semibold leading-normal" id="username">
-                    @puzzle_master</p>
+                <p class="text-[#181211] dark:text-white text-xs font-semibold leading-normal"
+                    th:text="'@' + ${postOwnerName}">@username</p>
                 <div class="flex size-4 items-center justify-center">
                     <div class="size-2 rounded-full bg-[#078809]"></div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- Puzzle Area Container -->
         <div class="relative p-4 @container">
             <!-- Reference Image Thumbnail (Top Right Overlay) -->
-            <div class="absolute top-8 right-8 z-10 group cursor-pointer" id="referenceThumbnail">
+            <div class="absolute top-8 right-8 z-10 group cursor-pointer" id="referenceThumb">
                 <div
                     class="relative w-20 h-20 rounded-lg overflow-hidden border-2 border-white shadow-lg ring-1 ring-black/5">
                     <div
                         class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors flex items-center justify-center">
                         <span class="material-symbols-outlined text-white drop-shadow-md">zoom_in</span>
                     </div>
-                    <img id="referenceThumb" class="w-full h-full object-cover"
-                        src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9e9.svg" alt="Reference">
+                    <div class="w-full h-full bg-center bg-no-repeat bg-cover" id="referenceThumbnail"
+                        th:style="'background-image: url(' + @{'/user/post/photo/' + ${post.postId}} + ');'">
+                    </div>
                 </div>
             </div>
 
             <!-- Puzzle Canvas Container -->
             <div
                 class="flex flex-col items-center justify-center rounded-xl bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/10 aspect-square w-full shadow-xl relative overflow-hidden puzzle-grid-texture">
-                <canvas id="puzzleCanvas" class="w-full h-full"></canvas>
+                <canvas id="canvas" width="480" height="480" class="w-full h-full touch-none"></canvas>
             </div>
         </div>
 
-        <!-- Success Message (Hidden by default) -->
-        <div id="successMessage"
-            class="hidden px-6 py-4 mx-4 mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl items-center gap-4">
+        <!-- Success Feedback (Hidden by default, shown via JS) -->
+        <div id="successFeedback"
+            class="px-6 py-4 mx-4 mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-4 hidden">
             <div class="bg-green-500 text-white rounded-full p-1 flex items-center justify-center">
                 <span class="material-symbols-outlined text-lg">check</span>
             </div>
             <div>
                 <p class="text-green-800 dark:text-green-200 text-sm font-bold">Perfect Match!</p>
-                <p class="text-green-700/80 dark:text-green-300/80 text-xs">Puzzle completed successfully!</p>
+                <p class="text-green-700/80 dark:text-green-300/80 text-xs">Pieces are connecting beautifully!</p>
             </div>
         </div>
     </main>
 
     <!-- Bottom Controls Area -->
-    <div class="fixed bottom-0 left-0 right-0 p-4 pb-8 glass-header border-t border-gray-100 dark:border-white/5">
+    <div class="fixed bottom-0 left-0 right-0 p-4 pb-8 glass-header border-t border-gray-100 dark:border-white/5"
+        th:if="${post != null}">
         <div class="max-w-md mx-auto flex items-center gap-3">
-            <button id="skipBtn"
-                class="flex items-center justify-center size-14 shrink-0 rounded-xl bg-gray-100 dark:bg-white/10 text-[#181211] dark:text-white hover:scale-105 transition-transform">
+            <a th:href="@{/user/op}"
+                class="flex items-center justify-center size-14 shrink-0 rounded-xl bg-gray-100 dark:bg-white/10 text-[#181211] dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-colors">
                 <span class="material-symbols-outlined">skip_next</span>
-            </button>
-            <button id="submitBtn"
-                class="flex-1 flex min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-5 bg-gradient-to-r from-primary to-[#ff5a43] text-white text-base font-bold leading-normal tracking-[0.015em] shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all">
-                <span class="truncate">Submit Solution</span>
-            </button>
+            </a>
+
+            <form th:action="@{/user/solved}" method="post" id="puzzleForm" class="flex-1">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="button" id="submitBtn"
+                    class="w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-5 bg-gradient-to-r from-primary to-[#ff5a43] text-white text-base font-bold leading-normal tracking-[0.015em] shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all">
+                    <span class="truncate">Submit Solution</span>
+                </button>
+            </form>
+
             <button id="solveBtn"
-                class="flex-1 flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-5 border-2 border-primary/30 text-primary text-base font-bold leading-normal tracking-[0.015em] bg-white/50 dark:bg-transparent hover:bg-primary hover:text-white transition-all">
+                class="flex-1 flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-5 border-2 border-primary/30 text-primary text-base font-bold leading-normal tracking-[0.015em] bg-white/50 dark:bg-transparent hover:bg-white/70 dark:hover:bg-white/10 transition-colors">
                 <span class="truncate">Auto Solve</span>
             </button>
         </div>
     </div>
 
     <!-- Lightbox for Reference Image -->
-    <div id="lightbox" class="lightbox">
-        <span class="lightbox-close">&times;</span>
-        <img id="lightboxImg" class="lightbox-content" alt="Reference Image">
+    <div id="lightbox"
+        class="hidden fixed inset-0 z-[9998] bg-black/90 items-center justify-center opacity-0 transition-opacity">
+        <button class="absolute top-4 right-4 text-white hover:bg-white/10 rounded-full p-2 transition-colors"
+            id="closeLightbox">
+            <span class="material-symbols-outlined text-4xl">close</span>
+        </button>
+        <img id="lightboxImg" class="max-w-[90vw] max-h-[90vh] rounded-xl shadow-2xl" alt="Reference Image">
     </div>
 
-    <!-- Modal Overlay -->
-    <div id="modalOverlay" class="modal-overlay">
-        <div class="modal">
-            <div class="flex flex-col items-center">
-                <div id="modalIcon" class="w-20 h-20 rounded-full flex items-center justify-center mb-4 bg-primary/10">
-                    <span class="material-symbols-outlined text-4xl text-primary">info</span>
-                </div>
-                <h3 id="modalTitle" class="text-2xl font-bold text-gray-900 mb-2 text-center">Notice</h3>
-                <p id="modalMessage" class="text-gray-600 text-center mb-6">Message goes here</p>
-                <button id="modalBtn"
-                    class="px-8 py-3 rounded-full bg-gradient-to-r from-primary to-[#ff5a43] text-white font-bold shadow-lg hover:shadow-xl transition-all">
-                    OK
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const canvas = document.getElementById("puzzleCanvas");
-        const ctx = canvas.getContext("2d");
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
-
-        const RENDER_BLEED = 40;
-        const BOARD_PADDING = 60;
-        const ROWS = 4;
-        const COLS = 4;
-        const MAGNET_DISTANCE = 25;
-
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.src = "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9e9.svg";
-
-        const buffer = document.createElement("canvas");
-        const bctx = buffer.getContext("2d");
-
-        const hitCanvas = document.createElement("canvas");
-        const hitCtx = hitCanvas.getContext("2d", { willReadFrequently: true });
-
-        let pieces = [];
-        let groups = [];
-        let selected = null;
-        let activeGroupId = null;
-        let offsetX = 0;
-        let offsetY = 0;
-        const edges = [];
-
-        let puzzleWidth = 0;
-        let puzzleHeight = 0;
-
-        function resizeCanvas() {
-            const container = canvas.parentElement;
-            const size = Math.min(container.clientWidth, container.clientHeight);
-            canvas.width = size;
-            canvas.height = size;
-            hitCanvas.width = size;
-            hitCanvas.height = size;
-
-            if (img.complete) {
-                initPuzzle();
-            }
-        }
-
-        function initPuzzle() {
-            puzzleWidth = canvas.width - BOARD_PADDING * 2;
-            puzzleHeight = canvas.height - BOARD_PADDING * 2;
-
-            buffer.width = puzzleWidth + RENDER_BLEED * 2;
-            buffer.height = puzzleHeight + RENDER_BLEED * 2;
-
-            bctx.drawImage(
-                img,
-                0, 0, img.width, img.height,
-                RENDER_BLEED, RENDER_BLEED,
-                puzzleWidth, puzzleHeight
-            );
-
-            generateEdgeMap();
-            createPieces();
-            scatterPieces();
-            draw();
-        }
-
-        img.onload = () => {
-            resizeCanvas();
-        };
-
-        window.addEventListener('resize', resizeCanvas);
-
-        function generateEdgeMap() {
-            for (let r = 0; r < ROWS; r++) {
-                edges[r] = [];
-                for (let c = 0; c < COLS; c++) {
-                    edges[r][c] = {
-                        top: r === 0 ? 0 : -edges[r - 1][c].bottom,
-                        left: c === 0 ? 0 : -edges[r][c - 1].right,
-                        right: c === COLS - 1 ? 0 : Math.random() > 0.5 ? 1 : -1,
-                        bottom: r === ROWS - 1 ? 0 : Math.random() > 0.5 ? 1 : -1
-                    };
-                }
-            }
-        }
-
-        class Piece {
-            constructor(r, c, id) {
-                this.r = r;
-                this.c = c;
-                this.id = id;
-
-                this.w = puzzleWidth / COLS;
-                this.h = puzzleHeight / ROWS;
-
-                this.correctX = BOARD_PADDING + c * this.w - RENDER_BLEED;
-                this.correctY = BOARD_PADDING + r * this.h - RENDER_BLEED;
-
-                this.x = 0;
-                this.y = 0;
-                this.groupId = id;
-
-                this.hitColor = `rgb(${(id * 17) % 256}, ${(id * 37) % 256}, ${(id * 73) % 256})`;
-            }
-
-            draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                drawPiecePath(this, ctx);
-                ctx.clip();
-
-                ctx.drawImage(
-                    buffer,
-                    this.c * this.w,
-                    this.r * this.h,
-                    this.w + RENDER_BLEED * 2,
-                    this.h + RENDER_BLEED * 2,
-                    0, 0,
-                    this.w + RENDER_BLEED * 2,
-                    this.h + RENDER_BLEED * 2
-                );
-
-                ctx.strokeStyle = "#fff";
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                ctx.restore();
-            }
-
-            drawHit() {
-                hitCtx.save();
-                hitCtx.translate(this.x, this.y);
-                drawPiecePath(this, hitCtx);
-                hitCtx.fillStyle = this.hitColor;
-                hitCtx.fill();
-                hitCtx.restore();
-            }
-        }
-
-        function drawPiecePath(p, context) {
-            const e = edges[p.r][p.c];
-            const w = p.w;
-            const h = p.h;
-            const ox = RENDER_BLEED;
-            const oy = RENDER_BLEED;
-
-            context.beginPath();
-            context.moveTo(ox, oy);
-            edge(context, ox, oy, ox + w, oy, e.top);
-            edge(context, ox + w, oy, ox + w, oy + h, e.right);
-            edge(context, ox + w, oy + h, ox, oy + h, e.bottom);
-            edge(context, ox, oy + h, ox, oy, e.left);
-            context.closePath();
-        }
-
-        function edge(context, x1, y1, x2, y2, type) {
-            const dx = x2 - x1;
-            const dy = y2 - y1;
-
-            context.lineTo(x1 + dx * 0.35, y1 + dy * 0.35);
-
-            if (type !== 0) {
-                context.bezierCurveTo(
-                    x1 + dx * 0.35 + dy * 0.3 * type,
-                    y1 + dy * 0.35 - dx * 0.3 * type,
-                    x1 + dx * 0.65 + dy * 0.3 * type,
-                    y1 + dy * 0.65 - dx * 0.3 * type,
-                    x1 + dx * 0.65,
-                    y1 + dy * 0.65
-                );
-            }
-
-            context.lineTo(x2, y2);
-        }
-
-        function createPieces() {
-            pieces = [];
-            groups = [];
-            let id = 0;
-
-            for (let r = 0; r < ROWS; r++) {
-                for (let c = 0; c < COLS; c++) {
-                    const p = new Piece(r, c, id);
-                    pieces.push(p);
-                    groups[id] = [p];
-                    id++;
-                }
-            }
-        }
-
-        function scatterPieces() {
-            const margin = 10;
-            const maxPieceWidth = puzzleWidth / COLS + RENDER_BLEED * 2;
-            const maxPieceHeight = puzzleHeight / ROWS + RENDER_BLEED * 2;
-
-            pieces.forEach(p => {
-                p.x = Math.random() * (canvas.width - maxPieceWidth - margin * 2) + margin;
-                p.y = Math.random() * (canvas.height - maxPieceHeight - margin * 2) + margin;
-            });
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            hitCtx.clearRect(0, 0, hitCanvas.width, hitCanvas.height);
-
-            pieces.forEach(p => {
-                if (activeGroupId === null || p.groupId !== activeGroupId) {
-                    p.draw();
-                    p.drawHit();
-                }
-            });
-
-            if (activeGroupId !== null && groups[activeGroupId]) {
-                groups[activeGroupId].forEach(p => {
-                    p.draw();
-                    p.drawHit();
-                });
-            }
-        }
-
-        function areAdjacent(p1, p2) {
-            const rowDiff = Math.abs(p1.r - p2.r);
-            const colDiff = Math.abs(p1.c - p2.c);
-            return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
-        }
-
-        function getConnectedPieces(startPiece, groupPieces) {
-            const connected = new Set([startPiece]);
-            const toCheck = [startPiece];
-
-            while (toCheck.length > 0) {
-                const current = toCheck.pop();
-
-                groupPieces.forEach(other => {
-                    if (!connected.has(other) && areAdjacent(current, other)) {
-                        connected.add(other);
-                        toCheck.push(other);
-                    }
-                });
-            }
-
-            return Array.from(connected);
-        }
-
-        function trySnap(piece) {
-            pieces.forEach(other => {
-                if (piece === other || piece.groupId === other.groupId) return;
-
-                const dx = other.correctX - piece.correctX;
-                const dy = other.correctY - piece.correctY;
-
-                const expectedX = piece.x + dx;
-                const expectedY = piece.y + dy;
-
-                if (Math.hypot(other.x - expectedX, other.y - expectedY) < MAGNET_DISTANCE) {
-                    const moveX = expectedX - other.x;
-                    const moveY = expectedY - other.y;
-
-                    const oldGroupId = other.groupId;
-                    const g1 = groups[piece.groupId];
-                    const g2 = groups[oldGroupId];
-
-                    g2.forEach(p => {
-                        p.x += moveX;
-                        p.y += moveY;
-                        p.groupId = piece.groupId;
-                    });
-
-                    groups[piece.groupId] = g1.concat(g2);
-                    groups[oldGroupId] = [];
-                }
-            });
-        }
+    <script th:inline="javascript">
+        // ============================================
+        // GET EVENT COORDINATES (MOUSE OR TOUCH)
+        // ============================================
 
         function getEventCoords(e) {
+            if (!canvas) return { x: 0, y: 0 };
+
             const r = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -539,7 +412,13 @@
             };
         }
 
+        // ============================================
+        // GET PIECE AT SPECIFIC POINT USING HIT DETECTION
+        // ============================================
+
         function getPieceAtPoint(x, y) {
+            if (!hitCtx) return null;
+
             const pixel = hitCtx.getImageData(x, y, 1, 1).data;
             const color = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
 
@@ -550,6 +429,10 @@
             }
             return null;
         }
+
+        // ============================================
+        // HANDLE START OF DRAG (MOUSE DOWN / TOUCH START)
+        // ============================================
 
         function handleStart(e) {
             const coords = getEventCoords(e);
@@ -566,6 +449,7 @@
 
                 selected.connectedPieces = connectedPieces;
 
+                // Move selected pieces to end of array (render on top)
                 pieces = pieces.filter(p => !connectedPieces.includes(p));
                 pieces = pieces.concat(connectedPieces);
 
@@ -573,8 +457,12 @@
             }
         }
 
+        // ============================================
+        // HANDLE DRAG MOVEMENT (MOUSE MOVE / TOUCH MOVE)
+        // ============================================
+
         function handleMove(e) {
-            if (!selected) return;
+            if (!selected || !canvas) return;
             e.preventDefault();
 
             const coords = getEventCoords(e);
@@ -587,6 +475,7 @@
             const connectedPieces = selected.connectedPieces;
             let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
+            // Calculate bounding box of connected pieces
             connectedPieces.forEach(p => {
                 const hitW = p.w + RENDER_BLEED * 2;
                 const hitH = p.h + RENDER_BLEED * 2;
@@ -604,11 +493,13 @@
             let constrainedDx = dx;
             let constrainedDy = dy;
 
+            // Constrain movement within canvas bounds
             if (newMinX < 0) constrainedDx = -minX;
             if (newMinY < 0) constrainedDy = -minY;
             if (newMaxX > canvas.width) constrainedDx = canvas.width - maxX;
             if (newMaxY > canvas.height) constrainedDy = canvas.height - maxY;
 
+            // Move all connected pieces together
             connectedPieces.forEach(p => {
                 p.x += constrainedDx;
                 p.y += constrainedDy;
@@ -617,6 +508,10 @@
             draw();
         }
 
+        // ============================================
+        // HANDLE END OF DRAG (MOUSE UP / TOUCH END)
+        // ============================================
+
         function handleEnd(e) {
             if (selected) trySnap(selected);
             selected = null;
@@ -624,135 +519,142 @@
             draw();
         }
 
-        canvas.addEventListener("mousedown", handleStart);
-        canvas.addEventListener("mousemove", handleMove);
-        canvas.addEventListener("mouseup", handleEnd);
+        // ============================================
+        // ATTACH EVENT LISTENERS
+        // ============================================
 
-        canvas.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            handleStart(e);
-        }, { passive: false });
+        if (canvas) {
+            // MOUSE EVENT LISTENERS
+            canvas.addEventListener("mousedown", handleStart);
+            canvas.addEventListener("mousemove", handleMove);
+            canvas.addEventListener("mouseup", handleEnd);
 
-        canvas.addEventListener("touchmove", handleMove, { passive: false });
-        canvas.addEventListener("touchend", handleEnd, { passive: false });
+            // TOUCH EVENT LISTENERS
+            canvas.addEventListener("touchstart", (e) => {
+                e.preventDefault();
+                handleStart(e);
+            }, { passive: false });
 
-        // Button handlers
-        document.getElementById("solveBtn").onclick = () => {
-            pieces.forEach(p => {
-                p.x = p.correctX;
-                p.y = p.correctY;
+            canvas.addEventListener("touchmove", handleMove, { passive: false });
+            canvas.addEventListener("touchend", handleEnd, { passive: false });
+        }
+
+        // ============================================
+        // AUTO SOLVE BUTTON
+        // ============================================
+
+        const solveBtn = document.getElementById("solveBtn");
+        if (solveBtn) {
+            solveBtn.addEventListener('click', () => {
+                pieces.forEach(p => {
+                    p.x = p.correctX;
+                    p.y = p.correctY;
+                });
+                draw();
+                showCustomPopup("Puzzle solved automatically! 🎉", "success");
             });
-            draw();
-        };
+        }
 
-        document.getElementById("submitBtn").onclick = () => {
-            let solved = true;
+        // ============================================
+        // SUBMIT SOLUTION BUTTON WITH VALIDATION
+        // ============================================
 
-            for (let i = 0; i < pieces.length; i++) {
-                for (let j = i + 1; j < pieces.length; j++) {
-                    const p1 = pieces[i];
-                    const p2 = pieces[j];
+        const submitBtn = document.getElementById("submitBtn");
+        if (submitBtn) {
+            submitBtn.addEventListener('click', () => {
+                let solved = true;
 
-                    const expectedDx = p2.correctX - p1.correctX;
-                    const expectedDy = p2.correctY - p1.correctY;
+                // Check if all pieces are in correct position relative to each other
+                for (let i = 0; i < pieces.length; i++) {
+                    for (let j = i + 1; j < pieces.length; j++) {
+                        const p1 = pieces[i];
+                        const p2 = pieces[j];
 
-                    const actualDx = p2.x - p1.x;
-                    const actualDy = p2.y - p1.y;
+                        const expectedDx = p2.correctX - p1.correctX;
+                        const expectedDy = p2.correctY - p1.correctY;
 
-                    if (
-                        Math.abs(actualDx - expectedDx) > 5 ||
-                        Math.abs(actualDy - expectedDy) > 5
-                    ) {
-                        solved = false;
-                        break;
+                        const actualDx = p2.x - p1.x;
+                        const actualDy = p2.y - p1.y;
+
+                        // Allow 5 pixel tolerance
+                        if (
+                            Math.abs(actualDx - expectedDx) > 5 ||
+                            Math.abs(actualDy - expectedDy) > 5
+                        ) {
+                            solved = false;
+                            break;
+                        }
+                    }
+                    if (!solved) break;
+                }
+
+                if (!solved) {
+                    // Show error popup
+                    showCustomPopup("Almost there! Keep going 🧩", "error");
+                } else {
+                    // Puzzle is solved - add loading state and submit
+                    submitBtn.classList.add('loading');
+                    submitBtn.disabled = true;
+
+                    // Submit the form
+                    const puzzleForm = document.getElementById("puzzleForm");
+                    if (puzzleForm) {
+                        puzzleForm.submit();
                     }
                 }
-                if (!solved) break;
-            }
-
-            if (!solved) {
-                showModal("Almost there!", "Keep going, you're making progress! 🧩", "warning");
-            } else {
-                showModal("Perfect Match!", "Congratulations! Puzzle completed successfully! 🎉", "success");
-                document.getElementById("successMessage").classList.remove("hidden");
-                document.getElementById("successMessage").classList.add("flex");
-            }
-        };
-
-        document.getElementById("skipBtn").onclick = () => {
-            if (confirm("Skip this puzzle and load a new one?")) {
-                location.reload();
-            }
-        };
-
-        // Modal functions
-        function showModal(title, message, type) {
-            const overlay = document.getElementById("modalOverlay");
-            const icon = document.getElementById("modalIcon");
-            const titleEl = document.getElementById("modalTitle");
-            const messageEl = document.getElementById("modalMessage");
-
-            titleEl.textContent = title;
-            messageEl.textContent = message;
-
-            if (type === "success") {
-                icon.innerHTML = '<span class="material-symbols-outlined text-4xl text-green-500">check_circle</span>';
-                icon.className = "w-20 h-20 rounded-full flex items-center justify-center mb-4 bg-green-500/10";
-            } else if (type === "warning") {
-                icon.innerHTML = '<span class="material-symbols-outlined text-4xl text-yellow-500">warning</span>';
-                icon.className = "w-20 h-20 rounded-full flex items-center justify-center mb-4 bg-yellow-500/10";
-            } else {
-                icon.innerHTML = '<span class="material-symbols-outlined text-4xl text-primary">info</span>';
-                icon.className = "w-20 h-20 rounded-full flex items-center justify-center mb-4 bg-primary/10";
-            }
-
-            overlay.classList.add("show");
+            });
         }
 
-        document.getElementById("modalBtn").onclick = () => {
-            document.getElementById("modalOverlay").classList.remove("show");
-        };
+        // ============================================
+        // RESPONSIVE CANVAS SIZING
+        // ============================================
 
-        document.getElementById("modalOverlay").onclick = (e) => {
-            if (e.target === e.currentTarget) {
-                document.getElementById("modalOverlay").classList.remove("show");
+        function resizeCanvas() {
+            if (!canvas) return;
+
+            const container = canvas.parentElement;
+            if (container) {
+                const containerWidth = container.clientWidth;
+                const containerHeight = container.clientHeight;
+
+                // Maintain aspect ratio
+                const size = Math.min(containerWidth, containerHeight);
+                canvas.style.width = size + 'px';
+                canvas.style.height = size + 'px';
             }
-        };
-
-        // Lightbox functionality
-        const refThumb = document.getElementById("referenceThumbnail");
-        const lightbox = document.getElementById("lightbox");
-        const lightboxImg = document.getElementById("lightboxImg");
-        const lightboxClose = document.querySelector(".lightbox-close");
-
-        refThumb.addEventListener("click", function (e) {
-            e.stopPropagation();
-            lightboxImg.src = img.src;
-            lightbox.classList.add("active");
-            document.body.style.overflow = "hidden";
-        });
-
-        lightboxClose.addEventListener("click", function (e) {
-            e.stopPropagation();
-            closeLightbox();
-        });
-
-        lightbox.addEventListener("click", function (e) {
-            if (e.target === lightbox) {
-                closeLightbox();
-            }
-        });
-
-        document.addEventListener("keydown", function (e) {
-            if (e.key === "Escape" && lightbox.classList.contains("active")) {
-                closeLightbox();
-            }
-        });
-
-        function closeLightbox() {
-            lightbox.classList.remove("active");
-            document.body.style.overflow = "";
         }
+
+        // Resize on window resize with debounce
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resizeCanvas, 150);
+        });
+
+        // Initial resize
+        document.addEventListener('DOMContentLoaded', resizeCanvas);
+
+        // ============================================
+        // KEYBOARD SHORTCUTS
+        // ============================================
+
+        document.addEventListener('keydown', (e) => {
+            // Press 'S' to auto-solve (for testing)
+            if (e.key === 's' || e.key === 'S') {
+                if (solveBtn && e.ctrlKey) {
+                    e.preventDefault();
+                    solveBtn.click();
+                }
+            }
+
+            // Press Enter to submit
+            if (e.key === 'Enter' && submitBtn) {
+                e.preventDefault();
+                submitBtn.click();
+            }
+        });
+
+        console.log('Puzzle game initialized successfully! 🧩');
     </script>
 </body>
 

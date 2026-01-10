@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - HON</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Saira:ital,wght@0,100..900;1,100..900&family=TASA+Explorer:wght@400..800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: "TASA Explorer", sans-serif;
+        font-optical-sizing: auto;
+        font-style: normal;
+        background: #fafafa;
+        overflow-x: hidden;
+    }
+
+    /* Gradient background with floating orbs */
+    .bg-gradient {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+        background: #fafafa;
+    }
+
+    .gradient-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(100px);
+        opacity: 0.1;
+        animation: float 20s ease-in-out infinite;
+    }
+
+    .orb-1 {
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, #F73B20, transparent);
+        top: -10%;
+        right: -10%;
+        animation-duration: 25s;
+    }
+
+    .orb-2 {
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, #ff5238, transparent);
+        bottom: -15%;
+        left: -10%;
+        animation-duration: 20s;
+        animation-delay: 2s;
+    }
+
+    .orb-3 {
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, #F73B20, transparent);
+        top: 40%;
+        left: 50%;
+        animation-duration: 18s;
+        animation-delay: 1s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(50px, -80px) scale(1.1); }
+        66% { transform: translate(-50px, 50px) scale(0.9); }
+    }
+
+    /* Header */
+    .header {
+        background: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        background: white;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+        min-height: calc(100vh - 76px);
+        padding: 2rem 1rem;
+    }
+
+    .nav-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .nav-link {
+        color: #4a5568;
+        padding: 0.875rem 1.25rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .nav-link i {
+        font-size: 1.25rem;
+        width: 24px;
+    }
+
+    .nav-link:hover {
+        background: #f7f7f7;
+        color: #F73B20;
+    }
+
+    .nav-link.active {
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        box-shadow: 0 4px 15px rgba(247, 59, 32, 0.3);
+    }
+
+    /* Main Content */
+    .main-content {
+        padding: 2rem;
+        min-height: calc(100vh - 76px);
+    }
+
+    /* Stats Cards */
+    .stat-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-icon.blue { background: #3b82f6; }
+    .stat-icon.green { background: #10b981; }
+    .stat-icon.purple { background: #8b5cf6; }
+    .stat-icon.orange { background: #f97316; }
+
+    .stat-title {
+        color: #6b7280;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-change {
+        color: #10b981;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    /* Circle Reports Section */
+    .section-header {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border: 1px solid #f0f0f0;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .section-title i {
+        color: #F73B20;
+    }
+
+    /* Filters */
+    .filters-container {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #4a5568;
+    }
+
+    .filter-select {
+        padding: 0.625rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        color: #4a5568;
+        background: white;
+        transition: all 0.3s ease;
+        min-width: 150px;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: #F73B20;
+        box-shadow: 0 0 0 3px rgba(247, 59, 32, 0.1);
+    }
+
+    .filter-btn {
+        padding: 0.625rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1.5rem;
+    }
+
+    .filter-btn-primary {
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+        color: white;
+        box-shadow: 0 4px 15px rgba(247, 59, 32, 0.3);
+    }
+
+    .filter-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(247, 59, 32, 0.4);
+    }
+
+    .filter-btn-secondary {
+        background: #f1f2f7;
+        color: #4a5568;
+    }
+
+    .filter-btn-secondary:hover {
+        background: #e5e7eb;
+    }
+
+    /* Table Container */
+    .table-container {
+        background: white;
+        border-radius: 1rem;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+    }
+
+    thead th {
+        padding: 1.125rem 1.25rem;
+        text-align: left;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    tbody tr {
+        border-bottom: 1px solid #e6e8f0;
+        transition: all 0.2s ease;
+    }
+
+    tbody tr:hover {
+        background: #f7f7f7;
+    }
+
+    tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    tbody td {
+        padding: 1.125rem 1.25rem;
+        font-size: 0.88rem;
+        color: #1a1a1a;
+    }
+
+    .group-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .group-name {
+        font-weight: 700;
+        color: #1a1a1a;
+        font-size: 1rem;
+    }
+
+    .group-members {
+        font-size: 0.75rem;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .reporter-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .username {
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .report-date {
+        font-size: 0.75rem;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-reviewed {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-resolved {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .reason-cell {
+        max-width: 300px;
+    }
+
+    .reason-text {
+        color: #4a5568;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .action-btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        text-decoration: none;
+        color: white;
+        background: linear-gradient(135deg, #F73B20, #ff5238);
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(247, 59, 32, 0.4);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 5rem 2rem;
+        color: #6b7280;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: rgba(247, 59, 32, 0.2);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.3rem;
+        margin-bottom: 0.75rem;
+        color: #1a1a1a;
+    }
+
+    /* Success Popup */
+    .warn-popup {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #22c55e, #4ade80);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0.75rem;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.35);
+        z-index: 9999;
+        animation: slideIn 0.4s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 991.98px) {
+        .sidebar {
+            min-height: auto;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .stat-value {
+            font-size: 1.5rem;
+        }
+
+        .main-content {
+            padding: 1rem;
+        }
+
+        .section-header {
+            padding: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+        }
+
+        .filters-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-select {
+            min-width: 100%;
+        }
+
+        .table-wrapper {
+            overflow-x: scroll;
+        }
+
+        table {
+            min-width: 800px;
+        }
+    }
+  </style>
+</head>
+<body>
+<!-- Animated Background -->
+<div class="bg-gradient">
+  <div class="gradient-orb orb-1"></div>
+  <div class="gradient-orb orb-2"></div>
+  <div class="gradient-orb orb-3"></div>
+</div>
+
+<!-- Header -->
+<header class="header">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1>HON Dashboard</h1>
+      </div>
+      <div class="user-avatar">A</div>
+    </div>
+  </div>
+</header>
+
+<div class="container-fluid">
+  <div class="row">
+
+    <!-- Sidebar for Desktop -->
+    <div class="col-lg-3 col-xl-2 d-none d-lg-block p-0">
+      <nav class="sidebar" style="position:sticky;top:70px;">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active" href="/admin/dashboard">
+              <i class="fas fa-chart-line"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/hon/users">
+              <i class="fas fa-users"></i>
+              <span>HON Users</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/badge/management">
+              <i class="fas fa-award"></i>
+              <span>Badges</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/get-all-post-report">
+              <i class="fas fa-flag"></i>
+              <span>Reported Posts</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/reports">
+              <i class="fas fa-file-alt"></i>
+              <span>Report Section</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/virtual/gift">
+              <i class="fas fa-gift"></i>
+              <span>Virtual Gift</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/quiz/management">
+              <i class="fas fa-question-circle"></i>
+              <span>Quiz Management</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/circle-quiz/management">
+              <i class="fas fa-users-cog"></i>
+              <span>Circle Quiz</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/contact/requests">
+              <i class="fas fa-envelope"></i>
+              <span>Contact Admin</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/settings">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Offcanvas Sidebar for Mobile -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+      </div>
+      <div class="offcanvas-body p-0">
+        <nav class="sidebar">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="/admin/dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/hon/users">
+                <i class="fas fa-users"></i>
+                <span>HON Users</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/badge/management">
+                <i class="fas fa-award"></i>
+                <span>Badges</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/get-all-post-report">
+                <i class="fas fa-flag"></i>
+                <span>Reported Posts</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/reports">
+                <i class="fas fa-file-alt"></i>
+                <span>Report Section</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/virtual/gift">
+                <i class="fas fa-gift"></i>
+                <span>Virtual Gift</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/quiz/management">
+                <i class="fas fa-question-circle"></i>
+                <span>Quiz Management</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/circle-quiz/management">
+                <i class="fas fa-users-cog"></i>
+                <span>Circle Quiz</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/contact/requests">
+                <i class="fas fa-envelope"></i>
+                <span>Contact Admin</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-lg-9 col-xl-10">
+      <main class="main-content">
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+          <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="stat-icon blue">
+                  <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-change">
+                  <i class="fas fa-arrow-up"></i>
+                  +12.5%
+                </div>
+              </div>
+              <div class="stat-title">Total Users</div>
+              <div class="stat-value" th:text="${totalUsers}">12,543</div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="stat-icon green">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-change">
+                  <i class="fas fa-arrow-up"></i>
+                  +8.2%
+                </div>
+              </div>
+              <div class="stat-title">Active Users</div>
+              <div class="stat-value" th:text="${activeUser}">3,421</div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <a href="/admin/get-all-blocked-user-admin" class="text-decoration-none">
+              <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="stat-icon purple">
+                    <i class="fas fa-user-slash"></i>
+                  </div>
+                  <div class="stat-change">
+                    <i class="fas fa-arrow-up"></i>
+                    +23.1%
+                  </div>
+                </div>
+                <div class="stat-title">Blocked Users</div>
+                <div class="stat-value" th:text="${inActiveUser}">421</div>
+              </div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="stat-icon orange">
+                  <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="stat-change">
+                  <i class="fas fa-arrow-up"></i>
+                  +5.4%
+                </div>
+              </div>
+              <div class="stat-title">Today's Registration</div>
+              <div class="stat-value" th:text="${todayAllRegistration}">1,234</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Circle Reports Section -->
+        <div class="section-header">
+          <div class="section-title">
+            <i class="bi bi-exclamation-triangle"></i>
+            Circle Reports Section
+          </div>
+          
+          <!-- Filters -->
+          <form method="get" action="/admin/dashboard">
+            <div class="filters-container">
+              <div class="filter-group">
+                <label class="filter-label">Status</label>
+                <select class="filter-select" name="status" id="statusFilter">
+                  <option value="">All Status</option>
+                  <option value="PENDING" th:selected="${param.status != null && param.status[0] == 'PENDING'}">Pending</option>
+                  <option value="REVIEWED" th:selected="${param.status != null && param.status[0] == 'REVIEWED'}">Reviewed</option>
+                  <option value="RESOLVED" th:selected="${param.status != null && param.status[0] == 'RESOLVED'}">Resolved</option>
+                </select>
+              </div>
+              
+              <div class="filter-group">
+                <label class="filter-label">Date Range</label>
+                <select class="filter-select" name="dateRange" id="dateFilter">
+                  <option value="">All Time</option>
+                  <option value="today" th:selected="${param.dateRange != null && param.dateRange[0] == 'today'}">Today</option>
+                  <option value="week" th:selected="${param.dateRange != null && param.dateRange[0] == 'week'}">This Week</option>
+                  <option value="month" th:selected="${param.dateRange != null && param.dateRange[0] == 'month'}">This Month</option>
+                </select>
+              </div>
+              
+              <div class="filter-group">
+                <label class="filter-label">Sort By</label>
+                <select class="filter-select" name="sortBy" id="sortFilter">
+                  <option value="recent" th:selected="${param.sortBy != null && param.sortBy[0] == 'recent'}">Most Recent</option>
+                  <option value="oldest" th:selected="${param.sortBy != null && param.sortBy[0] == 'oldest'}">Oldest First</option>
+                  <option value="group" th:selected="${param.sortBy != null && param.sortBy[0] == 'group'}">Group Name</option>
+                </select>
+              </div>
+              
+              <button type="submit" class="filter-btn filter-btn-primary">
+                <i class="fas fa-filter"></i>
+                Apply Filters
+              </button>
+              <a href="/admin/dashboard" class="filter-btn filter-btn-secondary">
+                <i class="fas fa-redo"></i>
+                Reset
+              </a>
+            </div>
+          </form>
+        </div>
+
+        <!-- Reports Table -->
+        <div class="table-container">
+          <div class="table-wrapper">
+            <table id="reportsTable">
+              <thead>
+                <tr>
+                  <th>Group Name</th>
+                  <th>Reported By</th>
+                  <th>Status</th>
+                  <th>Reason</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="reportsTableBody">
+                <tr th:each="list : ${groupReportList}">
+                  <td>
+                    <div class="group-cell">
+                      <span class="group-name" th:text="${list.groupMaster.groupName}">Tech Enthusiasts Hub</span>
+                      <span class="group-members">
+                        <i class="bi bi-people"></i>
+                        <span th:text="${list.groupMaster.memberCount != null ? list.groupMaster.memberCount + ' members' : 'N/A'}">245 members</span>
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="reporter-cell">
+                      <span class="username" th:text="${'@' + list.reporter.username}">@sarah_mod</span>
+                      <span class="report-date">
+                        <i class="bi bi-clock"></i>
+                        <span th:text="${list.reportedDate != null ? list.reportedDate : 'N/A'}">2 hours ago</span>
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="status-badge" 
+                          th:classappend="${list.status == 'PENDING' ? 'status-pending' : (list.status == 'REVIEWED' ? 'status-reviewed' : 'status-resolved')}"
+                          th:text="${list.status}">PENDING</span>
+                  </td>
+                  <td>
+                    <div class="reason-cell">
+                      <div class="reason-text" th:text="${list.reason}">
+                        Inappropriate content being shared repeatedly. Multiple spam messages and offensive language towards other members.
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <a th:href="@{/user/review/group/report/{reportId}(reportId=${list.id})}" class="action-btn">
+                      <i class="bi bi-clipboard-check"></i>
+                      Review
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${groupReportList == null || groupReportList.isEmpty()}">
+              <i class="bi bi-inbox"></i>
+              <h3>No Reports Found</h3>
+              <p>There are no group reports at this time.</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- Success Popups -->
+<div id="warnPopup" class="warn-popup" th:if="${warned}">
+  Successfully Warned User.
+</div>
+
+<div id="rejectPopup" class="warn-popup" th:if="${rejected}">
+  Successfully Rejected User Report.
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Warning popup script -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const popup = document.getElementById("warnPopup");
+    if (popup) {
+      setTimeout(() => {
+        popup.style.opacity = "0";
+        popup.style.transform = "translateX(30px)";
+        setTimeout(() => popup.remove(), 400);
+      }, 3000);
+    }
+  });
+</script>
+
+<!-- Reject report popup script -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const popup = document.getElementById("rejectPopup");
+    if (popup) {
+      setTimeout(() => {
+        popup.style.opacity = "0";
+        popup.style.transform = "translateX(30px)";
+        setTimeout(() => popup.remove(), 400);
+      }, 3000);
+    }
+  });
+</script>
+
+</body>
+</html>

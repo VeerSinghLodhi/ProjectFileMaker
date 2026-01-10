@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>HON • Circle Chat Reports</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400..800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #f6f7fb;
+            --panel: #ffffff;
+            --panel-2: #f1f2f7;
+            --text: #1c1c24;
+            --muted: #6b6f85;
+            --theme-orange: #F73B20;
+            --theme-orange-10: rgba(247, 59, 32, 0.10);
+            --theme-orange-20: rgba(247, 59, 32, 0.20);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: "TASA Explorer", sans-serif;
+            font-optical-sizing: auto;
+            font-style: normal;
+            color: var(--text);
+        }
+
+        /* ===== ANIMATED BACKGROUND ===== */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: var(--bg);
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #F73B20, transparent);
+            top: -10%;
+            right: -10%;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #ff5238, transparent);
+            bottom: -15%;
+            left: -10%;
+            animation-duration: 20s;
+            animation-delay: 2s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #F73B20, transparent);
+            top: 40%;
+            left: 50%;
+            animation-duration: 18s;
+            animation-delay: 1s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(50px, -80px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-50px, 50px) scale(0.9);
+            }
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            min-height: calc(100vh - 76px);
+            padding: 2rem 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            color: #4a5568;
+            padding: 0.875rem 1.25rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-link i {
+            font-size: 1.25rem;
+            width: 24px;
+        }
+
+        .nav-link:hover {
+            background: #f7f7f7;
+            color: #F73B20;
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            color: white;
+            box-shadow: 0 4px 15px rgba(247, 59, 32, 0.3);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            padding: 2rem;
+            min-height: calc(100vh - 76px);
+        }
+
+        /* ===== PAGE HEADER CARD ===== */
+        .page-header-card {
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+            padding: 1.5rem 2rem;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(247, 59, 32, 0.25);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.08);
+            background: white;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .back-btn i {
+            font-size: 20px;
+            color: var(--theme-orange);
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-title i {
+            font-size: 1.5rem;
+        }
+
+        /* ===== MINI STAT CARDS ===== */
+        .stat-card-mini {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-card-mini:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.75rem;
+            flex-shrink: 0;
+        }
+
+        .stat-total .stat-icon {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        }
+
+        .stat-pending .stat-icon {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        }
+
+        .stat-review .stat-icon {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+        }
+
+        .stat-resolved .stat-icon {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        /* ===== FILTER CARD ===== */
+        .filter-card {
+            background: var(--panel);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+        }
+
+        .filter-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-title i {
+            color: var(--theme-orange);
+        }
+
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .filter-select,
+        .filter-input {
+            width: 100%;
+            padding: 0.625rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: #4a5568;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus,
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--theme-orange);
+            box-shadow: 0 0 0 3px var(--theme-orange-10);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1rem;
+        }
+
+        .search-box .filter-input {
+            padding-left: 2.5rem;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .filter-btn-primary {
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+            color: white;
+            box-shadow: 0 4px 15px rgba(247, 59, 32, 0.3);
+        }
+
+        .filter-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(247, 59, 32, 0.4);
+        }
+
+        .filter-btn-secondary {
+            background: #f1f2f7;
+            color: #4a5568;
+        }
+
+        .filter-btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        /* ===== TABLE CONTAINER ===== */
+        .table-container {
+            background: var(--panel);
+            border-radius: var(--radius);
+            border: 1px solid #e6e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #F73B20 0%, #ff5238 100%);
+        }
+
+        thead th {
+            padding: 18px 20px;
+            text-align: left;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e6e8f0;
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--panel-2);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody td {
+            padding: 18px 20px;
+            font-size: 0.88rem;
+            color: var(--text);
+            vertical-align: middle;
+        }
+
+        .row-number {
+            font-weight: 700;
+            color: #6b7280;
+        }
+
+        .user-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .username {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .group-name {
+            font-weight: 600;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .reason-cell {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ===== STATUS BADGES ===== */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .status-badge.pending {
+            background: rgba(255, 176, 32, 0.15);
+            color: #b67800;
+            border: 2px solid rgba(255, 176, 32, 0.25);
+        }
+
+        .status-badge.in-review {
+            background: rgba(59, 130, 246, 0.15);
+            color: #1e40af;
+            border: 2px solid rgba(59, 130, 246, 0.25);
+        }
+
+        .status-badge.action-taken {
+            background: rgba(34, 197, 94, 0.15);
+            color: #15803d;
+            border: 2px solid rgba(34, 197, 94, 0.25);
+        }
+
+        .status-badge.rejected {
+            background: rgba(107, 114, 128, 0.15);
+            color: #374151;
+            border: 2px solid rgba(107, 114, 128, 0.25);
+        }
+
+        /* ===== ACTION BUTTONS ===== */
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            text-decoration: none;
+            color: white;
+            background: linear-gradient(135deg, #F73B20, #ff5238);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(247, 59, 32, 0.4);
+            color: white;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--muted);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: var(--theme-orange-20);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        /* ===== SUCCESS POPUP ===== */
+        .warn-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            color: white;
+            padding: 14px 22px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.35);
+            z-index: 9999;
+            animation: slideIn 0.4s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .warn-popup-error {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.35);
+        }
+
+        .warn-popup i {
+            font-size: 1.25rem;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                min-height: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .page-header-card {
+                padding: 1rem 1.25rem;
+            }
+
+            .page-title {
+                font-size: 1.25rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .filter-card {
+                padding: 1rem;
+            }
+
+            .filter-actions {
+                flex-direction: column;
+            }
+
+            .filter-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .table-wrapper {
+                overflow-x: scroll;
+            }
+
+            table {
+                min-width: 1000px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated Background -->
+    <div class="bg-gradient">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Circle Chat Reports</h1>
+                </div>
+                <div class="user-avatar">A</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar for Desktop -->
+            <div class="col-lg-3 col-xl-2 d-none d-lg-block p-0">
+                <nav class="sidebar" style="position:sticky;top:70px;">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/dashboard">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/hon/users">
+                                <i class="fas fa-users"></i>
+                                <span>HON Users</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/badge/management">
+                                <i class="fas fa-award"></i>
+                                <span>Badges</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/get-all-post-report">
+                                <i class="fas fa-flag"></i>
+                                <span>Reported Posts</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/reports">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Report Section</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/circle/reports">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>Circle Reports</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/admin/circle/chat/reports">
+                                <i class="bi bi-chat-left-dots"></i>
+                                <span>Circle Chat Reports</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/virtual/gift">
+                                <i class="fas fa-gift"></i>
+                                <span>Virtual Gift</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/quiz/management">
+                                <i class="fas fa-question-circle"></i>
+                                <span>Quiz Management</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/circle-quiz/management">
+                                <i class="fas fa-users-cog"></i>
+                                <span>Circle Quiz</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/contact/requests">
+                                <i class="fas fa-envelope"></i>
+                                <span>Contact Admin</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/settings">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Offcanvas Sidebar for Mobile -->
+            <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title">Menu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                </div>
+                <div class="offcanvas-body p-0">
+                    <nav class="sidebar">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/dashboard">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Dashboard</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/hon/users">
+                                    <i class="fas fa-users"></i>
+                                    <span>HON Users</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/badge/management">
+                                    <i class="fas fa-award"></i>
+                                    <span>Badges</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/get-all-post-report">
+                                    <i class="fas fa-flag"></i>
+                                    <span>Reported Posts</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/reports">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span>Report Section</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/circle/reports">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>Circle Reports</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="/admin/circle/chat/reports">
+                                    <i class="bi bi-chat-left-dots"></i>
+                                    <span>Circle Chat Reports</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/virtual/gift">
+                                    <i class="fas fa-gift"></i>
+                                    <span>Virtual Gift</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/quiz/management">
+                                    <i class="fas fa-question-circle"></i>
+                                    <span>Quiz Management</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/circle-quiz/management">
+                                    <i class="fas fa-users-cog"></i>
+                                    <span>Circle Quiz</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/contact/requests">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Contact Admin</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/settings">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Settings</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 col-xl-10">
+                <main class="main-content">
+                    <!-- Page Header with Back Button -->
+                    <div class="page-header-card">
+                        <button class="back-btn" onclick="window.history.back();">
+                            <i class="bi bi-arrow-left"></i>
+                        </button>
+                        <div class="page-title">
+                            <i class="bi bi-chat-left-dots"></i>
+                            <span>Circle Chat Reports</span>
+                        </div>
+                    </div>
+
+                    <!-- Stats Overview -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="stat-card-mini stat-total">
+                                <div class="stat-info">
+                                    <div class="stat-label">Total Reports</div>
+                                    <div class="stat-value" th:text="${totalReports != null ? totalReports : '0'}">42
+                                    </div>
+                                </div>
+                                <div class="stat-icon">
+                                    <i class="bi bi-flag-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="stat-card-mini stat-pending">
+                                <div class="stat-info">
+                                    <div class="stat-label">Pending</div>
+                                    <div class="stat-value" th:text="${pendingCount != null ? pendingCount : '0'}">8
+                                    </div>
+                                </div>
+                                <div class="stat-icon">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="stat-card-mini stat-review">
+                                <div class="stat-info">
+                                    <div class="stat-label">In Review</div>
+                                    <div class="stat-value" th:text="${inReviewCount != null ? inReviewCount : '0'}">4
+                                    </div>
+                                </div>
+                                <div class="stat-icon">
+                                    <i class="bi bi-eye"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="stat-card-mini stat-resolved">
+                                <div class="stat-info">
+                                    <div class="stat-label">Resolved</div>
+                                    <div class="stat-value"
+                                        th:text="${actionTakenCount != null ? actionTakenCount : '0'}">15</div>
+                                </div>
+                                <div class="stat-icon">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Section -->
+                    <div class="filter-card">
+                        <h3 class="filter-title">
+                            <i class="bi bi-funnel"></i>
+                            Filter Reports
+                        </h3>
+                        <form method="get" action="/admin/circle/chat/reports">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="filter-label">Status</label>
+                                    <select class="filter-select" name="status" id="statusFilter">
+                                        <option value="">All Status</option>
+                                        <option value="PENDING"
+                                            th:selected="${param.status != null && param.status[0] == 'PENDING'}">
+                                            Pending</option>
+                                        <option value="IN_REVIEW"
+                                            th:selected="${param.status != null && param.status[0] == 'IN_REVIEW'}">In
+                                            Review</option>
+                                        <option value="ACTION_TAKEN"
+                                            th:selected="${param.status != null && param.status[0] == 'ACTION_TAKEN'}">
+                                            Action Taken</option>
+                                        <option value="REJECTED"
+                                            th:selected="${param.status != null && param.status[0] == 'REJECTED'}">
+                                            Rejected</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="filter-label">Date Range</label>
+                                    <select class="filter-select" name="dateRange" id="dateFilter">
+                                        <option value="">All Time</option>
+                                        <option value="today"
+                                            th:selected="${param.dateRange != null && param.dateRange[0] == 'today'}">
+                                            Today</option>
+                                        <option value="week"
+                                            th:selected="${param.dateRange != null && param.dateRange[0] == 'week'}">
+                                            This Week</option>
+                                        <option value="month"
+                                            th:selected="${param.dateRange != null && param.dateRange[0] == 'month'}">
+                                            This Month</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="filter-label">Sort By</label>
+                                    <select class="filter-select" name="sortBy" id="sortFilter">
+                                        <option value="recent"
+                                            th:selected="${param.sortBy == null || param.sortBy[0] == 'recent'}">Most
+                                            Recent</option>
+                                        <option value="oldest"
+                                            th:selected="${param.sortBy != null && param.sortBy[0] == 'oldest'}">Oldest
+                                            First</option>
+                                        <option value="group"
+                                            th:selected="${param.sortBy != null && param.sortBy[0] == 'group'}">Group
+                                            Name</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="filter-label">Search</label>
+                                    <div class="search-box">
+                                        <i class="bi bi-search"></i>
+                                        <input type="text" class="filter-input" name="search" placeholder="Search..."
+                                            th:value="${param.search != null ? param.search[0] : ''}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="filter-actions">
+                                <button type="submit" class="filter-btn filter-btn-primary">
+                                    <i class="bi bi-funnel-fill"></i>
+                                    Apply Filters
+                                </button>
+                                <a href="/admin/circle/chat/reports" class="filter-btn filter-btn-secondary">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                    Reset
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Table Container -->
+                    <div class="table-container">
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Group</th>
+                                        <th>Reported User</th>
+                                        <th>Reporter</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody th:if="${circleReportList != null && !circleReportList.isEmpty()}">
+                                    <tr th:each="report, iterStat : ${circleReportList}">
+                                        <td>
+                                            <span class="row-number" th:text="${iterStat.count}">1</span>
+                                        </td>
+                                        <td>
+                                            <div class="group-name" th:text="${report.groupMaster.groupName}"
+                                                th:title="${report.groupMaster.groupName}">
+                                                Tech Enthusiasts Hub
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="user-cell">
+                                                <span class="username"
+                                                    th:text="${'@' + report.owner.username}">@john_tech</span>
+                                                <span class="user-role">Reported User</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="user-cell">
+                                                <span class="username"
+                                                    th:text="${'@' + report.reporter.username}">@sarah_mod</span>
+                                                <span class="user-role">Reporter</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="reason-cell" th:text="${report.reason}"
+                                                th:title="${report.reason}">
+                                                Spam / Offensive Content
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge"
+                                                th:classappend="${report.status.name() == 'PENDING' ? 'pending' :
+                                                                   report.status.name() == 'IN_REVIEW' ? 'in-review' :
+                                                                   report.status.name() == 'ACTION_TAKEN' ? 'action-taken' : 'rejected'}"
+                                                th:text="${report.status.name().replace('_', ' ')}">
+                                                PENDING
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/user/circle/chat/report/review/{id}(id=${report.id})}"
+                                                class="action-btn">
+                                                <i class="bi bi-clipboard-check"></i>
+                                                Review
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Empty State -->
+                            <div class="empty-state" th:if="${circleReportList == null || circleReportList.isEmpty()}">
+                                <i class="bi bi-inbox"></i>
+                                <h3>No Reports Found</h3>
+                                <p>There are no circle chat reports matching your criteria.</p>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Popups -->
+    <div id="warnPopup" class="warn-popup" th:if="${warned}">
+        <i class="bi bi-check-circle-fill"></i>
+        Successfully Warned User.
+    </div>
+
+    <div id="rejectPopup" class="warn-popup warn-popup-error" th:if="${rejected}">
+        <i class="bi bi-x-circle-fill"></i>
+        Successfully Rejected User Report.
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript will go here - See Part 3 -->
+    <script>
+        // Warning popup auto-dismiss
+        document.addEventListener("DOMContentLoaded", function () {
+            const warnPopup = document.getElementById("warnPopup");
+            if (warnPopup) {
+                setTimeout(() => {
+                    warnPopup.style.opacity = "0";
+                    warnPopup.style.transform = "translateX(30px)";
+                    setTimeout(() => warnPopup.remove(), 400);
+                }, 3000);
+            }
+
+            const rejectPopup = document.getElementById("rejectPopup");
+            if (rejectPopup) {
+                setTimeout(() => {
+                    rejectPopup.style.opacity = "0";
+                    rejectPopup.style.transform = "translateX(30px)";
+                    setTimeout(() => rejectPopup.remove(), 400);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+
+</html>
