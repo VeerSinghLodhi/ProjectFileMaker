@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Rate Photos - HotOrNot</title>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ed462c",
+                        "background-light": "#ffffff",
+                        "background-dark": "#18181b",
+                    },
+                    fontFamily: {
+                        "display": ["Epilogue", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        /* ============================================
+       GLOBAL & LAYOUT
+       ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: max(884px, 100dvh);
+            font-family: "Epilogue", sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Vertical Scroll Snap */
+        .scroll-snap-y {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: 100vh;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .snap-start {
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+        }
+
+        /* Hide scrollbar */
+        ::-webkit-scrollbar {
+            width: 0px;
+            display: none;
+        }
+
+        .scroll-snap-y {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* ============================================
+       GLASS MORPHISM EFFECTS
+       ============================================ */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .thermometer-track {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* ============================================
+       TOP NAVIGATION (MOBILE)
+       ============================================ */
+        .top-nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(237, 70, 44, 0.15);
+            box-shadow: 0 4px 20px rgba(237, 70, 44, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1500;
+        }
+
+        .top-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            text-decoration: none;
+        }
+
+        .logo-hot {
+            color: #ed462c;
+        }
+
+        .logo-not {
+            color: #ed462c;
+        }
+
+        .menu-toggle-btn {
+            width: 45px;
+            height: 45px;
+            border: none;
+            background: rgba(237, 70, 44, 0.1);
+            border: 2px solid rgba(237, 70, 44, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .menu-toggle-btn i {
+            font-size: 1.8rem;
+            color: #ed462c;
+        }
+
+        @media (min-width: 992px) {
+            .top-nav-bar {
+                display: none;
+            }
+        }
+
+        /* ============================================
+       SIDEBAR
+       ============================================ */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 320px;
+            height: 100vh;
+            background: white;
+            border-left: 3px solid rgba(237, 70, 44, 0.3);
+            box-shadow: -4px 0 30px rgba(237, 70, 44, 0.2);
+            transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 2500;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        .sidebar-panel.active {
+            right: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(237, 70, 44, 0.15);
+        }
+
+        .sidebar-header h4 {
+            color: #ed462c;
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .close-sidebar-btn {
+            background: rgba(237, 70, 44, 0.1);
+            border: 2px solid rgba(237, 70, 44, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .close-sidebar-btn i {
+            font-size: 1.3rem;
+            color: #ed462c;
+        }
+
+        .sidebar-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 18px;
+            background: rgba(237, 70, 44, 0.08);
+            color: #ed462c;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-item:hover {
+            background: linear-gradient(135deg, #ed462c, #ff5238);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* ============================================
+       RATING CARD
+       ============================================ */
+        .rating-card {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .image-wrapper {
+            position: absolute;
+            inset: 0;
+        }
+
+        /* Phuljhari Border Animation */
+        .phuljhari-border {
+            position: absolute;
+            inset: 0.5rem;
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border-radius: 0.75rem;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            box-shadow: 0 0 20px 5px rgba(237, 70, 44, 0.4);
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+
+        .phuljhari-border.active {
+            opacity: 1;
+        }
+
+        @keyframes sparkle {
+
+            0%,
+            100% {
+                opacity: 0.8;
+                box-shadow: 0 0 20px 5px rgba(237, 70, 44, 0.4);
+            }
+
+            50% {
+                opacity: 1;
+                box-shadow: 0 0 30px 8px rgba(237, 70, 44, 0.6);
+            }
+        }
+
+        /* ============================================
+       THERMOMETER
+       ============================================ */
+        .thermometer-container {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 30;
+        }
+
+        .thermometer {
+            position: relative;
+            width: 3rem;
+            height: 16rem;
+        }
+
+        .thermometer-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #ed462c, #ff5238, #ff6b4a, #FFD32A, #00ff88);
+            transition: height 0.3s ease;
+            border-radius: 0 0 9999px 9999px;
+        }
+
+        .thermometer-bulb {
+            position: absolute;
+            bottom: -1.125rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2.5rem;
+            height: 2.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(237, 70, 44, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .thermometer-bulb-inner {
+            width: 1.75rem;
+            height: 1.75rem;
+            background: linear-gradient(135deg, #ed462c, #ff5238);
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .scale-markers {
+            position: absolute;
+            left: 0.5rem;
+            top: 1.5rem;
+            bottom: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 300;
+        }
+
+        .scroll-rate {
+            overflow-y: scroll;
+            scrollbar-width: none;
+        }
+
+        .scroll-rate::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ============================================
+       PROGRESS BAR
+       ============================================ */
+        .progress-container {
+            height: 0.1875rem;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #ed462c 0%, #ff5238 50%, #FFD32A 100%);
+            transition: width 1s linear;
+            box-shadow: 0 0 20px rgba(237, 70, 44, 0.8);
+        }
+
+        /* ============================================
+       THREE DOTS MENU
+       ============================================ */
+        .three-dots-menu {
+            position: relative;
+            z-index: 21;
+        }
+
+        .dots-icon {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dots-icon:hover {
+            background: rgba(237, 70, 44, 0.3) !important;
+            transform: scale(1.1);
+        }
+
+        .dots-dropdown {
+            position: absolute;
+            right: 0;
+            top: 50px;
+            width: 160px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(237, 70, 44, 0.2);
+            border-radius: 16px;
+            padding: 8px 0;
+            display: none;
+            box-shadow: 0 10px 40px rgba(237, 70, 44, 0.25);
+            z-index: 100;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, rgba(237, 70, 44, 0.1), rgba(237, 70, 44, 0.05));
+            color: #ed462c;
+            padding-left: 20px;
+        }
+
+        /* ============================================
+       RATING BADGE & LOCKED OVERLAY
+       ============================================ */
+        .rating-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #ed462c 0%, #ff5238 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 800;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 20px rgba(237, 70, 44, 0.6);
+            z-index: 11;
+            display: none;
+        }
+
+        .rating-badge.show {
+            display: block;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .locked-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(237, 70, 44, 0.3);
+            backdrop-filter: blur(5px);
+            z-index: 4;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .locked-overlay.show {
+            display: flex;
+        }
+
+        .locked-icon {
+            font-size: 4rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        /* ============================================
+       MUSIC INFO
+       ============================================ */
+        .music-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            flex: 1;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .animate-marquee {
+            animation: marquee 15s linear infinite;
+        }
+
+        /* Music Toggle Button */
+        .music-toggle-btn {
+            position: absolute;
+            top: 5.5rem;
+            right: 1.5rem;
+            width: 2.75rem;
+            height: 2.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 15;
+        }
+
+        .music-toggle-btn .volume-icon {
+            font-size: 1.3rem;
+            color: white;
+        }
+
+        .music-toggle-btn.muted {
+            background: rgba(237, 70, 44, 0.4);
+            border-color: #ed462c;
+        }
+
+        .music-toggle-btn.muted .volume-icon {
+            color: #ed462c;
+        }
+
+        /* ============================================
+       REPORT MODAL
+       ============================================ */
+        .report-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 9999;
+        }
+
+        .report-modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .report-modal {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 250, 245, 0.98));
+            backdrop-filter: blur(20px);
+            padding: 35px 30px;
+            border-radius: 30px;
+            border: 3px solid rgba(237, 70, 44, 0.3);
+            box-shadow: 0 20px 60px rgba(237, 70, 44, 0.4);
+            width: 90%;
+            max-width: 480px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #ed462c, #ff5238);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .modal-subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .reason-option {
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .reason-option input[type="radio"] {
+            display: none;
+        }
+
+        .reason-option label {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            background: rgba(237, 70, 44, 0.05);
+            border: 2px solid rgba(237, 70, 44, 0.15);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .reason-option input[type="radio"]:checked+label {
+            background: linear-gradient(135deg, rgba(237, 70, 44, 0.15), rgba(237, 70, 44, 0.08));
+            border-color: #ed462c;
+            color: #ed462c;
+            transform: translateX(5px);
+        }
+
+        .extra-comments {
+            width: 100%;
+            min-height: 100px;
+            background: rgba(237, 70, 44, 0.05);
+            border: 2px solid rgba(237, 70, 44, 0.15);
+            border-radius: 16px;
+            padding: 14px;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+
+        .submit-report-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 16px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #ed462c, #ff5238);
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(237, 70, 44, 0.4);
+        }
+
+        .close-report {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 36px;
+            height: 36px;
+            background: rgba(237, 70, 44, 0.1);
+            border: 2px solid rgba(237, 70, 44, 0.2);
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            color: #ed462c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .validation-error {
+            color: #ed462c;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: rgba(237, 70, 44, 0.1);
+            border: 2px solid rgba(237, 70, 44, 0.3);
+            border-radius: 12px;
+            display: none;
+        }
+
+        .validation-error.show {
+            display: block;
+        }
+
+        /* ============================================
+       POPUPS (Birthday, Points, Age Guess, etc.)
+       ============================================ */
+        .popup-overlay,
+        .Birthdayoverlay,
+        .age-overlay,
+        .confirm-overlay,
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .popup-overlay.show,
+        .Birthdayoverlay.show,
+        .age-overlay.active {
+            display: flex;
+        }
+
+        /* Continue with other popup styles from original... */
+
+        .yes-btn,
+        .no-btn,
+        .ok-btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .yes-btn,
+        .ok-btn {
+            background: linear-gradient(135deg, #ed462c, #ff5238);
+            color: white;
+            box-shadow: 0 6px 20px rgba(237, 70, 44, 0.4);
+        }
+
+        .no-btn {
+            background: rgba(237, 70, 44, 0.1);
+            color: #ed462c;
+            border: 2px solid rgba(237, 70, 44, 0.3);
+        }
+
+        /* ============================================
+       RESPONSIVE ADJUSTMENTS
+       ============================================ */
+        @media (max-width: 768px) {
+            .scroll-snap-y {
+                padding-top: 60px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .scroll-snap-y {
+                padding-top: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display">
+
+    <!-- Top Navigation Bar (Mobile) -->
+    <div class="top-nav-bar">
+        <a href="#" class="top-logo">
+            <span class="logo-hot">Hot</span><span class="logo-not">Or</span><span class="logo-hot">Not</span>
+        </a>
+        <button class="menu-toggle-btn" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Panel -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <div class="sidebar-panel" id="sidebarPanel">
+        <div class="sidebar-header">
+            <h4>Menu</h4>
+            <button class="close-sidebar-btn" onclick="closeSidebar()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="sidebar-links">
+            <a href="/user/whisper" class="sidebar-item">
+                <i class="bi bi-chat-dots-fill"></i>
+                <span>Whisper</span>
+            </a>
+            <a href="/user/games/parent" class="sidebar-item">
+                <i class="bi bi-controller"></i>
+                <span>Games</span>
+            </a>
+            <a href="/user/Face-off" class="sidebar-item">
+                <i class="bi bi-people-fill"></i>
+                <span>Face-Off</span>
+            </a>
+            <a href="/user/parent/circle" class="sidebar-item">
+                <i class="bi bi-circle-fill"></i>
+                <span>Circles</span>
+            </a>
+            <a href="#" class="sidebar-item">
+                <i class="bi bi-bell-fill"></i>
+                <span>Notifications</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <th:block th:replace="~{NavFragmentFolder/only-rating-navbar-desktop :: desktopNav}"></th:block>
+
+    <!-- Mobile Bottom Navigation -->
+    <div th:insert="~{NavFragmentFolder/navbar-mobile :: mobileNav}"></div>
+
+    <!-- Main Content - Vertical Scroll Feed -->
+    <main class="scroll-snap-y w-full h-screen overflow-x-hidden relative">
+
+        <!-- No Posts Message -->
+        <div th:if="${#lists.isEmpty(posts)}"
+            class="snap-start w-full h-screen flex flex-col items-center justify-center p-6">
+            <div class="text-center">
+                <img src="/temphonlogo2.png" alt="No Posts" class="w-32 h-auto mx-auto mb-6 opacity-80">
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">No Pictures to Rate</h2>
+                <p class="text-gray-600 mb-6">Come back later! New posts will appear here soon.</p>
+                <a href="/user/rating"
+                    class="inline-block px-6 py-3 bg-primary text-white rounded-full font-bold hover:bg-primary/90 transition-all">
+                    Refresh
+                </a>
+            </div>
+        </div>
+
+        <!-- Rating Cards Loop -->
+        <section th:each="post : ${posts}"
+            class="snap-start relative w-full h-screen overflow-hidden flex flex-col items-center justify-center p-2 rating-card"
+            th:attr="data-id=${post.postId}">
+
+            <!-- Minimalist White Edge Border -->
+            <div
+                class="absolute inset-2 border-[1.5px] border-white/40 rounded-xl pointer-events-none z-10 phuljhari-border">
+            </div>
+
+            <!-- Background Image -->
+            <div class="absolute inset-0 w-full h-full bg-center bg-no-repeat bg-cover image-wrapper"
+                th:style="'background-image: url(' + @{/userphoto/{id}(id=${post.postId})} + ');'">
+            </div>
+
+            <!-- Background Gradient Orbs -->
+            <div class="absolute -top-20 -left-20 w-64 h-64 bg-primary/20 rounded-full blur-[80px] pointer-events-none">
+            </div>
+            <div
+                class="absolute top-1/2 -right-20 w-80 h-80 bg-orange-400/10 rounded-full blur-[100px] pointer-events-none">
+            </div>
+
+            <!-- Top Overlay: Timer & Menu -->
+            <div class="absolute top-0 left-0 w-full z-20 px-6 pt-10 timer-container">
+                <div class="w-full flex flex-col gap-2">
+                    <!-- Progress Bar -->
+                    <div class="h-[3px] w-full bg-white/30 rounded-full overflow-hidden progress-container">
+                        <div class="h-full bg-primary progress-bar" style="width: 100%; box-shadow: 0 0 8px #ed462c;">
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span
+                            class="text-white text-[10px] font-bold tracking-widest uppercase opacity-80 timer-text">10s</span>
+
+                        <!-- Three Dots Menu -->
+                        <div class="three-dots-menu" th:attr="data-post-id=${post.postId}">
+                            <button
+                                class="bg-white/20 backdrop-blur-md p-2 rounded-lg flex items-center justify-center text-white dots-icon">
+                                <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+                            </button>
+                            <div class="dots-dropdown">
+                                <div class="dropdown-item report-btn"
+                                    th:attr="data-target-modal=${'reportModal-' + post.postId}">
+                                    🚫 Report
+                                </div>
+                                <div class="dropdown-item block-btn">⛔ Block User</div>
+                                <div th:if="${post.user.dateOfBirth != null}">
+                                    <div class="dropdown-item age-btn">🎮 Guess age</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Music Toggle Button -->
+            <button class="music-toggle-btn" style="display: none;">
+                <i class="bi bi-volume-up-fill volume-icon"></i>
+            </button>
+
+            <!-- Audio Element -->
+            <audio th:if="${post.musicUrl != null}" class="post-audio" th:src="${post.musicUrl}"
+                th:data-post-id="${post.postId}">
+            </audio>
+
+            <!-- Vertical Fire Thermometer -->
+            <div
+                class="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 z-30 thermometer-container">
+                <div
+                    class="relative w-12 h-64 thermometer-track rounded-full flex flex-col items-center justify-end p-1 thermometer scroll-rate">
+                    <!-- Scale Markers -->
+                    <div
+                        class="absolute inset-y-6 flex flex-col justify-between items-center text-[10px] font-bold text-white/60 pointer-events-none scale-markers">
+                        <span>10</span>
+                        <span>5</span>
+                        <span>1</span>
+                    </div>
+                    <!-- Thermometer Fill -->
+                    <div class="thermometer-fill"></div>
+                    <!-- Bulb -->
+                    <div class="thermometer-bulb">
+                        <div class="thermometer-bulb-inner"></div>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="material-symbols-outlined text-primary fill-1">local_fire_department</span>
+                    <span class="text-[10px] font-bold text-white uppercase tracking-tighter">Rate</span>
+                </div>
+            </div>
+
+            <!-- Rating Badge -->
+            <div class="rating-badge">5</div>
+
+            <!-- Locked Overlay -->
+            <div class="locked-overlay">
+                <div class="locked-icon">🔒</div>
+            </div>
+
+            <!-- Hidden Form -->
+            <form class="postRatingForm">
+                <input type="hidden" id="userFrom" name="userFrom" th:value="${user_master.userId}">
+                <input type="hidden" id="userTo" name="userTo" th:value="${post.user.userId}">
+                <input type="hidden" name="postId" th:value="${post.postId}">
+            </form>
+
+            <!-- Info Overlay (Bottom Card) -->
+            <div class="absolute bottom-6 left-6 right-20 z-20">
+                <div class="glass-card p-4 rounded-xl flex flex-col gap-3 shadow-2xl">
+                    <!-- User Header -->
+                    <a th:href="@{'/user/dashboard/'+ ${post.user.userId}}" class="text-decoration-none">
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <div class="w-12 h-12 rounded-full border-2 border-primary p-0.5">
+                                    <div class="w-full h-full rounded-full bg-center bg-cover avatar" th:style="${post.user.profilePhoto != null} ? 
+                                                   'background-image: url(' + @{/crushpic/{id}(id=${post.user.userId})} + ');' : 
+                                                   'background-image: url(/noprofilepic.png);'">
+                                    </div>
+                                </div>
+                                <div
+                                    class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full">
+                                </div>
+                            </div>
+                            <div class="flex flex-col">
+                                <p class="text-black font-extrabold text-lg leading-tight username"
+                                    th:text="${post.user.username}">Username</p>
+                                <div
+                                    class="flex items-center gap-1 text-[10px] text-gray-500 font-bold uppercase tracking-wide">
+                                    <span class="material-symbols-outlined text-[12px]">location_on</span>
+                                    <span>Location</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Caption & Hashtags -->
+                    <div class="flex flex-col gap-1">
+                        <p th:if="${post.caption != null}"
+                            class="text-sm text-[#3D3F43] font-medium leading-relaxed caption"
+                            th:text="${post.caption}">
+                            Caption text goes here
+                        </p>
+                        <p th:if="${post.hashtag != null}" class="text-primary text-xs font-bold hashtag"
+                            th:text="${post.hashtag}">
+                            #hashtag
+                        </p>
+                    </div>
+
+                    <!-- Music Marquee -->
+                    <div th:if="${post.musicName != null}"
+                        class="flex items-center gap-2 bg-black/5 rounded-full px-3 py-1.5 w-fit max-w-full music-info">
+                        <span class="material-symbols-outlined text-[16px] text-black">music_note</span>
+                        <div class="marquee-container overflow-hidden whitespace-nowrap flex-1">
+                            <p class="text-[11px] font-bold text-black/80 inline-block animate-marquee"
+                                th:text="${post.musicName + ' - ' + post.musicArtistName}">
+                                Song Name - Artist
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Modal (Unique per post) -->
+            <div class="report-modal-overlay" th:id="${'reportModal-' + post.postId}">
+                <div class="report-modal">
+                    <button class="close-report"
+                        th:attr="data-modal-id=${'reportModal-' + post.postId}">&times;</button>
+
+                    <form class="reportForm" th:action="@{/user/reportPost}" method="post">
+                        <h2 class="modal-title">Report Post</h2>
+                        <p class="modal-subtitle">Help us keep our community safe</p>
+
+                        <input type="hidden" name="postId" th:value="${post.postId}">
+
+                        <div class="reason-option">
+                            <input type="radio" name="reason" value="Harassment" th:id="${'harassment-' + post.postId}">
+                            <label th:for="${'harassment-' + post.postId}">🚫 Harassment / Bullying</label>
+                        </div>
+
+                        <div class="reason-option">
+                            <input type="radio" name="reason" value="Spam" th:id="${'spam-' + post.postId}">
+                            <label th:for="${'spam-' + post.postId}">📧 Spam or misleading content</label>
+                        </div>
+
+                        <div class="reason-option">
+                            <input type="radio" name="reason" value="Hate Speech" th:id="${'hate-' + post.postId}">
+                            <label th:for="${'hate-' + post.postId}">💬 Hate speech</label>
+                        </div>
+
+                        <div class="reason-option">
+                            <input type="radio" name="reason" value="Explicit Content"
+                                th:id="${'explicit-' + post.postId}">
+                            <label th:for="${'explicit-' + post.postId}">🔞 Explicit or sexual content</label>
+                        </div>
+
+                        <div class="reason-option">
+                            <input type="radio" name="reason" value="Violence" th:id="${'violence-' + post.postId}">
+                            <label th:for="${'violence-' + post.postId}">⚠️ Violence or dangerous acts</label>
+                        </div>
+
+                        <div class="reason-option">
+                            <input type="radio" name="reason" value="other" th:id="${'other-' + post.postId}">
+                            <label th:for="${'other-' + post.postId}">📝 Other</label>
+                        </div>
+
+                        <textarea class="extra-comments" name="comment"
+                            placeholder="Additional comments (optional)..."></textarea>
+
+                        <div class="validation-error">⚠️ Please select a reason for reporting</div>
+
+                        <button type="submit" class="submit-report-btn">Submit Report</button>
+                    </form>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- POPUPS & MODALS (Outside loop - Single instances) -->
+
+    <!-- Points Popup -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup">
+            <button class="close-btn" onclick="closePopup()">&times;</button>
+            <div class="badge-wrapper">
+                <div class="badge">
+                    <div class="shine"></div>
+                    <div class="badge-text">+<span id="badgePoints">50</span></div>
+                </div>
+            </div>
+            <div class="points-earned"><span id="pointsText">You earned 50 points!</span></div>
+        </div>
+    </div>
+
+    <!-- Birthday Popup -->
+    <div class="Birthdayoverlay" id="birthdayPopup">
+        <div class="birthdaypopup">
+            <button class="birthdayclose-btn" id="BirthdayClose">×</button>
+            <div class="party-emoji party-left">🎉</div>
+            <div class="party-emoji party-right">🎉</div>
+            <div class="sparkle sparkle-1">✨</div>
+            <div class="sparkle sparkle-2">✨</div>
+            <div class="sparkle sparkle-3">✨</div>
+            <div class="gift-icon">🎁</div>
+            <h1>🎂 Happy Birthday! 🎂</h1>
+            <p class="subtitle">Wishing you an amazing day filled with joy!</p>
+            <div class="bonus-card">
+                <div class="bonus-icon">🎁</div>
+                <div class="bonus-title">Birthday Bonus!</div>
+                <div class="bonus-points">2x POINTS</div>
+                <div class="bonus-duration">for the next 24 hours!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Age Guess Popup -->
+    <div class="age-overlay" id="ageOverlay">
+        <div class="agepopup-content">
+            <button class="close-btn" onclick="closePopup1()">×</button>
+            <div class="game-header">
+                <div class="icon-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </div>
+                <h1><span class="logo-hot">Guess my</span> <span class="logo-not">Age</span></h1>
+            </div>
+            <form th:action="@{/user/guessAge}" id="ageForm" method="post">
+                <input type="hidden" id="ageUserFrom" name="userFrom">
+                <input type="hidden" id="ageUserTo" name="userTo">
+                <div class="message-box hidden" id="messageBox">
+                    <p class="message-text" id="messageText"></p>
+                </div>
+                <div class="input-group">
+                    <input type="number" id="guessInput" name="guessAge" min="1" max="100"
+                        placeholder="Guess an Age...">
+                </div>
+                <button class="guess-btn" id="guessBtn" disabled>✨Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Popup -->
+    <div class="confirm-overlay" id="confirmPopup">
+        <div class="confirm-box">
+            <p id="ageConfirmMessage" style="color:black;">Are you sure?</p>
+            <div class="confirm-buttons">
+                <button id="confirmYes" class="yes-btn">Yes</button>
+                <button id="confirmNo" class="no-btn">No</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Popup -->
+    <div th:if="${reportSuccess}" id="showSuccessFlag"></div>
+    <div class="success-overlay" id="successPopup">
+        <div class="success-box">
+            <p style="color:black;">Report submitted successfully!</p>
+            <button id="successOk" class="ok-btn">OK</button>
+        </div>
+    </div>
+
+    <!-- Age Guess Results Flags -->
+    <div th:if="${duplicateGuess}" class="GuessError" id="Overlay2">
+        <div class="error-container">
+            <button class="guessclose-btn" onclick="closeWarning()">×</button>
+            <div class="error-icon">⚠️</div>
+            <div class="error-title">You cannot Guess Again</div>
+        </div>
+    </div>
+    <div th:if="${ageGuessCheck15}" id="AgeSubmit15"></div>
+    <div th:if="${ageGuessCheck10}" id="AgeSubmit10"></div>
+    <div th:if="${ageGuessCheck0}" id="AgeSubmit0"></div>
+
+    <script>
+        // ============================================
+        // GLOBAL VARIABLES
+        // ============================================
+        let isReportModalOpen = false;
+        let currentAudio = null;
+        let isGlobalMuted = false;
+        const ratedCards = new Set();
+
+        // ============================================
+        // SIDEBAR FUNCTIONS
+        // ============================================
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebarPanel');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            isReportModalOpen = sidebar.classList.contains('active');
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebarPanel');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            isReportModalOpen = false;
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeSidebar();
+            }
+        });
+
+        // ============================================
+        // MUSIC FUNCTIONS
+        // ============================================
+        function playCardAudio(card) {
+            const audio = card.querySelector('.post-audio');
+
+            if (audio) {
+                if (currentAudio && currentAudio !== audio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                }
+                audio.muted = isGlobalMuted;
+                audio.volume = 0.6;
+                audio.play().catch(err => console.log('Audio play failed:', err));
+                currentAudio = audio;
+            } else {
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                    currentAudio = null;
+                }
+            }
+        }
+
+        function stopAllAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+        }
+
+        // Music Toggle Setup
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.rating-card').forEach(card => {
+                const audio = card.querySelector('.post-audio');
+                const musicToggleBtn = card.querySelector('.music-toggle-btn');
+
+                if (audio && musicToggleBtn) {
+                    musicToggleBtn.style.display = 'flex';
+                    audio.muted = isGlobalMuted;
+                    updateButtonAppearance(musicToggleBtn, isGlobalMuted);
+
+                    musicToggleBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        isGlobalMuted = !isGlobalMuted;
+
+                        document.querySelectorAll('.post-audio').forEach(aud => {
+                            aud.muted = isGlobalMuted;
+                        });
+
+                        document.querySelectorAll('.music-toggle-btn').forEach(btn => {
+                            if (btn.style.display === 'flex') {
+                                updateButtonAppearance(btn, isGlobalMuted);
+                            }
+                        });
+                    });
+                }
+            });
+        });
+
+        function updateButtonAppearance(button, isMuted) {
+            const volumeIcon = button.querySelector('.volume-icon');
+            if (isMuted) {
+                volumeIcon.classList.remove('bi-volume-up-fill');
+                volumeIcon.classList.add('bi-volume-mute-fill');
+                button.classList.add('muted');
+            } else {
+                volumeIcon.classList.remove('bi-volume-mute-fill');
+                volumeIcon.classList.add('bi-volume-up-fill');
+                button.classList.remove('muted');
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+            stopAllAudio();
+        });
+
+        // ============================================
+        // POPUP FUNCTIONS
+        // ============================================
+        function closePopup() {
+            document.getElementById('popupOverlay').classList.remove('show');
+        }
+
+        function closePopup1() {
+            isReportModalOpen = false;
+            document.getElementById('ageOverlay').classList.remove('active');
+            if (currentAudio) {
+                currentAudio.play().catch(err => console.log('Resume failed:', err));
+            }
+        }
+
+        function closeWarning() {
+            document.getElementById("Overlay2").style.display = 'none';
+        }
+
+        // ============================================
+        // REFERRAL & BONUS POINTS POPUPS
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function () {
+            const popupPoints = /*[[${popupPoints}]]*/ null;
+            const referralMessage = /*[[${referralMessage}]]*/ null;
+            const referralPoint = /*[[${referralPoint}]]*/ null;
+            const mysteryMessage = /*[[${mysteryMessage}]]*/ null;
+            const mysteryPoint = /*[[${mysteryPoint}]]*/ null;
+
+            function showPopup(message, points) {
+                document.getElementById('badgePoints').textContent = points || '50';
+                document.getElementById('pointsText').textContent = message;
+                const overlay = document.getElementById('popupOverlay');
+                overlay.classList.add('show');
+                setTimeout(() => overlay.classList.remove('show'), 3000);
+            }
+
+            if (popupPoints) {
+                showPopup(popupPoints, '50');
+            } else if (referralMessage) {
+                showPopup(referralMessage, referralPoint);
+            } else if (mysteryMessage) {
+                showPopup(mysteryMessage, mysteryPoint);
+            }
+        });
+
+        // ============================================
+        // BIRTHDAY POPUP
+        // ============================================
+        const isBirthday = /*[[${isBirthday}]]*/ false;
+        if (isBirthday) {
+            document.getElementById('birthdayPopup').style.display = 'flex';
+        }
+
+        document.getElementById('BirthdayClose')?.addEventListener('click', () => {
+            document.getElementById('birthdayPopup').style.display = 'none';
+        });
+
+        // ============================================
+        // THREE DOTS MENU
+        // ============================================
+        document.querySelectorAll(".dots-icon").forEach(dot => {
+            dot.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const dropdown = e.target.closest('.three-dots-menu').querySelector(".dots-dropdown");
+
+                document.querySelectorAll(".dots-dropdown").forEach(d => {
+                    if (d !== dropdown) d.style.display = "none";
+                });
+
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            });
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest('.three-dots-menu')) {
+                document.querySelectorAll(".dots-dropdown").forEach(d => d.style.display = "none");
+            }
+        });
+
+        // ============================================
+        // REPORT MODAL
+        // ============================================
+        let currentForm = null;
+
+        document.querySelectorAll(".report-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                e.preventDefault();
+                isReportModalOpen = true;
+
+                const modalId = btn.getAttribute("data-target-modal");
+                const modal = document.getElementById(modalId);
+
+                if (modal) {
+                    modal.classList.add("show");
+                    const form = modal.querySelector(".reportForm");
+                    const validationError = modal.querySelector(".validation-error");
+                    form.reset();
+                    validationError.classList.remove("show");
+                }
+
+                document.querySelectorAll(".dots-dropdown").forEach(d => d.style.display = "none");
+
+                if (currentAudio) {
+                    currentAudio.pause();
+                }
+            });
+        });
+
+        document.querySelectorAll(".close-report").forEach(closeBtn => {
+            closeBtn.addEventListener("click", () => {
+                const modalId = closeBtn.getAttribute("data-modal-id");
+                const modal = document.getElementById(modalId);
+
+                if (modal) {
+                    isReportModalOpen = false;
+                    modal.classList.remove("show");
+                }
+
+                if (currentAudio) {
+                    currentAudio.play().catch(err => console.log('Resume failed:', err));
+                }
+            });
+        });
+
+        document.querySelectorAll(".report-modal-overlay").forEach(overlay => {
+            overlay.addEventListener("click", (e) => {
+                if (e.target === overlay) {
+                    isReportModalOpen = false;
+                    overlay.classList.remove("show");
+                }
+            });
+        });
+
+        document.querySelectorAll(".reportForm").forEach(form => {
+            const submitBtn = form.querySelector(".submit-report-btn");
+            const validationError = form.querySelector(".validation-error");
+
+            submitBtn.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                const selectedReason = form.querySelector('input[name="reason"]:checked');
+
+                if (!selectedReason) {
+                    validationError.classList.add("show");
+                    return;
+                }
+
+                validationError.classList.remove("show");
+                currentForm = form;
+
+                const overlay = form.closest(".report-modal-overlay");
+                overlay.classList.remove("show");
+
+                document.getElementById("confirmPopup").style.display = "flex";
+            });
+
+            form.querySelectorAll('input[name="reason"]').forEach(radio => {
+                radio.addEventListener("change", () => {
+                    validationError.classList.remove("show");
+                });
+            });
+        });
+
+        document.getElementById("confirmYes")?.addEventListener("click", function () {
+            document.getElementById("confirmPopup").style.display = "none";
+            if (currentForm) {
+                currentForm.submit();
+            }
+        });
+
+        document.getElementById("confirmNo")?.addEventListener("click", function () {
+            document.getElementById("confirmPopup").style.display = "none";
+            currentForm = null;
+        });
+
+        document.getElementById("successOk")?.addEventListener("click", function () {
+            document.getElementById("successPopup").style.display = "none";
+        });
+
+        if (document.getElementById("showSuccessFlag")) {
+            isReportModalOpen = false;
+            document.querySelectorAll(".report-modal-overlay").forEach(modal => {
+                modal.classList.remove("show");
+            });
+            document.getElementById("successPopup").style.display = "flex";
+        }
+
+        // ============================================
+        // AGE GUESS POPUP
+        // ============================================
+        document.querySelectorAll(".age-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                isReportModalOpen = true;
+                if (currentAudio) {
+                    currentAudio.pause();
+                }
+                document.getElementById('ageOverlay').classList.add('active');
+                document.querySelectorAll(".dots-dropdown").forEach(d => d.style.display = "none");
+            });
+        });
+
+        const input = document.getElementById('guessInput');
+        if (input) {
+            input.onkeyup = function () {
+                let len = input.value.length;
+                if (len > 2) {
+                    let val = input.value.toString().substring(0, 2);
+                    input.value = Number(val);
+                }
+                document.getElementById('guessBtn').disabled = len === 0;
+            }
+        }
+
+        document.getElementById('guessBtn')?.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            const confirmPopup = document.getElementById("confirmPopup");
+            const confirmYes = document.getElementById("confirmYes");
+            const confirmNo = document.getElementById("confirmNo");
+            let message = document.getElementById('ageConfirmMessage');
+
+            confirmPopup.style.display = "flex";
+            isReportModalOpen = true;
+            message.innerText = 'Are you sure? Wrong Guess will deduct your 3 points';
+            document.getElementById('ageOverlay').classList.remove('active');
+
+            const ageForm = document.getElementById('ageForm');
+            const userFrom = document.getElementById('userFrom').value;
+            const userTo = document.getElementById('userTo').value;
+            document.getElementById('ageUserFrom').value = userFrom;
+            document.getElementById('ageUserTo').value = userTo;
+
+            confirmNo.addEventListener('click', () => {
+                confirmPopup.style.display = "none";
+                isReportModalOpen = false;
+            });
+
+            confirmYes.addEventListener('click', () => {
+                ageForm.submit();
+                isReportModalOpen = false;
+            });
+        });
+
+        // Age Guess Results
+        const pointsSign = document.getElementById('badgeText1');
+        const points = document.getElementById('badgePoints1');
+        const pointsText = document.getElementById('pointsText1');
+
+        if (document.getElementById("AgeSubmit15")) {
+            showAgeResult('+', '15', 'Congratulation Guess is Correct');
+        }
+        if (document.getElementById("AgeSubmit10")) {
+            showAgeResult('+', '10', 'Almost Guess is nearby');
+        }
+        if (document.getElementById("AgeSubmit0")) {
+            showAgeResult('-', '3', 'OOPS! Guess is Too Far');
+        }
+
+        function showAgeResult(sign, point, message) {
+            pointsSign.innerHTML = sign;
+            points.innerHTML = point;
+            pointsSign.appendChild(points);
+            pointsText.innerHTML = message;
+            const overlay = document.getElementById('popupOverlay1');
+            overlay.classList.add('show');
+            setTimeout(() => overlay.classList.remove('show'), 3000);
+        }
+    </script>
+    <script>
+        // ============================================
+        // INTERSECTION OBSERVER FOR CARD VISIBILITY
+        // ============================================
+        window.addEventListener("load", () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const card = entry.target;
+                    const cardId = card.dataset.id;
+
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
+                        playCardAudio(card);
+
+                        if (!card.dataset.timerStarted && !ratedCards.has(cardId)) {
+                            card.dataset.timerStarted = "true";
+                            startRatingTimer(card);
+                        }
+                    } else {
+                        const audio = card.querySelector('.post-audio');
+                        if (audio === currentAudio) {
+                            stopAllAudio();
+                        }
+                    }
+                });
+            }, { threshold: [0.7] });
+
+            document.querySelectorAll(".rating-card").forEach(card => observer.observe(card));
+        });
+
+        // ============================================
+        // MAIN RATING TIMER FUNCTION
+        // ============================================
+        function startRatingTimer(card) {
+            const cardId = card.dataset.id;
+
+            const thermometer = card.querySelector(".thermometer");
+            const thermoContainer = card.querySelector(".thermometer-container");
+            const thermometerFill = card.querySelector(".thermometer-fill");
+            const bulbInner = card.querySelector(".thermometer-bulb-inner");
+            const ratingBadge = card.querySelector(".rating-badge");
+            const lockedOverlay = card.querySelector(".locked-overlay");
+            const progressBar = card.querySelector(".progress-bar");
+            const timerContainer = card.querySelector(".timer-container");
+            const phuljhariBorder = card.querySelector(".phuljhari-border");
+
+            if (!thermometer) return;
+
+            let rating = 5;
+            let timeRemaining = 10;
+            let locked = false;
+
+            updateThermometer(rating);
+            phuljhariBorder.classList.add('active');
+
+            // 10 Second Timer
+            const timerInterval = setInterval(() => {
+                if (isReportModalOpen) return;
+
+                timeRemaining--;
+                phuljhariBorder.style.opacity = timeRemaining / 10;
+                progressBar.style.width = (timeRemaining / 10) * 100 + "%";
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    progressBar.style.width = "0%";
+                    lockAndSubmit();
+                }
+            }, 1000);
+
+            // Scroll Wheel Control (Desktop)
+            thermoContainer.addEventListener("wheel", (e) => {
+                if (locked || ratedCards.has(cardId)) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                rating += (e.deltaY < 0) ? 1 : -1;
+                rating = Math.max(1, Math.min(10, rating));
+
+                updateThermometer(rating);
+            }, { passive: false });
+
+            // Touch Slide Control (Mobile)
+            let startY = null;
+
+            thermoContainer.addEventListener("touchstart", (e) => {
+                startY = e.touches[0].clientY;
+            }, { passive: false });
+
+            thermoContainer.addEventListener("touchmove", (e) => {
+                if (locked || ratedCards.has(cardId)) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const currentY = e.touches[0].clientY;
+                const diff = startY - currentY;
+
+                if (Math.abs(diff) > 18) {
+                    rating += diff > 0 ? 1 : -1;
+                    rating = Math.max(1, Math.min(10, rating));
+                    updateThermometer(rating);
+                    startY = currentY;
+                }
+            }, { passive: false });
+
+            // Thermometer Click Support
+            thermometer.addEventListener("click", (e) => {
+                if (locked || ratedCards.has(cardId)) return;
+
+                const rect = thermometer.getBoundingClientRect();
+                const y = e.clientY - rect.top;
+                const usableHeight = rect.height - 40;
+
+                let calcRating = Math.round(((usableHeight - y) / usableHeight) * 10);
+                calcRating = Math.max(1, Math.min(10, calcRating));
+
+                rating = calcRating;
+                updateThermometer(rating);
+            });
+
+            // Update Thermometer UI
+            function updateThermometer(rate) {
+                const percentage = (rate / 10) * 100;
+                thermometerFill.style.height = percentage + "%";
+                ratingBadge.textContent = rate;
+
+                if (rate <= 3) {
+                    bulbInner.style.background = "linear-gradient(135deg, #FA8231, #F97F51)";
+                } else if (rate <= 7) {
+                    bulbInner.style.background = "linear-gradient(135deg, #FF8C42, #FFD32A)";
+                } else {
+                    bulbInner.style.background = "linear-gradient(135deg, #00ff88, #26de81)";
+                }
+            }
+
+            // Lock & Submit Rating
+            function lockAndSubmit() {
+                if (ratedCards.has(cardId)) return;
+
+                locked = true;
+                ratedCards.add(cardId);
+
+                thermometer.classList.add("disabled");
+                timerContainer.style.display = "none";
+                ratingBadge.classList.add("show");
+
+                setTimeout(() => lockedOverlay.classList.add("show"), 500);
+
+                const form = card.querySelector(".postRatingForm");
+                const formData = new FormData(form);
+                formData.append("rating", rating);
+
+                const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute("content");
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute("content");
+
+                fetch('/saveRating', {
+                    method: 'POST',
+                    headers: { [csrfHeader]: csrfToken },
+                    body: formData
+                })
+                    .then(res => res.text())
+                    .then(data => console.log("Rating submitted:", data))
+                    .catch(err => console.error("Rating submission failed:", err));
+            }
+        }
+
+        // ============================================
+        // PERFECT MOBILE SCROLL BEHAVIOR
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function () {
+            // Prevent overscroll on iOS
+            document.body.addEventListener('touchmove', function (e) {
+                if (e.target.closest('.scroll-snap-y')) {
+                    return;
+                }
+                e.preventDefault();
+            }, { passive: false });
+
+            // Fix viewport height on mobile
+            function setVH() {
+                let vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            }
+
+            setVH();
+            window.addEventListener('resize', setVH);
+            window.addEventListener('orientationchange', setVH);
+        });
+    </script>
+</body>
+
+</html>
