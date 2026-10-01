@@ -8,12 +8,12 @@
     <title>HotOrNot FLAMES - Relationship Destiny</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700;800&amp;display=swap"
-          rel="stylesheet" />
+        rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap"
-          rel="stylesheet" />
+        rel="stylesheet" />
     <link
-            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-            rel="stylesheet" />
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -80,6 +80,7 @@
                 opacity: 0;
                 transform: scale(0.9);
             }
+
             to {
                 opacity: 1;
                 transform: scale(1);
@@ -91,9 +92,12 @@
         }
 
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: scale(1);
             }
+
             50% {
                 transform: scale(1.05);
             }
@@ -101,6 +105,72 @@
 
         .pulse-animate {
             animation: pulse 2s infinite;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            max-width: 90%;
+            width: 400px;
+            animation: popupScale 0.4s ease-out;
+        }
+
+        @keyframes popupScale {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .popup-close:hover {
+            background: #e0e0e0;
+            transform: rotate(90deg);
         }
     </style>
     <style>
@@ -111,342 +181,443 @@
 </head>
 
 <body
-        class="bg-background-light dark:bg-background-dark font-display text-[#1c0f0d] overflow-x-hidden min-h-screen relative">
-<!-- Background Orbs -->
-<div class="bg-orb top-[-50px] left-[-50px] bg-primary"></div>
-<div class="bg-orb bottom-[-50px] right-[-50px] bg-accent"></div>
-<!-- Header -->
-<header class="flex items-center justify-between px-6 py-4 sticky top-0 bg-white/80 backdrop-blur-md z-50">
-    <div
-            class="flex items-center justify-center w-10 h-10 rounded-full border border-gray-100 bg-white shadow-sm cursor-pointer"
+    class="bg-background-light dark:bg-background-dark font-display text-[#1c0f0d] overflow-x-hidden min-h-screen relative">
+    <!-- Background Orbs -->
+    <div class="bg-orb top-[-50px] left-[-50px] bg-primary"></div>
+    <div class="bg-orb bottom-[-50px] right-[-50px] bg-accent"></div>
+
+    <!-- Header -->
+    <header class="flex items-center justify-between px-6 py-4 sticky top-0 bg-white/80 backdrop-blur-md z-50">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full border border-gray-100 bg-white shadow-sm cursor-pointer"
             onclick="history.back()">
-        <span class="material-symbols-outlined text-gray-700">arrow_back_ios_new</span>
-    </div>
-    <div class="px-4 py-1.5 rounded-full border-2 border-primary/20 bg-primary/5">
-        <span class="text-xs font-bold uppercase tracking-widest text-primary">Relationship Destiny</span>
-    </div>
-    <div class="w-10 h-10 flex items-center justify-center cursor-pointer" onclick="showHelp()">
-        <span class="material-symbols-outlined text-gray-400">help_outline</span>
-    </div>
-</header>
-<main class="max-w-md mx-auto px-6 pb-20">
-    <!-- Hero Section -->
-    <div class="pt-8 pb-4 text-center">
-        <h1 class="text-[56px] font-black tracking-tighter text-primary leading-none">
-            FLAMES
-        </h1>
-        <p class="text-gray-400 font-medium mt-2 tracking-wide uppercase text-[10px]">Ignite your fate</p>
-    </div>
+            <span class="material-symbols-outlined text-gray-700">arrow_back_ios_new</span>
+        </div>
+        <div class="px-4 py-1.5 rounded-full border-2 border-primary/20 bg-primary/5">
+            <span class="text-xs font-bold uppercase tracking-widest text-primary">Relationship Destiny</span>
+        </div>
+        <div class="w-10 h-10 flex items-center justify-center cursor-pointer" onclick="showHelp()">
+            <span class="material-symbols-outlined text-gray-400">help_outline</span>
+        </div>
+    </header>
 
-    <!-- Name Tiles Area (Dynamic Animation Card) -->
-    <div id="animationCard" class="glass-card rounded-3xl p-6 mb-8 mt-4 relative overflow-hidden" style="display: none;">
-        <div class="flex flex-col gap-6">
-            <!-- User's Tiles -->
-            <div id="userName1Tiles" class="flex flex-wrap justify-center gap-2">
-            </div>
-            <div class="flex items-center justify-center">
-                <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
-                <div class="mx-4 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary fill-current">local_fire_department</span>
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">VS</span>
-                    <span class="material-symbols-outlined text-primary fill-current">local_fire_department</span>
-                </div>
-                <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
-            </div>
-            <!-- Crush's Tiles -->
-            <div id="userName2Tiles" class="flex flex-wrap justify-center gap-2">
-            </div>
+    <main class="max-w-md mx-auto px-6 pb-20">
+        <!-- Hero Section -->
+        <div class="pt-8 pb-4 text-center">
+            <h1 class="text-[56px] font-black tracking-tighter text-primary leading-none">
+                FLAMES
+            </h1>
+            <p class="text-gray-400 font-medium mt-2 tracking-wide uppercase text-[10px]">Ignite your fate</p>
         </div>
-        <!-- Status Indicator -->
-        <div class="mt-8 flex items-center justify-center gap-2">
-            <span class="material-symbols-outlined text-primary animate-pulse">favorite</span>
-            <span id="statusText" class="text-sm font-bold text-primary uppercase tracking-widest">Burning...</span>
-        </div>
-    </div>
 
-    <!-- Result Card -->
-    <div id="resultCard" class="glass-card rounded-3xl p-8 mb-8 mt-4 relative overflow-hidden result-card" style="display: none;">
-        <div class="text-center">
-            <div class="mb-6">
-                <div id="resultIcon" class="size-20 rounded-full bg-primary flex items-center justify-center text-white shadow-xl shadow-primary/30 mb-4 mx-auto pulse-animate">
-                    <span class="material-symbols-outlined text-[40px] fill-current">favorite</span>
+        <!-- Name Tiles Area (Dynamic Animation Card) -->
+        <div id="animationCard" class="glass-card rounded-3xl p-6 mb-8 mt-4 relative overflow-hidden"
+            style="display: none;">
+            <div class="flex flex-col gap-6">
+                <!-- User's Tiles -->
+                <div id="userName1Tiles" class="flex flex-wrap justify-center gap-2">
                 </div>
-                <h2 id="resultTitle" class="text-3xl font-black text-primary uppercase tracking-tight mb-2">Lovers</h2>
-                <p id="resultDescription" class="text-gray-500 text-sm font-medium">You two are destined to be together! ❤️</p>
+                <div class="flex items-center justify-center">
+                    <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+                    <div class="mx-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary fill-current">local_fire_department</span>
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">VS</span>
+                        <span class="material-symbols-outlined text-primary fill-current">local_fire_department</span>
+                    </div>
+                    <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+                </div>
+                <!-- Crush's Tiles -->
+                <div id="userName2Tiles" class="flex flex-wrap justify-center gap-2">
+                </div>
             </div>
-            <div class="pt-4 border-t border-gray-200">
-                <div class="flex items-center justify-center gap-2 text-gray-400 text-xs">
-                    <span class="font-bold" id="name1Result"></span>
-                    <span class="material-symbols-outlined text-[16px]">favorite</span>
-                    <span class="font-bold" id="name2Result"></span>
-                </div>
+            <!-- Status Indicator -->
+            <div class="mt-8 flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-primary animate-pulse">favorite</span>
+                <span id="statusText" class="text-sm font-bold text-primary uppercase tracking-widest">Burning...</span>
             </div>
         </div>
-    </div>
 
-    <!-- Inputs -->
-    <div class="space-y-4 mb-8">
-        <div class="relative">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Your
-                Name</label>
-            <div class="relative flex items-center">
-                <input id="userName1"
-                       class="w-full h-16 px-6 rounded-2xl border-2 border-orange-100 bg-white text-lg font-semibold focus:border-primary focus:ring-0 transition-all placeholder:text-gray-300"
-                       placeholder="Enter your name" type="text" />
-                <div class="absolute right-4 text-primary">
-                    <span class="material-symbols-outlined">person</span>
+        <!-- Result Card -->
+        <div id="resultCard" class="glass-card rounded-3xl p-8 mb-8 mt-4 relative overflow-hidden result-card"
+            style="display: none;">
+            <div class="text-center">
+                <div class="mb-6">
+                    <div id="resultIcon"
+                        class="size-20 rounded-full bg-primary flex items-center justify-center text-white shadow-xl shadow-primary/30 mb-4 mx-auto pulse-animate">
+                        <span class="material-symbols-outlined text-[40px] fill-current">favorite</span>
+                    </div>
+                    <h2 id="resultTitle" class="text-3xl font-black text-primary uppercase tracking-tight mb-2">Lovers
+                    </h2>
+                    <p id="resultDescription" class="text-gray-500 text-sm font-medium">You two are destined to be
+                        together! ❤️</p>
+                </div>
+                <div class="pt-4 border-t border-gray-200">
+                    <div class="flex items-center justify-center gap-2 text-gray-400 text-xs">
+                        <span class="font-bold" id="name1Result"></span>
+                        <span class="material-symbols-outlined text-[16px]">favorite</span>
+                        <span class="font-bold" id="name2Result"></span>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="relative">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Crush's
-                Name</label>
-            <div class="relative flex items-center">
-                <input id="userName2"
-                       class="w-full h-16 px-6 rounded-2xl border-2 border-orange-100 bg-white text-lg font-semibold focus:border-primary focus:ring-0 transition-all placeholder:text-gray-300"
-                       placeholder="Enter their name" type="text" />
-                <div class="absolute right-4 text-primary">
-                    <span class="material-symbols-outlined">favorite</span>
+
+        <!-- Inputs -->
+        <div class="space-y-4 mb-8">
+            <div class="relative">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Your
+                    Name</label>
+                <div class="relative flex items-center">
+                    <input id="userName1"
+                        class="w-full h-16 px-6 rounded-2xl border-2 border-orange-100 bg-white text-lg font-semibold focus:border-primary focus:ring-0 transition-all placeholder:text-gray-300"
+                        placeholder="Enter your name" type="text" />
+                    <div class="absolute right-4 text-primary">
+                        <span class="material-symbols-outlined">person</span>
+                    </div>
+                </div>
+            </div>
+            <div class="relative">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Crush's
+                    Name</label>
+                <div class="relative flex items-center">
+                    <input id="userName2"
+                        class="w-full h-16 px-6 rounded-2xl border-2 border-orange-100 bg-white text-lg font-semibold focus:border-primary focus:ring-0 transition-all placeholder:text-gray-300"
+                        placeholder="Enter their name" type="text" />
+                    <div class="absolute right-4 text-primary">
+                        <span class="material-symbols-outlined">favorite</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Action Button -->
-    <button id="calculateBtn" onclick="calculateFlames()"
+
+        <!-- Action Button -->
+        <button id="calculateBtn" onclick="calculateFlames()"
             class="w-full h-16 bg-gradient-to-r from-primary to-accent rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-transform active:scale-[0.98] hover:shadow-2xl">
-        <span class="text-white text-lg font-bold tracking-wide">Calculate Destiny</span>
-        <span class="material-symbols-outlined text-white">bolt</span>
-    </button>
+            <span class="text-white text-lg font-bold tracking-wide">Calculate Destiny</span>
+            <span class="material-symbols-outlined text-white">bolt</span>
+        </button>
 
-    <!-- Legend Card -->
-    <div class="mt-12 bg-gray-50 rounded-3xl p-6 border border-gray-100">
-        <h3 class="text-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6">The Flames Key
-        </h3>
-        <div class="grid grid-cols-3 gap-y-6">
-            <div class="flex flex-col items-center">
-                <div
+        <!-- Legend Card -->
+        <div class="mt-12 bg-gray-50 rounded-3xl p-6 border border-gray-100">
+            <h3 class="text-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6">The Flames Key
+            </h3>
+            <div class="grid grid-cols-3 gap-y-6">
+                <div class="flex flex-col items-center">
+                    <div
                         class="size-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm mb-2">
-                    <span class="material-symbols-outlined text-[20px]">handshake</span>
+                        <span class="material-symbols-outlined text-[20px]">handshake</span>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">Friends</span>
                 </div>
-                <span class="text-[10px] font-bold text-gray-500 uppercase">Friends</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <div
+                <div class="flex flex-col items-center">
+                    <div
                         class="size-10 rounded-full bg-primary flex items-center justify-center text-white shadow-md shadow-primary/30 mb-2">
-                    <span class="material-symbols-outlined text-[20px] fill-current">favorite</span>
+                        <span class="material-symbols-outlined text-[20px] fill-current">favorite</span>
+                    </div>
+                    <span class="text-[10px] font-black text-primary uppercase">Lovers</span>
                 </div>
-                <span class="text-[10px] font-black text-primary uppercase">Lovers</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <div
+                <div class="flex flex-col items-center">
+                    <div
                         class="size-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm mb-2">
-                    <span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+                        <span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">Affection</span>
                 </div>
-                <span class="text-[10px] font-bold text-gray-500 uppercase">Affection</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <div
+                <div class="flex flex-col items-center">
+                    <div
                         class="size-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm mb-2">
-                    <span class="material-symbols-outlined text-[20px]">celebration</span>
+                        <span class="material-symbols-outlined text-[20px]">celebration</span>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">Marriage</span>
                 </div>
-                <span class="text-[10px] font-bold text-gray-500 uppercase">Marriage</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <div
+                <div class="flex flex-col items-center">
+                    <div
                         class="size-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm mb-2">
-                    <span class="material-symbols-outlined text-[20px]">skull</span>
+                        <span class="material-symbols-outlined text-[20px]">skull</span>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">Enemies</span>
                 </div>
-                <span class="text-[10px] font-bold text-gray-500 uppercase">Enemies</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <div
+                <div class="flex flex-col items-center">
+                    <div
                         class="size-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm mb-2">
-                    <span class="material-symbols-outlined text-[20px]">group</span>
+                        <span class="material-symbols-outlined text-[20px]">group</span>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">Siblings</span>
                 </div>
-                <span class="text-[10px] font-bold text-gray-500 uppercase">Siblings</span>
             </div>
         </div>
-    </div>
-</main>
-<!-- App Bar Bottom (iOS Mockup) -->
-<div
+    </main>
+
+    <!-- App Bar Bottom (iOS Mockup) -->
+    <div
         class="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-xl border-t border-gray-100 px-10 py-4 flex justify-between items-center z-50">
-    <span class="material-symbols-outlined text-gray-400">home</span>
-    <span class="material-symbols-outlined text-primary font-bold">local_fire_department</span>
-    <span class="material-symbols-outlined text-gray-400">chat_bubble</span>
-    <span class="material-symbols-outlined text-gray-400">person</span>
-</div>
+        <span class="material-symbols-outlined text-gray-400">home</span>
+        <span class="material-symbols-outlined text-primary font-bold">local_fire_department</span>
+        <span class="material-symbols-outlined text-gray-400">chat_bubble</span>
+        <span class="material-symbols-outlined text-gray-400">person</span>
+    </div>
 
-<script>
-    const flamesData = {
-        'F': {
-            title: 'Friends',
-            icon: 'handshake',
-            description: 'You two make great friends! Your bond is strong and trustworthy. 🤝',
-            color: 'bg-blue-500'
-        },
-        'L': {
-            title: 'Lovers',
-            icon: 'favorite',
-            iconFill: true,
-            description: 'You two are destined to be together! Romance is in the air. ❤️',
-            color: 'bg-primary'
-        },
-        'A': {
-            title: 'Affection',
-            icon: 'auto_awesome',
-            description: 'There\'s a special warmth between you two. Care and kindness flourish. ✨',
-            color: 'bg-pink-500'
-        },
-        'M': {
-            title: 'Marriage',
-            icon: 'celebration',
-            description: 'Wedding bells are ringing! You\'re perfect life partners. 💍',
-            color: 'bg-purple-500'
-        },
-        'E': {
-            title: 'Enemies',
-            icon: 'skull',
-            description: 'There might be some conflict ahead. Handle with care! ⚔️',
-            color: 'bg-red-600'
-        },
-        'S': {
-            title: 'Siblings',
-            icon: 'group',
-            description: 'You share a bond like family. Brotherhood and sisterhood! 👨‍👩‍👧‍👦',
-            color: 'bg-green-500'
+    <!-- Popup Overlays -->
+    <!-- Help Popup -->
+    <div class="popup-overlay" id="helpPopup">
+        <div class="popup">
+            <button class="popup-close" onclick="closePopup('helpPopup')">
+                <span class="material-symbols-outlined text-gray-600 text-[20px]">close</span>
+            </button>
+            <div class="mb-4">
+                <div class="size-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <span
+                        class="material-symbols-outlined text-primary text-[32px] fill-current">local_fire_department</span>
+                </div>
+                <h3 class="text-xl font-black text-primary uppercase tracking-tight mb-2">FLAMES Calculator</h3>
+            </div>
+            <div class="text-left space-y-3 mb-6">
+                <p class="text-gray-600 text-sm">Enter your name and your crush's name to discover your relationship
+                    destiny!</p>
+                <div class="bg-gray-50 rounded-xl p-4 space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-primary text-xs">F</span>
+                        <span class="text-xs text-gray-600">- Friends</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-primary text-xs">L</span>
+                        <span class="text-xs text-gray-600">- Lovers</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-primary text-xs">A</span>
+                        <span class="text-xs text-gray-600">- Affection</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-primary text-xs">M</span>
+                        <span class="text-xs text-gray-600">- Marriage</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-primary text-xs">E</span>
+                        <span class="text-xs text-gray-600">- Enemies</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-primary text-xs">S</span>
+                        <span class="text-xs text-gray-600">- Siblings</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closePopup('helpPopup')"
+                class="w-full h-12 bg-gradient-to-r from-primary to-accent rounded-xl text-white font-bold">
+                Got it!
+            </button>
+        </div>
+    </div>
+
+    <!-- Error Popup -->
+    <div class="popup-overlay" id="errorPopup">
+        <div class="popup">
+            <button class="popup-close" onclick="closePopup('errorPopup')">
+                <span class="material-symbols-outlined text-gray-600 text-[20px]">close</span>
+            </button>
+            <div class="mb-4">
+                <div class="size-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                    <span class="material-symbols-outlined text-red-500 text-[32px]">error</span>
+                </div>
+                <h3 class="text-xl font-black text-gray-800 mb-2" id="errorTitle">Oops!</h3>
+                <p class="text-gray-600 text-sm" id="errorMessage">Something went wrong</p>
+            </div>
+            <button onclick="closePopup('errorPopup')" class="w-full h-12 bg-gray-800 rounded-xl text-white font-bold">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const flamesData = {
+            'F': {
+                title: 'Friends',
+                icon: 'handshake',
+                description: 'You two make great friends! Your bond is strong and trustworthy. 🤝',
+                color: 'bg-blue-500'
+            },
+            'L': {
+                title: 'Lovers',
+                icon: 'favorite',
+                iconFill: true,
+                description: 'You two are destined to be together! Romance is in the air. ❤️',
+                color: 'bg-primary'
+            },
+            'A': {
+                title: 'Affection',
+                icon: 'auto_awesome',
+                description: 'There\'s a special warmth between you two. Care and kindness flourish. ✨',
+                color: 'bg-pink-500'
+            },
+            'M': {
+                title: 'Marriage',
+                icon: 'celebration',
+                description: 'Wedding bells are ringing! You\'re perfect life partners. 💍',
+                color: 'bg-purple-500'
+            },
+            'E': {
+                title: 'Enemies',
+                icon: 'skull',
+                description: 'There might be some conflict ahead. Handle with care! ⚔️',
+                color: 'bg-red-600'
+            },
+            'S': {
+                title: 'Siblings',
+                icon: 'group',
+                description: 'You share a bond like family. Brotherhood and sisterhood! 👨‍👩‍👧‍👦',
+                color: 'bg-green-500'
+            }
+        };
+
+        function showPopup(popupId) {
+            document.getElementById(popupId).classList.add('show');
         }
-    };
 
-    function showHelp() {
-        alert('FLAMES Calculator\n\nEnter your name and your crush\'s name to discover your relationship destiny!\n\nF - Friends\nL - Lovers\nA - Affection\nM - Marriage\nE - Enemies\nS - Siblings');
-    }
-
-    function calculateFlames() {
-        const name1 = document.getElementById('userName1').value.trim().toLowerCase().replace(/\s+/g, '');
-        const name2 = document.getElementById('userName2').value.trim().toLowerCase().replace(/\s+/g, '');
-
-        if (!name1 || !name2) {
-            alert('Please enter both names!');
-            return;
+        function closePopup(popupId) {
+            document.getElementById(popupId).classList.remove('show');
         }
 
-        if (name1 === name2) {
-            alert('Please enter different names!');
-            return;
+        function showError(title, message) {
+            document.getElementById('errorTitle').textContent = title;
+            document.getElementById('errorMessage').textContent = message;
+            showPopup('errorPopup');
         }
 
-        // Show animation card
-        document.getElementById('animationCard').style.display = 'block';
-        document.getElementById('resultCard').style.display = 'none';
-
-        // Display name tiles
-        displayNameTiles(name1, name2);
-
-        // Calculate FLAMES with animation
-        setTimeout(() => {
-            const result = performFlamesCalculation(name1, name2);
-            showResult(result, name1, name2);
-        }, 2000);
-    }
-
-    function displayNameTiles(name1, name2) {
-        const tiles1 = document.getElementById('userName1Tiles');
-        const tiles2 = document.getElementById('userName2Tiles');
-
-        tiles1.innerHTML = '';
-        tiles2.innerHTML = '';
-
-        // Create tiles for name 1
-        for (let char of name1) {
-            const tile = document.createElement('div');
-            tile.className = 'name-tile size-10 flex items-center justify-center rounded-lg text-lg font-bold text-primary';
-            tile.textContent = char.toUpperCase();
-            tiles1.appendChild(tile);
+        function showHelp() {
+            showPopup('helpPopup');
         }
 
-        // Create tiles for name 2
-        for (let char of name2) {
-            const tile = document.createElement('div');
-            tile.className = 'name-tile size-10 flex items-center justify-center rounded-lg text-lg font-bold text-primary';
-            tile.textContent = char.toUpperCase();
-            tiles2.appendChild(tile);
+        function calculateFlames() {
+            const name1 = document.getElementById('userName1').value.trim().toLowerCase().replace(/\s+/g, '');
+            const name2 = document.getElementById('userName2').value.trim().toLowerCase().replace(/\s+/g, '');
+
+            if (!name1 || !name2) {
+                showError('Missing Names', 'Please enter both names to calculate your destiny!');
+                return;
+            }
+
+            if (name1 === name2) {
+                showError('Same Names', 'Please enter different names to see your relationship!');
+                return;
+            }
+
+            // Show animation card
+            document.getElementById('animationCard').style.display = 'block';
+            document.getElementById('resultCard').style.display = 'none';
+
+            // Display name tiles
+            displayNameTiles(name1, name2);
+
+            // Calculate FLAMES with animation
+            setTimeout(() => {
+                const result = performFlamesCalculation(name1, name2);
+                showResult(result, name1, name2);
+            }, 2000);
         }
-    }
 
-    function performFlamesCalculation(name1, name2) {
-        // Convert names to arrays of characters
-        let arr1 = name1.split('');
-        let arr2 = name2.split('');
+        function displayNameTiles(name1, name2) {
+            const tiles1 = document.getElementById('userName1Tiles');
+            const tiles2 = document.getElementById('userName2Tiles');
 
-        // Remove common characters
-        for (let i = 0; i < arr1.length; i++) {
-            for (let j = 0; j < arr2.length; j++) {
-                if (arr1[i] === arr2[j]) {
-                    arr1[i] = null;
-                    arr2[j] = null;
-                    break;
-                }
+            tiles1.innerHTML = '';
+            tiles2.innerHTML = '';
+
+            // Create tiles for name 1
+            for (let char of name1) {
+                const tile = document.createElement('div');
+                tile.className = 'name-tile size-10 flex items-center justify-center rounded-lg text-lg font-bold text-primary';
+                tile.textContent = char.toUpperCase();
+                tiles1.appendChild(tile);
+            }
+
+            // Create tiles for name 2
+            for (let char of name2) {
+                const tile = document.createElement('div');
+                tile.className = 'name-tile size-10 flex items-center justify-center rounded-lg text-lg font-bold text-primary';
+                tile.textContent = char.toUpperCase();
+                tiles2.appendChild(tile);
             }
         }
 
-        // Filter out null values
-        arr1 = arr1.filter(char => char !== null);
-        arr2 = arr2.filter(char => char !== null);
+        function performFlamesCalculation(name1, name2) {
+            // Convert names to arrays of characters
+            let arr1 = name1.split('');
+            let arr2 = name2.split('');
 
-        // Total remaining characters
-        const totalCount = arr1.length + arr2.length;
+            // Remove common characters
+            for (let i = 0; i < arr1.length; i++) {
+                for (let j = 0; j < arr2.length; j++) {
+                    if (arr1[i] === arr2[j]) {
+                        arr1[i] = null;
+                        arr2[j] = null;
+                        break;
+                    }
+                }
+            }
 
-        // FLAMES array
-        const flames = ['F', 'L', 'A', 'M', 'E', 'S'];
-        
-        // Eliminate letters based on count
-        let index = 0;
-        while (flames.length > 1) {
-            index = (index + totalCount - 1) % flames.length;
-            flames.splice(index, 1);
+            // Filter out null values
+            arr1 = arr1.filter(char => char !== null);
+            arr2 = arr2.filter(char => char !== null);
+
+            // Total remaining characters
+            const totalCount = arr1.length + arr2.length;
+
+            // FLAMES array
+            const flames = ['F', 'L', 'A', 'M', 'E', 'S'];
+
+            // Eliminate letters based on count
+            let index = 0;
+            while (flames.length > 1) {
+                index = (index + totalCount - 1) % flames.length;
+                flames.splice(index, 1);
+            }
+
+            return flames[0];
         }
 
-        return flames[0];
-    }
+        function showResult(result, name1, name2) {
+            const resultCard = document.getElementById('resultCard');
+            const animationCard = document.getElementById('animationCard');
+            const data = flamesData[result];
 
-    function showResult(result, name1, name2) {
-        const resultCard = document.getElementById('resultCard');
-        const animationCard = document.getElementById('animationCard');
-        const data = flamesData[result];
+            // Hide animation card
+            animationCard.style.display = 'none';
 
-        // Hide animation card
-        animationCard.style.display = 'none';
+            // Update result card
+            const resultIcon = document.getElementById('resultIcon');
+            resultIcon.className = `size-20 rounded-full ${data.color} flex items-center justify-center text-white shadow-xl shadow-primary/30 mb-4 mx-auto pulse-animate`;
+            resultIcon.innerHTML = `<span class="material-symbols-outlined text-[40px] ${data.iconFill ? 'fill-current' : ''}">${data.icon}</span>`;
 
-        // Update result card
-        const resultIcon = document.getElementById('resultIcon');
-        resultIcon.className = `size-20 rounded-full ${data.color} flex items-center justify-center text-white shadow-xl shadow-primary/30 mb-4 mx-auto pulse-animate`;
-        resultIcon.innerHTML = `<span class="material-symbols-outlined text-[40px] ${data.iconFill ? 'fill-current' : ''}">${data.icon}</span>`;
+            document.getElementById('resultTitle').textContent = data.title;
+            document.getElementById('resultDescription').textContent = data.description;
+            document.getElementById('name1Result').textContent = name1.charAt(0).toUpperCase() + name1.slice(1);
+            document.getElementById('name2Result').textContent = name2.charAt(0).toUpperCase() + name2.slice(1);
 
-        document.getElementById('resultTitle').textContent = data.title;
-        document.getElementById('resultDescription').textContent = data.description;
-        document.getElementById('name1Result').textContent = name1.charAt(0).toUpperCase() + name1.slice(1);
-        document.getElementById('name2Result').textContent = name2.charAt(0).toUpperCase() + name2.slice(1);
+            // Show result card
+            resultCard.style.display = 'block';
 
-        // Show result card
-        resultCard.style.display = 'block';
+            // Scroll to result
+            resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // Scroll to result
-        resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Update status text
+            document.getElementById('statusText').textContent = `Result: ${data.title}!`;
+        }
 
-        // Update status text
-        document.getElementById('statusText').textContent = `Result: ${data.title}!`;
-    }
+        // Allow Enter key to submit
+        document.getElementById('userName1').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') calculateFlames();
+        });
 
-    // Allow Enter key to submit
-    document.getElementById('userName1').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') calculateFlames();
-    });
+        document.getElementById('userName2').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') calculateFlames();
+        });
 
-    document.getElementById('userName2').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') calculateFlames();
-    });
-</script>
+        // Close popup on overlay click
+        document.querySelectorAll('.popup-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function (e) {
+                if (e.target === this) {
+                    this.classList.remove('show');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

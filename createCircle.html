@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html class="" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HotOrNot - Create Group</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#53d22d",
+                        "brand-red": "#ff3b30",
+                        "brand-orange": "#ff9500",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#152012",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Manrope', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .brand-gradient {
+            background: linear-gradient(135deg, #ff3b30 0%, #ff9500 100%);
+        }
+
+        .glow-orb {
+            filter: blur(80px);
+            z-index: 0;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white min-h-screen relative overflow-x-hidden">
+    <!-- Background Orbs -->
+    <div class="fixed top-[-10%] right-[-10%] w-64 h-64 bg-brand-red/10 rounded-full glow-orb"></div>
+    <div class="fixed bottom-[-5%] left-[-10%] w-80 h-80 bg-brand-orange/10 rounded-full glow-orb"></div>
+    <!-- Top Navigation Bar -->
+    <nav
+        class="sticky top-0 z-50 glass-header border-b border-slate-200 dark:border-white/5 px-4 py-3 flex items-center justify-between">
+        <button
+            class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white">
+            <span class="material-symbols-outlined">arrow_back_ios_new</span>
+        </button>
+        <h1 class="text-lg font-extrabold tracking-tight">Create Group</h1>
+        <button class="flex items-center justify-center w-10 h-10 rounded-full text-slate-700 dark:text-white">
+            <span class="material-symbols-outlined">more_horiz</span>
+        </button>
+    </nav>
+    <main class="relative z-10 p-4 max-w-lg mx-auto pb-32">
+        <!-- Profile Photo Upload -->
+        <div class="flex flex-col items-center mb-8">
+            <div class="relative group">
+                <div
+                    class="w-32 h-32 rounded-3xl bg-slate-200 dark:bg-white/10 flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-white/20 overflow-hidden">
+                    <div class="flex flex-col items-center text-slate-400 dark:text-slate-500">
+                        <span class="material-symbols-outlined text-4xl mb-1">add_a_photo</span>
+                        <span class="text-[10px] uppercase font-bold tracking-wider">Upload</span>
+                    </div>
+                    <!-- Placeholder Overlay (Invisible until hover/active) -->
+                    <div
+                        class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white">edit</span>
+                    </div>
+                </div>
+                <div
+                    class="absolute -bottom-2 -right-2 w-10 h-10 bg-primary rounded-full border-4 border-white dark:border-background-dark flex items-center justify-center text-white shadow-lg">
+                    <span class="material-symbols-outlined text-xl">add</span>
+                </div>
+            </div>
+            <div class="mt-4 text-center">
+                <h2 class="text-xl font-bold">Identity Your Crew</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Choose a photo that represents your vibe</p>
+            </div>
+        </div>
+        <!-- Form Card -->
+        <div class="bg-white dark:bg-white/5 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none p-6 space-y-6">
+            <!-- Group Name -->
+            <div class="space-y-2">
+                <label class="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Group Name</label>
+                <input
+                    class="w-full h-14 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-4 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-slate-900 dark:text-white outline-none placeholder:text-slate-400"
+                    placeholder="The Elite Squad" type="text" />
+            </div>
+            <!-- Description -->
+            <div class="space-y-2">
+                <label class="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">What's the goal?</label>
+                <textarea
+                    class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-slate-900 dark:text-white outline-none placeholder:text-slate-400 resize-none"
+                    placeholder="Describe the vibe, rules, and what makes this group exclusive..." rows="3"></textarea>
+            </div>
+            <hr class="border-slate-100 dark:border-white/5" />
+            <!-- Privacy Toggle -->
+            <div class="flex items-center justify-between py-2">
+                <div>
+                    <h3 class="font-bold">Private Group</h3>
+                    <p class="text-xs text-slate-500">Only invited members can join</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input checked="" class="sr-only peer" type="checkbox" value="" />
+                    <div
+                        class="w-14 h-8 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-white/10 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary">
+                    </div>
+                </label>
+            </div>
+        </div>
+        <!-- Member Search & Selection -->
+        <div class="mt-8 space-y-4">
+            <h3 class="text-lg font-bold px-1">Invite Members</h3>
+            <div class="relative">
+                <span
+                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                <input
+                    class="w-full h-12 bg-white dark:bg-white/5 border-none rounded-full pl-12 pr-4 shadow-sm text-sm focus:ring-2 focus:ring-primary transition-all"
+                    placeholder="Search friends by name or username" type="text" />
+            </div>
+            <!-- Selected Members Chips -->
+            <div class="flex flex-wrap gap-2 pt-2">
+                <div
+                    class="flex items-center bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10 rounded-full p-1 pr-3">
+                    <div class="w-8 h-8 rounded-full bg-cover bg-center mr-2" data-alt="User avatar"
+                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC7wuQsWV9RZ8zdbrd4p6eDVrpFpC2m-7YWg98PjR-nkjHdkcpClkAjxD9TYjZ2KHtKN_6SX_aansuidQpDHXHrtheYzAOm6LFWkfheffns-I4Xk8Df53maiRpw368q8UjF0L7EWvfCGGjF3sCpTwhFSi28svk0iuPf20G0r-wxvy9JxWred8m5C855IcN0zWRtukUJTQBfFFpkLlvPU7kvxthZynEGgLJdV6TrAGCI9ZZfZqeSUEkwpRX8CYWjE5kyHJHt_Wpca_o')">
+                    </div>
+                    <span class="text-sm font-medium">Alex Rivera</span>
+                    <button class="ml-2 text-slate-400 hover:text-brand-red">
+                        <span class="material-symbols-outlined text-lg">cancel</span>
+                    </button>
+                </div>
+                <div
+                    class="flex items-center bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10 rounded-full p-1 pr-3">
+                    <div class="w-8 h-8 rounded-full bg-cover bg-center mr-2" data-alt="User avatar"
+                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBVCndq_v8R_wOEezNbdKvESWqKsoYYjjlfmdssWvl8sykOLlpAGXhv5eAk2Z5ZSgFO6DBaqdQaoXyz4urDWFhwsb3cqsMxWvw_q1T5p-edXm2oo7BTp1M6F3XfNv15aJe7sj64676tWcriWARPk5CoDqYipepadE5k0-i_zN7Bjv2q7p-9CFZ2bkP8pEdowM2BpIszNIP1oRnzwTv3MPvR2IfHMcCBh3Om3tADoT9Wumk4xQ10u3khZS0KniXciU-4k4T180TA6gw')">
+                    </div>
+                    <span class="text-sm font-medium">Sarah J.</span>
+                    <button class="ml-2 text-slate-400 hover:text-brand-red">
+                        <span class="material-symbols-outlined text-lg">cancel</span>
+                    </button>
+                </div>
+                <div class="flex items-center bg-primary/10 border border-primary/20 rounded-full p-1 pr-3">
+                    <div class="w-8 h-8 rounded-full bg-cover bg-center mr-2" data-alt="User avatar"
+                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCH5SHbZC95xWVaivMIB5ZxDY7nqE2RBFtepOR7rT3kBLEhPMWVovcFTh79QYNF7m69n4GcI7upOrUsuqOaJDQc46zK6Oq9uzkIGqhKBwgECMVTc2de_DFYhw2Hj-RKlNqkiAVQ87WBH9JiBcugVU3U0KAfH3_g5hBp8Obz0iwnZnQK_QvTJHa6dWhGmSESGL-S27lfhuSZLGLYfyo2-5faDQClKvqZfhiXo6mmtduQ7WcGajAzpVqCg_xr1y0E97FAX5Wc04ffvJM')">
+                    </div>
+                    <span class="text-sm font-medium text-primary">Marcus L.</span>
+                    <button class="ml-2 text-primary">
+                        <span class="material-symbols-outlined text-lg">cancel</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Bottom Action Button Container -->
+    <div
+        class="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background-light dark:from-background-dark via-background-light dark:via-background-dark to-transparent z-50">
+        <button
+            class="brand-gradient w-full h-16 rounded-2xl text-white font-extrabold text-lg shadow-2xl shadow-brand-red/30 flex items-center justify-center gap-2 transform active:scale-95 transition-transform">
+            <span>Create Group</span>
+            <span class="material-symbols-outlined">rocket_launch</span>
+        </button>
+        <!-- Safe area padding for iOS -->
+        <div class="h-4"></div>
+    </div>
+</body>
+
+</html>

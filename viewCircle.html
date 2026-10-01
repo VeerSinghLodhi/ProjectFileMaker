@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HotOrNot Group Details</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ed462c",
+                        "primary-gradient-start": "#F73B20",
+                        "primary-gradient-end": "#FF6B5A",
+                        "background-light": "#ffffff",
+                        "background-dark": "#18181b",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .gradient-header {
+            background: linear-gradient(135deg, #F73B20 0%, #FF6B5A 100%);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .orb-1 {
+            position: fixed;
+            top: 20%;
+            left: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(237, 70, 44, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+        }
+
+        .orb-2 {
+            position: fixed;
+            bottom: 10%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 107, 90, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-[#181211] dark:text-white min-h-screen pb-32">
+    <!-- Decorative Background -->
+    <div class="orb-1"></div>
+    <div class="orb-2"></div>
+    <!-- Header Section -->
+    <header class="gradient-header pt-12 pb-8 px-6 text-white sticky top-0 z-50 shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+            <button class="size-10 flex items-center justify-center bg-white/20 rounded-full backdrop-blur-md">
+                <span class="material-symbols-outlined">arrow_back_ios_new</span>
+            </button>
+            <button class="size-10 flex items-center justify-center bg-white/20 rounded-full backdrop-blur-md">
+                <span class="material-symbols-outlined">more_horiz</span>
+            </button>
+        </div>
+        <div class="flex flex-col items-start">
+            <h1 class="text-3xl font-extrabold tracking-tight">The Elite Squad</h1>
+            <p class="text-white/80 font-medium text-sm flex items-center gap-1 mt-1">
+                <span class="material-symbols-outlined text-[16px]">group</span>
+                1,240 Members
+            </p>
+        </div>
+    </header>
+    <!-- Content Area -->
+    <main class="px-4 -mt-6 relative z-10">
+        <!-- Profile & Stats Card -->
+        <div
+            class="bg-white dark:bg-zinc-900 rounded-xl shadow-xl p-6 mb-6 border border-zinc-100 dark:border-zinc-800">
+            <div class="flex flex-col items-center">
+                <div class="relative mb-6">
+                    <div class="size-32 rounded-full border-4 border-primary p-1">
+                        <div class="w-full h-full rounded-full bg-cover bg-center"
+                            data-alt="Portrait of a diverse team representing the elite group"
+                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAnZQACaIxodMPuirUHrRjCsOeZA-uGwB7gZ4_JVCZNlcs3A6P7de1pceFrcLLcJE2jGdH6XJkMAdzkvabXO9twxcsMlALIwVxe8W3VHod7wtFmTjMl3xAzbP2I42IheZ4_Fr4jzoIKZ01gpui6LJ4BAzzQgIpeywzlETg29Iwlx8sDQbn80nk_O3duIVyTK4DPVskPhFnXAZ57D0iAIppXWO6x5bk0_Jfg3umcA-iqV5iV2l1jawjfDr9ML5SvSG03iIAMOyhzMLg')">
+                        </div>
+                    </div>
+                    <div
+                        class="absolute bottom-0 right-0 bg-primary text-white size-8 rounded-full flex items-center justify-center border-4 border-white dark:border-zinc-900">
+                        <span class="material-symbols-outlined text-sm">verified</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 w-full">
+                    <div
+                        class="flex flex-col items-center justify-center p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700">
+                        <span class="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-1">Group Score</span>
+                        <span class="text-2xl font-extrabold text-primary">98/100</span>
+                    </div>
+                    <div
+                        class="flex flex-col items-center justify-center p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700">
+                        <span class="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-1">Founded</span>
+                        <span class="text-xl font-extrabold text-[#181211] dark:text-white">Jan 2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Navigation Tabs -->
+        <div
+            class="sticky top-[168px] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md z-40 mb-4 rounded-lg overflow-hidden border border-zinc-100 dark:border-zinc-800 shadow-sm">
+            <div class="flex">
+                <button class="flex-1 py-4 text-sm font-extrabold text-zinc-400">Details</button>
+                <button
+                    class="flex-1 py-4 text-sm font-extrabold text-primary border-b-4 border-primary bg-primary/5">Members</button>
+                <button class="flex-1 py-4 text-sm font-extrabold text-zinc-400">Chat</button>
+            </div>
+        </div>
+        <!-- Members Section Header -->
+        <div class="flex items-center justify-between px-2 mb-4">
+            <h3 class="text-lg font-extrabold">Active Members</h3>
+            <button class="text-primary font-bold text-sm">View All</button>
+        </div>
+        <!-- Member List -->
+        <div class="space-y-3">
+            <!-- Member 1 -->
+            <div
+                class="flex items-center p-3 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-100 dark:border-zinc-800 shadow-sm">
+                <div class="size-12 rounded-full overflow-hidden bg-zinc-100 mr-4">
+                    <img class="w-full h-full object-cover" data-alt="Profile photo of a male member"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCn4kmZYrc5haNPJlDlT1qU_R0vU5VtJFzfzqfshcYKs56NSwCene_r4qWm5lF-6RDIl0hj0lPpaNaRUP8HQP0lvE8KFylHEVrHc0IT2V8cM2Lb5TJaweQED4KteqXE2GvacmQccra7in0qgOQ2ZUMsY0y5JtdWvy6sArxr68MGrDi83rhU5Ma5udUApyiBj9jNWSfJtRzhz48NGeT6897SeU_y6Isg0o7nYkdamArmcfXXUukJ9I1VWqhcm41xa58AjZiDm0zptXs" />
+                </div>
+                <div class="flex-1">
+                    <p class="font-bold text-[#181211] dark:text-white text-base">Alex Rivers</p>
+                    <p class="text-zinc-400 text-xs">@arivers • Joined 2 days ago</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="size-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-zinc-600 dark:text-zinc-300 text-[18px]">mail</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Member 2 -->
+            <div
+                class="flex items-center p-3 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-100 dark:border-zinc-800 shadow-sm">
+                <div
+                    class="size-12 rounded-full bg-primary-gradient-start flex items-center justify-center text-white font-extrabold text-lg mr-4">
+                    SJ
+                </div>
+                <div class="flex-1">
+                    <p class="font-bold text-[#181211] dark:text-white text-base">Sarah Jenkins</p>
+                    <p class="text-zinc-400 text-xs">@sjenkins • Joined 1 week ago</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="size-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-zinc-600 dark:text-zinc-300 text-[18px]">mail</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Member 3 -->
+            <div
+                class="flex items-center p-3 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-100 dark:border-zinc-800 shadow-sm opacity-90">
+                <div class="size-12 rounded-full overflow-hidden bg-zinc-100 mr-4">
+                    <img class="w-full h-full object-cover" data-alt="Profile photo of a female member"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBry5XqqwVsD7KmLUeVua1NBUqL9TRa1lHq83adfcYmyyKWZeSXD-32Ff8I_cbnac3p9uDF5LyukCzAItLsqKbX2yZIohS-juzbTxDvhGb4PgCm6pwqb4H4HAUWSnXGvdXrhhGC85oBZ-IVVKDQwHFR0jd_fwVvNpxOr7o9rvrp1Z7bE3bUwa2Zudm5sqfdl6DbethZC4i3ZOParftzNDGVD4vevUrQa_BtibhGq6JwM9mmDwHIGriqKcpfEROofIdh06F41eU9X6U" />
+                </div>
+                <div class="flex-1">
+                    <p class="font-bold text-[#181211] dark:text-white text-base">Elena Rodriguez</p>
+                    <p class="text-zinc-400 text-xs">@elena_r • Joined 1 week ago</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="size-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-zinc-600 dark:text-zinc-300 text-[18px]">mail</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Member 4 -->
+            <div
+                class="flex items-center p-3 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-100 dark:border-zinc-800 shadow-sm">
+                <div class="size-12 rounded-full overflow-hidden bg-zinc-100 mr-4">
+                    <img class="w-full h-full object-cover" data-alt="Profile photo of a male member with beard"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbg5q3iFfjJKqtMB8FyCl6BZ5PM5qSSuByXfgGsscuoKIpt4DDdT5Iv0xQbIIJRJvg2vcInyKOVzKuQp_RamuVx3hIzO-9JuhmznHk8z9iBHuk-9F4TEh0Re_I-xYAvCBuIBsngyA5XKkS_-lsIax4b1KfQdlReJk5DJYPsFysUGHpypWyhNPdWAhtERK2wYf_9sLpCnX1sEJt_E5vZjzI56s9FVmY83jx_num8eOJxbJYMdNaVlaAIlcSIOwkiOrMEj7IhLun4e0" />
+                </div>
+                <div class="flex-1">
+                    <p class="font-bold text-[#181211] dark:text-white text-base">Marcus Thorne</p>
+                    <p class="text-zinc-400 text-xs">@mthorne • Joined 2 weeks ago</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="size-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-zinc-600 dark:text-zinc-300 text-[18px]">mail</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Sticky Action Footer -->
+    <div
+        class="fixed bottom-0 left-0 right-0 p-6 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-t border-zinc-100 dark:border-zinc-800 z-[60] pb-10">
+        <button
+            class="w-full gradient-header text-white font-extrabold py-5 rounded-xl shadow-2xl shadow-primary/30 flex items-center justify-center gap-2 transform transition-transform active:scale-95">
+            <span class="material-symbols-outlined text-xl">group_add</span>
+            JOIN GROUP
+        </button>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HotOrNot Premium Group Chat</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ed462c",
+                        "background-light": "#ffffff",
+                        "background-dark": "#17191c",
+                        "chat-gray": "#f4f1f0",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: "Plus Jakarta Sans", sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .gradient-orb-1 {
+            position: fixed;
+            top: 20%;
+            left: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(237, 70, 44, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+        }
+
+        .gradient-orb-2 {
+            position: fixed;
+            bottom: 10%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(237, 70, 44, 0.03) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display">
+    <!-- Background Decoration -->
+    <div class="gradient-orb-1"></div>
+    <div class="gradient-orb-2"></div>
+    <div class="flex flex-col h-screen max-w-md mx-auto relative overflow-hidden">
+        <!-- Header Section -->
+        <header class="sticky top-0 z-50 glass-header border-b border-gray-100 dark:border-zinc-800">
+            <div class="flex items-center justify-between px-4 py-3">
+                <div class="flex items-center gap-3">
+                    <button class="text-primary p-1 hover:bg-primary/10 rounded-full transition-colors">
+                        <span class="material-symbols-outlined align-middle">arrow_back_ios_new</span>
+                    </button>
+                    <div class="flex flex-col">
+                        <h1 class="text-[#181211] dark:text-white text-lg font-bold leading-tight tracking-tight">The
+                            Alpha Circle</h1>
+                        <p class="text-primary text-[12px] font-medium leading-none mt-0.5 flex items-center gap-1">
+                            <span class="size-1.5 bg-primary rounded-full animate-pulse"></span>
+                            12 members • 3 online
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="text-[#896761] dark:text-zinc-400 p-2">
+                        <span class="material-symbols-outlined">call</span>
+                    </button>
+                    <button class="text-[#896761] dark:text-zinc-400 p-2">
+                        <span class="material-symbols-outlined">videocam</span>
+                    </button>
+                    <button class="text-[#896761] dark:text-zinc-400 p-2">
+                        <span class="material-symbols-outlined">more_vert</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <!-- Chat Area -->
+        <main class="flex-1 overflow-y-auto px-4 pb-32 pt-4 flex flex-col gap-6">
+            <!-- Meta Date -->
+            <div class="flex flex-col items-center">
+                <p
+                    class="text-[#896761] dark:text-zinc-500 text-xs font-medium uppercase tracking-widest pb-3 pt-1 px-4">
+                    Today</p>
+            </div>
+            <!-- Incoming Message -->
+            <div class="flex items-end gap-3 group">
+                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8 shrink-0 ring-2 ring-white shadow-sm"
+                    data-alt="Profile photo of user Marcus"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAPF64QQJv-lN03vygZivG7MsFHZKITGqHazb5u3JQ8OJkcaZaiW_3ZhGTQc6FGR4rYjng9vc6IAty6btzw3yVxOpheoMAunfrAz1c5_foZc1byXfQEsA3nGsyH1EGngJpvgIPSt3nc2wIzXlAxTHs24H9m6zJ8FXxVuKzykO23PkcHNufV8yH_PLFsMWIvaWIT6VPrGyrmFv3Mm_XjobI2x9vKWrpIGhymMvzzdvcwEwDG-4-HP0v8I7hZvKOHktA1xlhqD6JtwUc");'>
+                </div>
+                <div class="flex flex-1 flex-col gap-1 items-start">
+                    <p class="text-[#896761] dark:text-zinc-400 text-[11px] font-semibold ml-1">Marcus</p>
+                    <div class="relative">
+                        <p
+                            class="text-base font-normal leading-relaxed max-w-[280px] rounded-2xl rounded-bl-none px-4 py-2.5 bg-chat-gray dark:bg-zinc-800 text-[#181211] dark:text-zinc-100">
+                            The private lounge is reserved for 9 PM. Everyone ready? 🥂
+                        </p>
+                        <span class="text-[10px] text-[#896761] dark:text-zinc-500 mt-1 block">8:42 PM</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Incoming Message with Image -->
+            <div class="flex items-end gap-3">
+                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8 shrink-0 ring-2 ring-white shadow-sm"
+                    data-alt="Profile photo of user Sofia"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCHhWkyb-1PS0jDVp2pmTdO_-WztQshLErGon2WIaD9nxxHZEukz2GDpMF2BU57Aug_CC_vAQiBZwHD0yUzva0wQ9-j3Qq_a7RxG0w-fUtqkY_bw47AQUoh2REobFcACLkpEvdVQDYg9hTLXxF0lfhYfo9l0Q3FXlfj-ZnO5nH9ftXw8p9nPfkb4NiJyVI8XbgBmxQf6lXgXJASxdZGJjh0mVTDBw0vwhJyWX9C4OExZ2GC6tSZXsMrONNXeEyxo9s93HEq-t_ZYfo");'>
+                </div>
+                <div class="flex flex-1 flex-col gap-1 items-start">
+                    <p class="text-[#896761] dark:text-zinc-400 text-[11px] font-semibold ml-1">Sofia</p>
+                    <div class="flex flex-col gap-2">
+                        <p
+                            class="text-base font-normal leading-relaxed max-w-[280px] rounded-2xl rounded-bl-none px-4 py-2.5 bg-chat-gray dark:bg-zinc-800 text-[#181211] dark:text-zinc-100">
+                            Check out the setup they just sent me!
+                        </p>
+                        <div class="bg-center bg-no-repeat aspect-[4/3] bg-cover rounded-xl w-full max-w-[280px] shadow-sm border border-gray-100 dark:border-zinc-700"
+                            data-alt="Luxury penthouse lounge setup"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC9jH7a4g6VenlGw3qjSM_5lTqTpBNw3tk9ZbuQ03Bj7SXeyzo4QiX21p9I0RXs93Q5zLB1FUKOhMgkDX86tif9jnx30xc7E7Oabm_0SEyl7ZLVNUeiyC7QLQB3289W20kisLWq6tNrrdRq38nmx0RTkyoFB5jLQ8eA1YJ6QNklPNuwSZA4I4r9RG5SwAU9fYiRnl1keU7841piLjS2NXaz1YKpVowiP8GM0YNnpIg1XeoT8ir4vTfvE6j1MPnxaMFw0ePh9Zjk-kg");'>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-[#896761] dark:text-zinc-500 mt-1 block">8:45 PM</span>
+                </div>
+            </div>
+            <!-- Outgoing Message (Me) -->
+            <div class="flex items-end gap-3 justify-end">
+                <div class="flex flex-1 flex-col gap-1 items-end">
+                    <p class="text-[#896761] dark:text-zinc-400 text-[11px] font-semibold mr-1">Me</p>
+                    <div class="relative">
+                        <p
+                            class="text-base font-normal leading-relaxed max-w-[280px] rounded-2xl rounded-br-none px-4 py-2.5 bg-primary text-white shadow-lg shadow-primary/20">
+                            That looks insane Sofia. Counting down the hours. 🚀
+                        </p>
+                        <div class="flex items-center justify-end gap-1 mt-1">
+                            <span class="text-[10px] text-[#896761] dark:text-zinc-500">8:47 PM</span>
+                            <span class="material-symbols-outlined text-primary text-xs font-bold">done_all</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8 shrink-0 ring-2 ring-primary/20 shadow-sm"
+                    data-alt="My profile photo"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBMPwDJagfwhLck2nRKed3p7SG5hGXr9k_DsGJedbwVAtr7fhqNR_c5WJ6vkvywHU9mw-P51EOzMHySUBvP1T8tcmMjY00hjA_dU_G85iTQDeaLoQrsaCu-j_ifaeKj6wFK_AXm4ECkp70Dd2MvOK3wOpwO746JwGMRE3R6Ujz9wsASDC8scckVK9Dkfh1P5l5snJioFHnhl33mY4kxIVsq3oN4Z0U-DuhGew0MccqPmq-nhNVBRtmLmUm33m4Uzq_FHTvp3l_nMaQ");'>
+                </div>
+            </div>
+            <!-- System Info -->
+            <div class="flex justify-center">
+                <span
+                    class="bg-chat-gray/50 dark:bg-zinc-800/50 px-3 py-1 rounded-full text-[11px] text-[#896761] dark:text-zinc-400 font-medium border border-gray-100 dark:border-zinc-700">Julian
+                    joined the circle</span>
+            </div>
+            <!-- Another Incoming -->
+            <div class="flex items-end gap-3">
+                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8 shrink-0 ring-2 ring-white shadow-sm"
+                    data-alt="Profile photo of user Julian"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCHdXT03ZTb5sjQInIYvJuR7EmPocVbgl82Ds76EtdIpzIMBYf9BKpzUnitB5XfjMij5eGEYlJ7uTihySwHhqJaiS3uG6toWY9PHA4MMvvLCwuYduNzwEXt1JRudswXMt5qze4ZqeGCsDajj_UbFjmD3bjO5ZvrHd5J8UPVVkfKuh7ZtRhg0XeVts2oCKkDVGx0Hd2RTzHCGpWS-_QNDMe6tZt5r8Un8yhcTB2khGXrKZ289pORz50wMnQnDBGFaF_GjXERayXtytM");'>
+                </div>
+                <div class="flex flex-1 flex-col gap-1 items-start">
+                    <p class="text-[#896761] dark:text-zinc-400 text-[11px] font-semibold ml-1">Julian</p>
+                    <div class="relative">
+                        <p
+                            class="text-base font-normal leading-relaxed max-w-[280px] rounded-2xl rounded-bl-none px-4 py-2.5 bg-chat-gray dark:bg-zinc-800 text-[#181211] dark:text-zinc-100">
+                            Just got my flight confirmed! Land in 30 mins.
+                        </p>
+                        <span class="text-[10px] text-[#896761] dark:text-zinc-500 mt-1 block">9:12 PM</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- Floating Input Bar -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 bg-transparent">
+            <div
+                class="max-w-md mx-auto flex items-center gap-2 bg-white dark:bg-zinc-900 p-2 rounded-full shadow-[0_-4px_20px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-zinc-800">
+                <button
+                    class="flex items-center justify-center size-10 rounded-full text-[#896761] dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
+                    <span class="material-symbols-outlined">add</span>
+                </button>
+                <div class="flex-1">
+                    <input
+                        class="w-full bg-transparent border-none focus:ring-0 text-sm text-[#181211] dark:text-zinc-100 placeholder-[#896761] dark:placeholder-zinc-500"
+                        placeholder="Send a message..." type="text" />
+                </div>
+                <div class="flex items-center gap-1">
+                    <button
+                        class="flex items-center justify-center size-10 rounded-full text-[#896761] dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800">
+                        <span class="material-symbols-outlined">mood</span>
+                    </button>
+                    <button
+                        class="flex items-center justify-center size-10 rounded-full bg-primary text-white shadow-lg shadow-primary/30 transition-transform active:scale-95">
+                        <span class="material-symbols-outlined text-[20px]">send</span>
+                    </button>
+                </div>
+            </div>
+            <!-- iOS Home Indicator Spacing -->
+            <div class="h-6"></div>
+        </div>
+        <!-- Seen-By Modal (Mock Hidden by default) -->
+        <div class="hidden absolute inset-0 z-[60] flex items-end bg-black/40 backdrop-blur-[2px]">
+            <div
+                class="w-full bg-white dark:bg-zinc-900 rounded-t-3xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-300">
+                <div class="w-12 h-1.5 bg-gray-200 dark:bg-zinc-700 rounded-full mx-auto mb-6"></div>
+                <h3 class="text-[#181211] dark:text-white text-lg font-bold mb-4">Message Info</h3>
+                <div class="space-y-4">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-[#896761] dark:text-zinc-500">Seen by
+                    </p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="size-10 rounded-full bg-gray-100" data-alt="Avatar"></div>
+                            <div>
+                                <p class="text-sm font-bold dark:text-white">Marcus</p>
+                                <p class="text-xs text-[#896761]">Today at 8:48 PM</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-primary">done_all</span>
+                    </div>
+                </div>
+                <button
+                    class="w-full mt-8 py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20">Close</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

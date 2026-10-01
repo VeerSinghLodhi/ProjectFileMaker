@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>HotOrNot Premium - Add Post</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@100..900&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ed462c",
+                        "accent-orange": "#FF7E1A",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221310",
+                    },
+                    fontFamily: {
+                        "display": ["Epilogue", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .brand-gradient {
+            background: linear-gradient(135deg, #ed462c 0%, #FF7E1A 100%);
+        }
+
+        .soft-blur-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-white dark:bg-background-dark font-display text-[#181211] min-h-screen relative">
+    <!-- Background Flourish Orbs -->
+    <div class="soft-blur-bg">
+        <div class="orb bg-primary w-[300px] h-[300px] -top-20 -left-20"></div>
+        <div class="orb bg-accent-orange w-[250px] h-[250px] bottom-40 -right-10"></div>
+    </div>
+    <!-- Sticky Header -->
+    <header
+        class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-[#e6dddb]/30 px-4 h-16 flex items-center justify-between">
+        <button class="flex items-center justify-center size-10 rounded-full hover:bg-black/5 transition-colors">
+            <span class="material-symbols-outlined text-2xl text-[#181211]">arrow_back_ios_new</span>
+        </button>
+        <h1 class="text-[#181211] text-lg font-black tracking-tight">New Post</h1>
+        <div class="size-10"></div> <!-- Spacer for symmetry -->
+    </header>
+    <main class="max-w-md mx-auto p-4 pb-32 space-y-6">
+        <!-- Image Upload Section -->
+        <section>
+            <div class="relative group cursor-pointer">
+                <!-- If image is selected, this card would be replaced by the image. Showing the placeholder first -->
+                <div
+                    class="flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-primary bg-primary/5 px-6 py-20 transition-all hover:bg-primary/10">
+                    <div
+                        class="size-16 rounded-full bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                        <span class="material-symbols-outlined text-3xl">add_a_photo</span>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[#181211] text-lg font-bold leading-tight">Share your best shot</p>
+                        <p class="text-[#896761] text-sm font-normal mt-1">Tap to select a high-resolution photo</p>
+                    </div>
+                    <button
+                        class="brand-gradient text-white px-6 py-2 rounded-full font-bold text-sm shadow-md transition-transform active:scale-95">
+                        Select Photo
+                    </button>
+                </div>
+                <!-- Remove Button (Hidden in placeholder, shown in preview) -->
+                <!-- <button class="absolute top-4 right-4 bg-black/50 backdrop-blur-md text-white size-8 rounded-full flex items-center justify-center transition-opacity">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button> -->
+            </div>
+        </section>
+        <!-- Caption Field -->
+        <section>
+            <label class="block">
+                <span class="text-[#181211] text-sm font-bold uppercase tracking-widest px-1">Caption</span>
+                <textarea
+                    class="mt-2 w-full rounded-xl border border-[#e6dddb] bg-white p-4 text-[#181211] placeholder:text-[#896761] focus:border-primary focus:ring-1 focus:ring-primary min-h-[120px] transition-all outline-none"
+                    placeholder="Tell your story..."></textarea>
+            </label>
+        </section>
+        <!-- Music Section -->
+        <section>
+            <div class="flex items-center justify-between mb-3 px-1">
+                <h3 class="text-[#181211] text-sm font-bold uppercase tracking-widest">Add Music</h3>
+                <button class="text-primary text-xs font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">search</span>
+                    Browse
+                </button>
+            </div>
+            <!-- Music Selection Component -->
+            <div
+                class="flex items-center gap-4 rounded-xl bg-white p-3 border border-[#e6dddb] shadow-sm hover:shadow-md transition-shadow">
+                <div class="size-16 rounded-lg bg-cover bg-center flex-shrink-0 relative group"
+                    data-alt="album cover for popular song"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBYVdoVP3gHw2oi5uEWOXW_KGfcBExfJfhQMAolQ39HflFVhOupbVaPv3wZVyoMNnLYv1qZiGSQFph8qR8uM4L6a3JnpJDIuCrp1c-4JkwKszCsp8yilZ8NdtlMpOCQQwyYZx-yViVTNnDgnEF1kjVnaSA5fcZCRkhLs-vte-FhjnPignbIdYCCq6kYJyW4JyuKzWFKh8E6ijKDygH6GXRblFBBYDcMJsVoRvdDQgPqM4MJYzIT3WrPmZud0Asd5bWJ0o9l_bJOQeE");'>
+                    <div
+                        class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                        <span class="material-symbols-outlined text-white">play_arrow</span>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <p class="text-[#181211] text-base font-bold truncate">Starboy</p>
+                    <p class="text-[#896761] text-sm font-normal truncate">The Weeknd, Daft Punk</p>
+                </div>
+                <button
+                    class="size-8 rounded-full bg-[#f4f1f0] flex items-center justify-center hover:bg-primary/10 transition-colors group">
+                    <span class="material-symbols-outlined text-sm text-[#181211] group-hover:text-primary">close</span>
+                </button>
+            </div>
+        </section>
+        <!-- Hashtag Suggestions -->
+        <section>
+            <h3 class="text-[#181211] text-sm font-bold uppercase tracking-widest px-1 mb-3">Trending Tags</h3>
+            <div class="flex flex-wrap gap-2">
+                <div
+                    class="brand-gradient text-white px-4 py-2 rounded-full text-sm font-bold shadow-sm cursor-pointer hover:brightness-110 transition-all flex items-center gap-1">
+                    #Hot
+                </div>
+                <div
+                    class="bg-white border border-[#e6dddb] text-[#181211] px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-all cursor-pointer">
+                    #VibeCheck
+                </div>
+                <div
+                    class="bg-white border border-[#e6dddb] text-[#181211] px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-all cursor-pointer">
+                    #Nightlife
+                </div>
+                <div
+                    class="bg-white border border-[#e6dddb] text-[#181211] px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-all cursor-pointer">
+                    #OOTD
+                </div>
+                <div
+                    class="bg-white border border-[#e6dddb] text-[#181211] px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-all cursor-pointer">
+                    #Summer24
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Fixed Bottom Action Bar -->
+    <div
+        class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md p-4 border-t border-[#e6dddb]/30 safe-area-bottom">
+        <div class="max-w-md mx-auto">
+            <button
+                class="w-full brand-gradient text-white py-4 rounded-xl font-black text-lg shadow-xl shadow-primary/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                Share Post
+                <span class="material-symbols-outlined">send</span>
+            </button>
+        </div>
+    </div>
+    <!-- Error/Warning Overlay (Hidden by default, controlled via JS typically) -->
+    <!-- To demonstrate, using a wrapper that can be toggled -->
+    <div class="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm items-center justify-center p-6 hidden">
+        <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
+            <div class="p-8 text-center">
+                <div class="size-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span class="material-symbols-outlined text-4xl text-primary">warning</span>
+                </div>
+                <h2 class="text-xl font-black text-[#181211] mb-2">Review Required</h2>
+                <p class="text-[#896761] leading-relaxed">
+                    Our AI detected content that might violate community guidelines. Please review the image or caption
+                    before sharing.
+                </p>
+            </div>
+            <div class="flex flex-col border-t border-[#e6dddb]">
+                <button class="p-4 text-primary font-bold text-base hover:bg-primary/5 transition-colors">Edit
+                    Content</button>
+                <button
+                    class="p-4 text-[#896761] font-medium text-sm border-t border-[#e6dddb] hover:bg-gray-50 transition-colors">Learn
+                    More</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

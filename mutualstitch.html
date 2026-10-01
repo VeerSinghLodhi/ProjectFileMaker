@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "brand-red": "#ed462c",
+                        "brand-orange": "#FF4E00",
+                        "premium-white": "#FFFFFF",
+                        "soft-gray": "#F8F9FA",
+                    },
+                    fontFamily: {
+                        "jakarta": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "pill": "9999px",
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .brand-gradient {
+                @apply bg-gradient-to-r from-brand-red to-brand-orange;
+            }
+            .glass-header {
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+            }
+            .orb {
+                position: absolute;
+                width: 400px;
+                height: 400px;
+                border-radius: 50%;
+                filter: blur(100px);
+                z-index: -1;
+                opacity: 0.1;
+            }
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scratch-surface {
+                background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 50%, #e0e0e0 100%);
+                mask-image: radial-gradient(circle at 50% 50%, transparent 40%, black 100%);
+            }
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-premium-white font-jakarta text-[#1a1a1a] min-h-screen relative overflow-x-hidden">
+    <div class="orb brand-gradient top-[-100px] left-[-150px]"></div>
+    <div class="orb brand-gradient bottom-[20%] right-[-150px]"></div>
+    <header
+        class="sticky top-0 z-[60] bg-white/90 backdrop-blur-xl px-6 py-4 flex items-center justify-between border-b border-gray-50">
+        <h1 class="text-2xl font-extrabold tracking-tighter uppercase italic">Hot<span
+                class="text-brand-red">Or</span>Not</h1>
+        <div class="flex items-center gap-3">
+            <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                <span class="material-symbols-outlined text-[22px]">search</span>
+            </button>
+            <div class="w-10 h-10 rounded-full border-2 border-brand-red p-0.5">
+                <img alt="Profile" class="w-full h-full object-cover rounded-full"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuB73UScvRBmm3AE8FeVy_8rn9T8d-neviN7HawUJ6wz0c7sQmlCcFAt5dwIjDq5bg43SnOiqoLCpYIl9SeHVfWYiCTkmJcXb4-p1w_G442VocwQKNy9VoBXM98AP-ioHBT1BTH2ZLUFDI09OqJRp9B8ZIsOJTA-07aG5xeCwes-5fvPE069QGM4InLZMYFKUmxJWf948-iwD_wiAzTnS_BWASgM8C6eIWpnDdZDNRCf5NDUuGflXRYbIOZBRCaOFu4ZsQ57h64vBns" />
+            </div>
+        </div>
+    </header>
+    <main class="pb-32">
+        <div class="flex overflow-x-auto gap-2 px-6 py-4 no-scrollbar items-center">
+            <button
+                class="px-6 py-2.5 rounded-pill text-sm font-bold brand-gradient text-white whitespace-nowrap shadow-lg shadow-brand-red/20">Mutual</button>
+            <button
+                class="px-6 py-2.5 rounded-pill text-sm font-bold bg-gray-100 text-gray-500 whitespace-nowrap">Whisper</button>
+            <button
+                class="px-6 py-2.5 rounded-pill text-sm font-bold bg-gray-100 text-gray-500 whitespace-nowrap">Hit-Ups</button>
+            <button
+                class="px-6 py-2.5 rounded-pill text-sm font-bold bg-gray-100 text-gray-500 whitespace-nowrap">Invite</button>
+            <button
+                class="px-6 py-2.5 rounded-pill text-sm font-bold bg-gray-100 text-gray-500 whitespace-nowrap">Gifts</button>
+            <button
+                class="px-6 py-2.5 rounded-pill text-sm font-bold bg-gray-100 text-gray-500 whitespace-nowrap">Quiz</button>
+        </div>
+        <section class="px-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-extrabold flex items-center gap-2">
+                    Mutual Crushes <span
+                        class="bg-brand-red/10 text-brand-red text-xs px-2 py-0.5 rounded-full">12</span>
+                </h2>
+                <button class="text-xs font-bold text-brand-red">View All</button>
+            </div>
+            <div class="space-y-4">
+                <div
+                    class="bg-white rounded-3xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-50 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div class="w-14 h-14 rounded-full border-2 border-brand-red p-0.5">
+                                <img alt="Crush" class="w-full h-full object-cover rounded-full"
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCONyf-9pnqs5YKFomKVgRe7TTt40UIW2N_y8DQS6ImXHcC9aY3Gyx2hEP5E4c-X8w31-r0d5WXzu400QMzvUkRsrkR7mhn7lHsMnCcZ7VLP192BPH5FrVCuLwVmw2dOrNTuqYN87DArOr6Sq1mhUmTPsO7bhvgEewvyDmSqJ-QIZSNG5fv6y1wERxjv-S4YKb3D-p-vNkt--3rXK-FXGs94u6ZolCbOxvsCRFSvNfCtD8mdim8TgBMuxanmCLLxflXATGYshliJd0" />
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-sm">
+                                <span
+                                    class="material-symbols-outlined text-brand-red text-[14px] leading-none fill-1">favorite</span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="font-bold text-[15px]">Sophia, 24</p>
+                            <p class="text-[11px] text-gray-400 flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-green-500"></span> Online now
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button
+                            class="w-10 h-10 rounded-2xl bg-orange-50 text-brand-orange flex items-center justify-center">
+                            <span class="material-symbols-outlined fill-1">local_fire_department</span>
+                        </button>
+                        <button
+                            class="w-10 h-10 rounded-2xl bg-brand-red text-white flex items-center justify-center shadow-lg shadow-brand-red/20">
+                            <span class="material-symbols-outlined">chat_bubble</span>
+                        </button>
+                    </div>
+                </div>
+                <div
+                    class="bg-white rounded-3xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-50 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div class="w-14 h-14 rounded-full border-2 border-brand-red p-0.5">
+                                <img alt="Crush" class="w-full h-full object-cover rounded-full"
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWKaC51FF_z5EFc0Zzn3sHkFkfJ4vYgkdX-w-X3rxS3AfoI2WWudXKoGHYEagwMOYAmlAPFD9057DQdymDdOyVzj32Acag-sT4hH1moZ-P_jFiqfQpZRrmR49ZDpPYyRzGTG80OsAnHkL-0htnoJFsV7Ql-Tym8TWLW7oz-OccdwcAvs-abX2hab4wl3aRQaAEhP7c4n5Slao_qRgbeejb8V8OBptuOrwVSM4WcH95sajOntEBqxQCBSgpyYIkyOPH_G4GZ9YMmtA" />
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-sm">
+                                <span
+                                    class="material-symbols-outlined text-brand-red text-[14px] leading-none fill-1">favorite</span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="font-bold text-[15px]">Alex, 26</p>
+                            <p class="text-[11px] text-gray-400">Matched 2h ago</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button
+                            class="w-10 h-10 rounded-2xl bg-orange-50 text-brand-orange flex items-center justify-center">
+                            <span class="material-symbols-outlined fill-1">local_fire_department</span>
+                        </button>
+                        <button
+                            class="w-10 h-10 rounded-2xl bg-brand-red text-white flex items-center justify-center shadow-lg shadow-brand-red/20">
+                            <span class="material-symbols-outlined">chat_bubble</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="px-6">
+            <div
+                class="bg-gray-900 rounded-3xl p-5 mb-6 text-white relative overflow-hidden flex items-center justify-between">
+                <div class="relative z-10">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Your Balance</p>
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl font-extrabold">2,450</span>
+                        <span class="material-symbols-outlined text-brand-orange fill-1">toll</span>
+                    </div>
+                </div>
+                <button class="relative z-10 brand-gradient px-4 py-2 rounded-2xl text-xs font-bold">Top Up</button>
+                <div class="absolute top-0 right-0 w-32 h-32 bg-brand-red/20 blur-3xl -mr-16 -mt-16"></div>
+            </div>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-extrabold">Send a Gift</h2>
+                <span class="material-symbols-outlined text-gray-400">info</span>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div
+                    class="bg-white rounded-3xl p-4 border border-gray-100 flex flex-col items-center text-center shadow-sm">
+                    <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-3">
+                        <span class="material-symbols-outlined text-brand-red text-3xl">filter_vintage</span>
+                    </div>
+                    <p class="font-bold text-sm mb-1">Premium Rose</p>
+                    <div class="flex items-center gap-1 mb-4">
+                        <span class="material-symbols-outlined text-[14px] text-brand-orange fill-1">toll</span>
+                        <span class="text-xs font-bold text-gray-500">50</span>
+                    </div>
+                    <button
+                        class="w-full py-2 bg-gray-50 rounded-xl text-[11px] font-bold hover:bg-brand-red hover:text-white transition-colors">SEND</button>
+                </div>
+                <div
+                    class="bg-white rounded-3xl p-4 border border-gray-100 flex flex-col items-center text-center shadow-sm">
+                    <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-3">
+                        <span class="material-symbols-outlined text-brand-orange text-3xl">diamond</span>
+                    </div>
+                    <p class="font-bold text-sm mb-1">Diamond Ring</p>
+                    <div class="flex items-center gap-1 mb-4">
+                        <span class="material-symbols-outlined text-[14px] text-brand-orange fill-1">toll</span>
+                        <span class="text-xs font-bold text-gray-500">500</span>
+                    </div>
+                    <button
+                        class="w-full py-2 bg-gray-50 rounded-xl text-[11px] font-bold hover:bg-brand-red hover:text-white transition-colors">SEND</button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- <div class="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center px-6">
+        <div
+            class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div class="p-8 text-center">
+                <h3 class="text-xl font-extrabold mb-2">You've Got a Gift!</h3>
+                <p class="text-sm text-gray-500 mb-8">Scratch the surface to reveal what @sophia_vibe sent you</p>
+                <div
+                    class="relative w-full aspect-square max-w-[240px] mx-auto mb-8 rounded-3xl overflow-hidden shadow-inner bg-gray-50 border-4 border-white">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center bg-orange-50">
+                        <span
+                            class="material-symbols-outlined text-brand-orange text-6xl mb-2 animate-bounce">card_giftcard</span>
+                        <p class="font-bold text-brand-orange">Golden Trophy</p>
+                    </div>
+                    <div
+                        class="absolute inset-0 scratch-surface flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity">
+                        <div class="flex flex-col items-center gap-2 opacity-30">
+                            <span class="material-symbols-outlined text-5xl">draw</span>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.2em]">Scratch Here</p>
+                        </div>
+                    </div>
+                </div>
+                <button
+                    class="w-full py-4 rounded-2xl brand-gradient text-white font-extrabold text-sm shadow-xl shadow-brand-red/20 mb-3">
+                    REVEAL &amp; THANK
+                </button>
+                <button class="text-sm font-bold text-gray-400">Skip for now</button>
+            </div>
+        </div>
+    </div> -->
+    <nav
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-white/90 backdrop-blur-xl border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-[2.5rem] px-6 py-4 flex items-center justify-between z-50">
+        <button class="flex flex-col items-center gap-1 text-gray-400">
+            <span class="material-symbols-outlined">explore</span>
+            <span class="text-[10px] font-bold">Arena</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-brand-red">
+            <span class="material-symbols-outlined fill-1">favorite</span>
+            <span class="text-[10px] font-bold">Crush</span>
+        </button>
+        <div class="relative -top-10">
+            <button
+                class="brand-gradient w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl shadow-brand-red/40 border-4 border-white">
+                <span class="material-symbols-outlined text-3xl font-bold">add</span>
+            </button>
+        </div>
+        <button class="flex flex-col items-center gap-1 text-gray-400">
+            <span class="material-symbols-outlined">leaderboard</span>
+            <span class="text-[10px] font-bold">Rank</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-gray-400">
+            <span class="material-symbols-outlined">person</span>
+            <span class="text-[10px] font-bold">Profile</span>
+        </button>
+    </nav>
+
+</body>
+
+</html>

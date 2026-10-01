@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ed462c",
+                        "background-light": "#ffffff",
+                        "background-dark": "#18181b",
+                    },
+                    fontFamily: {
+                        "display": ["Epilogue", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .scroll-snap-y {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: 100vh;
+        }
+
+        .snap-start {
+            scroll-snap-align: start;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .thermometer-track {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .fire-glow {
+            box-shadow: 0 0 20px 5px rgba(237, 70, 44, 0.4);
+        }
+
+        /* Custom thin scrollbar */
+        ::-webkit-scrollbar {
+            width: 0px;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display">
+    <!-- Vertical Full-Screen Feed -->
+    <main class="scroll-snap-y w-full h-screen overflow-x-hidden relative">
+        <!-- Post 1 -->
+        <section
+            class="snap-start relative w-full h-screen overflow-hidden flex flex-col items-center justify-center p-2">
+            <!-- Minimalist White Edge Border -->
+            <div class="absolute inset-2 border-[1.5px] border-white/40 rounded-xl pointer-events-none z-10"></div>
+            <!-- Background Image -->
+            <div class="absolute inset-0 w-full h-full bg-center bg-no-repeat bg-cover"
+                data-alt="Young stylish traveler standing on a cliff overlooking the ocean"
+                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCrdSFzvaDnSx0ODDjup17HXyEsSIuJnS1ZJWJtzk_4liPGvqc3aTt2uXUeO07Pi8W28d2Ar5Ea5FwtZJ4Ue2QMabFswlDvOAGxsORdKdzNeJPGpsC6Ra3RtxjfL_nr2-_jS8w0Jm4UH3A_6OJ92CKKjv5VqgwWmz-LSkyWub4EqTBt4fneUtdjRGqCR0xNpSz4aBh0PBOKaiiHIBntCr1DaF3uKGgqLwqTdUIcz3G-j1r6hnbclfmiaNyv3hp7k7Tn53kb9Ip8uLo");'>
+            </div>
+            <!-- Background Gradient Orbs (Subtle transition visuals) -->
+            <div class="absolute -top-20 -left-20 w-64 h-64 bg-primary/20 rounded-full blur-[80px] pointer-events-none">
+            </div>
+            <div
+                class="absolute top-1/2 -right-20 w-80 h-80 bg-orange-400/10 rounded-full blur-[100px] pointer-events-none">
+            </div>
+            <!-- Top Overlay: Timer & Menu -->
+            <div class="absolute top-0 left-0 w-full z-20 px-6 pt-10">
+                <!-- 10s Progress Bar -->
+                <div class="w-full flex flex-col gap-2">
+                    <div class="h-[3px] w-full bg-white/30 rounded-full overflow-hidden">
+                        <div class="h-full bg-primary w-[70%]" style="box-shadow: 0 0 8px #ed462c;"></div>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-white text-[10px] font-bold tracking-widest uppercase opacity-80">Rating
+                            Window</span>
+                        <!-- Top Bar Menu -->
+                        <button
+                            class="bg-white/20 backdrop-blur-md p-2 rounded-lg flex items-center justify-center text-white">
+                            <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Vertical Fire Thermometer (Rating Slider) -->
+            <div class="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 z-30">
+                <div
+                    class="relative w-12 h-64 thermometer-track rounded-full flex flex-col items-center justify-end p-1">
+                    <!-- Numbers indicator -->
+                    <div
+                        class="absolute inset-y-6 flex flex-col justify-between items-center text-[10px] font-bold text-white/60 pointer-events-none">
+                        <span>10</span>
+                        <span>5</span>
+                        <span>1</span>
+                    </div>
+                    <!-- The Slider Handle (Bulb) -->
+                    <div class="relative w-10 h-10 bg-primary rounded-full flex items-center justify-center fire-glow mb-8 cursor-pointer shadow-lg"
+                        style="bottom: 40%;">
+                        <span class="text-white text-xs font-bold">8</span>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="material-symbols-outlined text-primary fill-1">local_fire_department</span>
+                    <span class="text-[10px] font-bold text-white uppercase tracking-tighter">Rate</span>
+                </div>
+            </div>
+            <!-- Info Overlay (Bottom Card) -->
+            <div class="absolute bottom-6 left-6 right-20 z-20">
+                <div class="glass-card p-4 rounded-xl flex flex-col gap-3 shadow-2xl">
+                    <!-- User Header -->
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-full border-2 border-[#FF8000] p-0.5">
+                                <div class="w-full h-full rounded-full bg-center bg-cover"
+                                    data-alt="Modern close up portrait of TASA Explorer"
+                                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC9e4njRbz3PhPhRQbN7Yl-dPThHC3HGpTX4YdKa6C7GLO_zPlqHsv8-EX3kkamj2SAa3-8rLcdFWfqzWrCzHmEg2f1KM1TcmiZeQ9u6xX5pyrZiK_LjAriguX1E66xsyX1f4n-btcDn7-uoJhOw_0BW3QJYfeSB7foE_MBzPZMIUasmjlrrl2WFH9Qs_kDGhHoSzOjBpG3ZmWxFv5eabbUBmv3RcZ2ybwrAfFpqiHyPXtXKufLodp10lMENOXc4OqfJK3uZrts-f8');">
+                                </div>
+                            </div>
+                            <div
+                                class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full">
+                            </div>
+                        </div>
+                        <div class="flex flex-col">
+                            <p class="text-black font-extrabold text-lg leading-tight">TASA Explorer</p>
+                            <div
+                                class="flex items-center gap-1 text-[10px] text-gray-500 font-bold uppercase tracking-wide">
+                                <span class="material-symbols-outlined text-[12px]">location_on</span>
+                                <span>Ibiza, Spain</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Caption -->
+                    <div class="flex flex-col gap-1">
+                        <p class="text-sm text-[#3D3F43] font-medium leading-relaxed">
+                            Chilling by the beach this weekend! Catching the golden hour vibes.
+                        </p>
+                        <p class="text-primary text-xs font-bold">#summer #fashion #beachlife</p>
+                    </div>
+                    <!-- Music Marquee -->
+                    <div class="flex items-center gap-2 bg-black/5 rounded-full px-3 py-1.5 w-fit max-w-full">
+                        <span class="material-symbols-outlined text-[16px] text-black">music_note</span>
+                        <div class="marquee-container">
+                            <p class="text-[11px] font-bold text-black/80">Sunset Sessions - Local Artist (Extended Mix)
+                                • 0:42</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Post 2 (Duplicate for scroll feel) -->
+        <section
+            class="snap-start relative w-full h-screen overflow-hidden flex flex-col items-center justify-center p-2">
+            <div class="absolute inset-2 border-[1.5px] border-white/40 rounded-xl pointer-events-none z-10"></div>
+            <div class="absolute inset-0 w-full h-full bg-center bg-no-repeat bg-cover"
+                data-alt="Abstract red and orange glowing sunset colors"
+                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDbGL98lin2fYqrt43y8PMAmfqETwbAtBcI66Ch_4NnNzbVV34P93iqITKoJk0aboQ83aPOV5vYdwI424N23_DpqpZg5SW58_qw2Nq6fdrCnljXjZgnxtzuq8jeCP3mwkumDw1_-TcWNIa6-Y895lWWSUMDGysa4qMyg_G9zvIBUlQIQDgtoxVmBIHomLmWVGNndGjVwAMwYOeXOWObbnd5FQRnhpIHoCZdoF703qYHlJ68ad4qzwssguGgmr1rpY392Nv8p80EXCc");'>
+            </div>
+            <!-- Top Overlay -->
+            <div class="absolute top-0 left-0 w-full z-20 px-6 pt-10">
+                <div class="w-full flex flex-col gap-2">
+                    <div class="h-[3px] w-full bg-white/30 rounded-full overflow-hidden">
+                        <div class="h-full bg-primary w-[30%]" style="box-shadow: 0 0 8px #ed462c;"></div>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-white text-[10px] font-bold tracking-widest uppercase opacity-80">Rating
+                            Window</span>
+                        <button
+                            class="bg-white/20 backdrop-blur-md p-2 rounded-lg flex items-center justify-center text-white">
+                            <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Vertical Slider -->
+            <div class="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 z-30">
+                <div
+                    class="relative w-12 h-64 thermometer-track rounded-full flex flex-col items-center justify-end p-1">
+                    <div
+                        class="absolute inset-y-6 flex flex-col justify-between items-center text-[10px] font-bold text-white/60 pointer-events-none">
+                        <span>10</span>
+                        <span>5</span>
+                        <span>1</span>
+                    </div>
+                    <div
+                        class="relative w-10 h-10 bg-primary rounded-full flex items-center justify-center fire-glow mb-2 cursor-pointer shadow-lg">
+                        <span class="text-white text-xs font-bold">1</span>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="material-symbols-outlined text-primary">local_fire_department</span>
+                    <span class="text-[10px] font-bold text-white uppercase tracking-tighter">Rate</span>
+                </div>
+            </div>
+            <!-- Info Overlay -->
+            <div class="absolute bottom-6 left-6 right-20 z-20">
+                <div class="glass-card p-4 rounded-xl flex flex-col gap-3 shadow-2xl">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-full border-2 border-[#FF8000] p-0.5">
+                                <div class="w-full h-full rounded-full bg-center bg-cover"
+                                    data-alt="Avatar of user with sunglasses"
+                                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDShwGeiFbknYTpflmPXgyiOxaIlOGj6V6n-5raZdykY1FI63KazoWMdg5-uR2Cpuw1qqzpYHUXMlPoHfRyg6uz7d_835BGtn9eXa0fS1aIuHZvXHheaZEYg-yocvlgoVWyRJY7XHX0_uMq0_eakr91ulSuOdeGsEktnlVCtFRgeKdgyLuvbKdiDFgSn3LA4wnA2dkd_gLfZS594c4Ac3FrLQTJYZAHde3uP4PEHYB5nvMN5FxTLKygBAH4mGBobwGmcGak50vmzLQ');">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col">
+                            <p class="text-black font-extrabold text-lg leading-tight">Urban_Vibe</p>
+                            <div
+                                class="flex items-center gap-1 text-[10px] text-gray-500 font-bold uppercase tracking-wide">
+                                <span class="material-symbols-outlined text-[12px]">location_on</span>
+                                <span>Berlin, Germany</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p class="text-sm text-[#3D3F43] font-medium leading-relaxed">
+                            Neon nights and city lights. The urban jungle is my playground tonight.
+                        </p>
+                        <p class="text-primary text-xs font-bold">#nightlife #cityscape #neon</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-black/5 rounded-full px-3 py-1.5 w-fit max-w-full">
+                        <span class="material-symbols-outlined text-[16px] text-black">music_note</span>
+                        <div class="marquee-container">
+                            <p class="text-[11px] font-bold text-black/80">Techno Heartbeat - Berlin Pulse Remix • 3:15
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Navigation Bar (iOS Style) -->
+    <nav
+        class="fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-xl border-t border-gray-100 flex justify-around items-center py-4 pb-8 z-50">
+        <button class="flex flex-col items-center gap-1 text-primary">
+            <span class="material-symbols-outlined fill-1">style</span>
+            <span class="text-[10px] font-bold uppercase">Rate</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-gray-400">
+            <span class="material-symbols-outlined">explore</span>
+            <span class="text-[10px] font-bold uppercase">Discover</span>
+        </button>
+        <div
+            class="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-lg -mt-8 border-4 border-white">
+            <span class="material-symbols-outlined text-white">add</span>
+        </div>
+        <button class="flex flex-col items-center gap-1 text-gray-400">
+            <span class="material-symbols-outlined">chat_bubble</span>
+            <span class="text-[10px] font-bold uppercase">Inbox</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-gray-400">
+            <span class="material-symbols-outlined">person</span>
+            <span class="text-[10px] font-bold uppercase">Profile</span>
+        </button>
+    </nav>
+</body>
+
+</html>

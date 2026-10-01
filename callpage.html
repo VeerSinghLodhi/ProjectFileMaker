@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ed462c",
+                        "background-light": "#ffffff",
+                        "background-dark": "#1a1a1a",
+                    },
+                    fontFamily: {
+                        "display": ["Epilogue"]
+                    },
+                    borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .glass-pill {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .pulse-ring {
+            box-shadow: 0 0 0 0 rgba(237, 70, 44, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(237, 70, 44, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(237, 70, 44, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(237, 70, 44, 0);
+            }
+        }
+
+        .bg-orb-1 {
+            background: radial-gradient(circle, rgba(237, 70, 44, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+
+        .bg-orb-2 {
+            background: radial-gradient(circle, rgba(255, 165, 0, 0.06) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-[#181211] overflow-hidden">
+    <!-- Ambient Background Orbs -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden">
+        <div class="bg-orb-1 absolute -top-20 -left-20 w-[400px] h-[400px] rounded-full"></div>
+        <div class="bg-orb-2 absolute -bottom-40 -right-20 w-[600px] h-[600px] rounded-full"></div>
+    </div>
+    <!-- Main Container -->
+    <div class="relative flex h-screen w-full flex-col z-10">
+        <!-- TopAppBar Component -->
+        <header class="flex items-center p-6 justify-between w-full">
+            <div class="flex items-center justify-center size-12 cursor-pointer">
+                <span class="material-symbols-outlined text-[#181211] text-[24px]">arrow_back_ios_new</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="flex items-center gap-1 bg-gray-100/80 px-3 py-1 rounded-full">
+                    <span class="material-symbols-outlined text-green-600 text-[14px]">shield_lock</span>
+                    <span class="text-[10px] font-bold tracking-widest uppercase text-gray-500">Encrypted</span>
+                </div>
+            </div>
+            <div class="flex w-12 items-center justify-end">
+                <button class="flex items-center justify-center size-12 rounded-full bg-transparent">
+                    <span class="material-symbols-outlined text-[#181211] text-[24px]">more_vert</span>
+                </button>
+            </div>
+        </header>
+        <!-- ProfileHeader Component -->
+        <main class="flex-1 flex flex-col items-center justify-center px-4 pb-32">
+            <div class="flex flex-col items-center gap-8 w-full">
+                <!-- Avatar with pulsing ring -->
+                <div class="relative">
+                    <div class="pulse-ring rounded-full">
+                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-48 w-48 border-4 border-white shadow-xl"
+                            data-alt="Close up portrait of a stylish explorer person"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCxZIyhlrzkstQfczjH0ePqGr-itBSxwSm5K675iSpdgin8dC_sWSLf07g6aV92HXqMvxgsc0ucokWY5-mE3fNwGoSB1-bJ5RwsfcuIkynzUK_3j4UvT3jviRBRlguIXS0KnjXIEKh5nJ8shw9cRG-cDXAQyy0EkmQa_VwALWW1Tlce6wuWFpy-Rm7lXODfwOOpP12EDEpyO2f8QNaAzZwcl3CPtuo4IvugyFyAxjjl2ZtT3HvKnMmC5bquM9SLB6G0LVYXQ9B6nLU");'>
+                        </div>
+                    </div>
+                    <!-- Small status indicator -->
+                    <div class="absolute bottom-2 right-6 size-6 bg-green-500 border-4 border-white rounded-full"></div>
+                </div>
+                <!-- Text Content -->
+                <div class="flex flex-col items-center space-y-2">
+                    <h1 class="text-[#181211] text-[32px] font-bold leading-tight tracking-[-0.03em] text-center">TASA
+                        Explorer</h1>
+                    <div class="flex flex-col items-center gap-1">
+                        <p class="text-primary text-lg font-semibold tracking-wide">00:45</p>
+                        <p class="text-gray-400 text-sm font-medium tracking-widest uppercase">Ongoing Call</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- Floating ActionsBar Pill -->
+        <div class="fixed bottom-10 left-1/2 -translate-x-1/2 w-[90%] max-w-[400px]">
+            <div class="glass-pill rounded-full p-4 shadow-2xl flex items-center justify-between">
+                <!-- Mute -->
+                <div class="flex flex-col items-center gap-1 flex-1">
+                    <button
+                        class="size-14 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                        <span class="material-symbols-outlined text-[#181211] text-[24px]">mic_off</span>
+                    </button>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Mute</span>
+                </div>
+                <!-- End Call (Central Action) -->
+                <div class="flex flex-col items-center gap-1 flex-1">
+                    <button
+                        class="size-20 rounded-full bg-primary hover:bg-[#d63a22] flex items-center justify-center shadow-lg shadow-primary/40 transition-transform active:scale-95">
+                        <span class="material-symbols-outlined text-white text-[32px]">call_end</span>
+                    </button>
+                </div>
+                <!-- Speaker -->
+                <div class="flex flex-col items-center gap-1 flex-1">
+                    <button
+                        class="size-14 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                        <span class="material-symbols-outlined text-[#181211] text-[24px]">volume_up</span>
+                    </button>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Speaker</span>
+                </div>
+            </div>
+        </div>
+        <!-- Safe Area Spacer for iOS Home Indicator -->
+        <div class="h-8 w-full bg-transparent"></div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>HotOrNot Petal Fortune</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Epilogue:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f73e22",
+                        "brand-orange": "#FF6F3D",
+                        "background-light": "#f8f6f5",
+                        "background-dark": "#221210",
+                        "soft-pink": "#FCE6E4",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "accent": ["Epilogue", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .petal-float {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .gradient-orb {
+            position: absolute;
+            filter: blur(80px);
+            z-index: 0;
+            border-radius: 9999px;
+        }
+        .flower-container {
+            perspective: 1000px;
+            position: relative;
+            width: clamp(200px, 70vw, 280px);
+            height: clamp(200px, 70vw, 280px);
+            margin: 0 auto;
+        }
+        
+        /* Center */
+        .center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: clamp(60px, 14vw, 80px);
+            height: clamp(60px, 14vw, 80px);
+            background: radial-gradient(circle at 35% 35%, #fff176 0%, #ffd54f 30%, #ffa726 100%);
+            border-radius: 50%;
+            box-shadow:
+                0 4px 12px rgba(0,0,0,0.3),
+                inset -5px -5px 15px rgba(0,0,0,0.2);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.6rem, 5vw, 2.2rem);
+            color: transparent;
+            transition: all 0.4s ease;
+        }
+
+        .center::before {
+            content: '';
+            position: absolute;
+            inset: 12%;
+            background: repeating-radial-gradient(
+                circle,
+                transparent 0px,
+                transparent 2px,
+                rgba(139,69,19,0.15) 2px,
+                rgba(139,69,19,0.15) 3px
+            );
+            border-radius: 50%;
+        }
+
+        .center.show-result {
+            width: clamp(90px, 22vw, 120px);
+            height: clamp(90px, 22vw, 120px);
+            font-size: clamp(2.4rem, 7vw, 3rem);
+            color: #c2185b;
+        }
+
+        .center.loves-me {
+            color: #c2185b;
+        }
+
+        /* Stem */
+        .stem {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            width: clamp(7px, 2vw, 10px);
+            height: clamp(160px, 45vh, 280px);
+            background: linear-gradient(to right, #558b2f, #7cb342, #689f38);
+            border-radius: 10px;
+            z-index: 1;
+            box-shadow:
+                inset -2px 0 5px rgba(0,0,0,0.3),
+                inset 2px 0 5px rgba(139,195,74,0.5);
+        }
+
+        .petal {
+            position: absolute;
+            width: clamp(45px, 11vw, 60px);
+            height: clamp(80px, 18vw, 105px);
+            background: linear-gradient(135deg, #ff4d8f, #ff6ba5, #ff8fb9, #ffc1d4);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            top: 50%;
+            left: 50%;
+            transform-origin: 50% 100%;
+            box-shadow:
+                0 3px 10px rgba(0,0,0,0.2),
+                inset -3px -6px 10px rgba(255,255,255,0.4),
+                inset 3px 6px 10px rgba(255,107,165,0.3);
+            z-index: 3;
+            cursor: pointer;
+        }
+
+        .petal::before {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 30%;
+            width: 40%;
+            height: 50%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.6), transparent);
+            border-radius: 50%;
+            filter: blur(4px);
+        }
+
+        .petal::after {
+            content: '';
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 20%;
+            background: linear-gradient(to bottom, rgba(255,77,143,0.6), transparent);
+        }
+
+        /* Pluck animation */
+        @keyframes pluck {
+            0% {
+                transform: translate(var(--start-x), var(--start-y)) rotate(var(--start-rotate)) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform:
+                    translate(
+                        calc(var(--start-x) + var(--dir-x) * 320px),
+                        calc(var(--start-y) + var(--dir-y) * 420px)
+                    )
+                    rotate(calc(var(--start-rotate) + var(--dir-rotate) * 900deg))
+                    scale(0.2);
+                opacity: 0;
+            }
+        }
+        
+        .petal.plucking {
+            animation: pluck 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            pointer-events: none;
+        }
+
+        .modal-hidden {
+            display: none;
+        }
+
+        .game-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-background-dark font-display overflow-hidden">
+    <div class="relative flex h-screen w-full flex-col bg-white dark:bg-background-dark overflow-hidden">
+        <!-- Background Decor -->
+        <div class="gradient-orb bg-primary/10 w-64 h-64 -top-20 -left-20"></div>
+        <div class="gradient-orb bg-brand-orange/10 w-80 h-80 -bottom-20 -right-20"></div>
+        
+        <!-- Floating Petal Particles -->
+        <div class="petal-float top-20 right-10 w-6 h-8 bg-soft-pink rounded-full rotate-45"></div>
+        <div class="petal-float top-1/2 left-5 w-4 h-6 bg-primary/20 rounded-full -rotate-12"></div>
+        <div class="petal-float bottom-1/4 right-1/4 w-5 h-7 bg-soft-pink rounded-full rotate-[120deg]"></div>
+        
+        <!-- Header -->
+        <header class="relative z-10 flex items-center justify-between px-4 pt-12 pb-4 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-100 dark:border-white/5">
+            <div class="flex items-center gap-3">
+                <button onclick="history.back()" class="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors">
+                    <span class="material-symbols-outlined text-gray-900 dark:text-white">arrow_back_ios_new</span>
+                </button>
+                <div class="bg-soft-pink dark:bg-primary/20 px-3 py-1 rounded-full">
+                    <span class="text-primary dark:text-primary text-xs font-bold tracking-wider uppercase">Petal Fortune</span>
+                </div>
+            </div>
+            <button onclick="showInstructions()" class="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors">
+                <span class="material-symbols-outlined text-gray-900 dark:text-white">help_outline</span>
+            </button>
+        </header>
+        
+        <main class="relative z-10 flex-1 flex flex-col items-center justify-between py-8 overflow-y-auto">
+            <!-- Dynamic Result Banner -->
+            <div class="text-center px-6">
+                <h2 id="resultText" class="text-primary text-4xl font-accent font-bold italic tracking-tight mb-2">🌸 Petal Fortune</h2>
+                <p id="resultSubtext" class="text-gray-500 dark:text-gray-400 text-sm font-medium">Enter a name to start plucking petals</p>
+            </div>
+            
+            <!-- Game Area: The Flower -->
+            <div id="flowerWrapper" class="game-hidden transition-opacity duration-500">
+                <div class="flower-container" id="flowerContainer">
+                    <div class="stem"></div>
+                    <div class="center" id="flowerCenter"></div>
+                    <!-- Petals will be dynamically generated here -->
+                </div>
+            </div>
+            
+            <!-- Pre-game Input Modal -->
+            <div id="nameInputModal" class="w-full max-w-sm px-4 fade-in">
+                <div class="bg-white dark:bg-background-dark rounded-xl border-2 border-brand-orange p-6 shadow-2xl shadow-brand-orange/20">
+                    <h3 class="text-[#1c0f0d] dark:text-white text-lg font-bold mb-4 text-center">🌸 Who do you want to play for?</h3>
+                    <div class="flex flex-col gap-4">
+                        <label class="flex flex-col">
+                            <input id="nameInput" class="form-input flex w-full rounded-xl text-gray-900 border border-gray-200 bg-gray-50 focus:border-brand-orange focus:ring-1 focus:ring-brand-orange h-14 px-4 text-base" placeholder="Enter their name..." maxlength="20"/>
+                        </label>
+                        <button id="startBtn" class="w-full h-14 rounded-full bg-gradient-to-r from-primary to-brand-orange text-white font-bold text-lg shadow-lg shadow-primary/30 active:scale-95 transition-transform">
+                            Start Plucking
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Post-game Action Button -->
+            <div id="restartWrapper" class="modal-hidden px-4 w-full max-w-sm pb-8 fade-in">
+                <button id="restartBtn" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-14 bg-gradient-to-r from-primary to-brand-orange text-white text-lg font-bold shadow-xl shadow-primary/20 active:scale-95 transition-transform">
+                    <span class="truncate">Play Again</span>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Instructions Popup -->
+    <div id="instructionsPopup" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] opacity-0 invisible transition-all duration-300">
+        <div class="bg-white dark:bg-background-dark rounded-3xl p-8 max-w-md w-[90%] shadow-2xl transform scale-90 transition-transform duration-300">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-primary">🌸 How to Play</h3>
+                <button onclick="closeInstructions()" class="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors">
+                    <span class="material-symbols-outlined text-gray-600 dark:text-gray-400">close</span>
+                </button>
+            </div>
+            
+            <div class="space-y-4 text-gray-700 dark:text-gray-300">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span class="text-primary font-bold">1</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-900 dark:text-white mb-1">Enter a Name</p>
+                        <p class="text-sm">Type the name of the person you're thinking about. It could be your crush, friend, or anyone special!</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span class="text-primary font-bold">2</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-900 dark:text-white mb-1">Watch the Magic</p>
+                        <p class="text-sm">Petals will automatically pluck one by one, alternating between "loves me" and "loves me not".</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span class="text-primary font-bold">3</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-900 dark:text-white mb-1">Discover Your Destiny</p>
+                        <p class="text-sm">The last remaining petal reveals your fate! Will it be 💖 loves you or 💔 loves you not?</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span class="text-primary font-bold">4</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-900 dark:text-white mb-1">Play Again</p>
+                        <p class="text-sm">Each flower has a random number of petals, so every game is different. Try as many times as you like!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <p class="text-xs text-center text-gray-500 dark:text-gray-400 italic">
+                    ✨ Remember: It's all in good fun! The petals know the truth of your heart. 💕
+                </p>
+            </div>
+
+            <button onclick="closeInstructions()" class="w-full mt-6 h-12 rounded-full bg-gradient-to-r from-primary to-brand-orange text-white font-bold shadow-lg shadow-primary/30 active:scale-95 transition-transform">
+                Got it!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const nameInput = document.getElementById('nameInput');
+        const startBtn = document.getElementById('startBtn');
+        const nameInputModal = document.getElementById('nameInputModal');
+        const flowerWrapper = document.getElementById('flowerWrapper');
+        const flowerContainer = document.getElementById('flowerContainer');
+        const flowerCenter = document.getElementById('flowerCenter');
+        const resultText = document.getElementById('resultText');
+        const resultSubtext = document.getElementById('resultSubtext');
+        const restartWrapper = document.getElementById('restartWrapper');
+        const restartBtn = document.getElementById('restartBtn');
+
+        let petals = [];
+        let currentPetalIndex = 0;
+        let totalPetals = 0;
+        let isPlucking = false;
+        let startWithLovesMe = Math.random() < 0.5;
+        let personName = '';
+
+        // Start game
+        startBtn.addEventListener('click', startGame);
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') startGame();
+        });
+
+        function startGame() {
+            const name = nameInput.value.trim();
+            if (!name) {
+                nameInput.classList.add('border-red-500');
+                nameInput.placeholder = 'Please enter a name!';
+                setTimeout(() => {
+                    nameInput.classList.remove('border-red-500');
+                }, 2000);
+                return;
+            }
+
+            personName = name;
+            
+            // Hide modal, show game
+            nameInputModal.classList.add('modal-hidden');
+            flowerWrapper.classList.remove('game-hidden');
+            
+            resultText.textContent = `Does ${personName} love you?`;
+            resultSubtext.textContent = 'Pluck petals to reveal your destiny';
+
+            setTimeout(() => {
+                createFlower();
+                setTimeout(pluckPetal, 500);
+            }, 300);
+        }
+
+        function createFlower() {
+            totalPetals = Math.floor(Math.random() * 5) + 15; // 15-19 petals
+            currentPetalIndex = 0;
+            petals = [];
+            isPlucking = false;
+            startWithLovesMe = Math.random() < 0.5;
+
+            // Remove existing petals
+            flowerContainer.querySelectorAll('.petal').forEach(p => p.remove());
+            flowerCenter.textContent = '';
+            flowerCenter.classList.remove('show-result', 'loves-me');
+
+            const angleStep = (2 * Math.PI) / totalPetals;
+            const centerRadius = 28;
+
+            // Create petals in circular pattern
+            for (let i = 0; i < totalPetals; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+
+                const angle = i * angleStep - Math.PI / 2;
+                const xPos = Math.cos(angle) * centerRadius;
+                const yPos = Math.sin(angle) * centerRadius;
+                const rotation = (angle * 180 / Math.PI) + 90;
+
+                petal.style.transform = `translate(calc(-50% + ${xPos}%), calc(-100% + ${yPos}%)) rotate(${rotation}deg)`;
+
+                petal.dataset.angle = angle;
+                petal.dataset.xPos = xPos;
+                petal.dataset.yPos = yPos;
+                petal.dataset.rotation = rotation;
+
+                flowerContainer.appendChild(petal);
+                petals.push(petal);
+            }
+
+            restartWrapper.classList.add('modal-hidden');
+        }
+
+        function pluckPetal() {
+            if (isPlucking || currentPetalIndex >= totalPetals) return;
+
+            isPlucking = true;
+            const petal = petals[currentPetalIndex];
+
+            const angle = parseFloat(petal.dataset.angle);
+            const xPos = parseFloat(petal.dataset.xPos);
+            const yPos = parseFloat(petal.dataset.yPos);
+            const rotation = parseFloat(petal.dataset.rotation);
+
+            petal.style.setProperty('--start-x', `calc(-50% + ${xPos}%)`);
+            petal.style.setProperty('--start-y', `calc(-100% + ${yPos}%)`);
+            petal.style.setProperty('--start-rotate', `${rotation}deg`);
+            petal.style.setProperty('--dir-x', Math.cos(angle));
+            petal.style.setProperty('--dir-y', Math.sin(angle));
+            petal.style.setProperty('--dir-rotate', currentPetalIndex % 2 === 0 ? 1 : -1);
+
+            petal.classList.add('plucking');
+
+            const isLovesMe = startWithLovesMe
+                ? currentPetalIndex % 2 === 0
+                : currentPetalIndex % 2 !== 0;
+
+            resultText.textContent = isLovesMe
+                ? `💖 ${personName} loves me`
+                : `💔 ${personName} loves me not`;
+            
+            resultSubtext.textContent = `${totalPetals - currentPetalIndex - 1} petals remaining`;
+
+            currentPetalIndex++;
+
+            if (currentPetalIndex >= totalPetals) {
+                setTimeout(() => {
+                    const finalIsLovesMe = startWithLovesMe
+                        ? (currentPetalIndex - 1) % 2 === 0
+                        : (currentPetalIndex - 1) % 2 !== 0;
+
+                    resultText.textContent = finalIsLovesMe
+                        ? `💖 ${personName} LOVES YOU!`
+                        : `💔 ${personName} LOVES YOU NOT`;
+                    
+                    resultSubtext.textContent = finalIsLovesMe 
+                        ? 'Your hearts are aligned! 💕'
+                        : 'Maybe next time... 💭';
+
+                    flowerCenter.textContent = finalIsLovesMe ? '💖' : '💔';
+                    flowerCenter.classList.add('show-result');
+                    if (finalIsLovesMe) flowerCenter.classList.add('loves-me');
+
+                    restartWrapper.classList.remove('modal-hidden');
+                }, 600);
+            } else {
+                setTimeout(() => {
+                    isPlucking = false;
+                    pluckPetal();
+                }, 520);
+            }
+        }
+
+        restartBtn.addEventListener('click', () => {
+            restartWrapper.classList.add('modal-hidden');
+            createFlower();
+            setTimeout(pluckPetal, 300);
+        });
+
+        // Focus on input when page loads
+        nameInput.focus();
+
+        // Instructions popup functions
+        function showInstructions() {
+            const popup = document.getElementById('instructionsPopup');
+            popup.classList.remove('invisible', 'opacity-0');
+            popup.querySelector('.bg-white').classList.remove('scale-90');
+            popup.querySelector('.bg-white').classList.add('scale-100');
+        }
+
+        function closeInstructions() {
+            const popup = document.getElementById('instructionsPopup');
+            popup.querySelector('.bg-white').classList.remove('scale-100');
+            popup.querySelector('.bg-white').classList.add('scale-90');
+            setTimeout(() => {
+                popup.classList.add('invisible', 'opacity-0');
+            }, 200);
+        }
+
+        // Close popup when clicking outside
+        document.getElementById('instructionsPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeInstructions();
+            }
+        });
+    </script>
+</body>
+</html>
